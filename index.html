@@ -2,57 +2,55 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>منصة إدارة العمليات ⚡</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <title>منصة الإدارة الكاملة ⚡</title>
     <style>
-        :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; }
-        body { font-family: sans-serif; background: #f8fafc; margin: 0; padding: 20px; }
-        .container { background: white; padding: 20px; border-radius: 12px; max-width: 800px; margin: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        body { font-family: sans-serif; background: #f8fafc; padding: 20px; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .hidden { display: none !important; }
-        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .option-label { display: block; padding: 12px; margin: 6px 0; border: 2px solid #cbd5e1; border-radius: 8px; cursor: pointer; }
-        .correct-ans { background: #d1fae5; border-color: #10b981; }
-        .wrong-ans { background: #fee2e2; border-color: #ef4444; }
+        button { padding: 10px 20px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; margin: 5px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        th { background: #f1f5f9; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div id="auth-box">
-        <h2>تسجيل الدخول ⚡</h2>
-        <input type="text" id="username" placeholder="اسم المستخدم">
-        <input type="password" id="password" placeholder="كلمة المرور">
+        <h2>تسجيل الدخول</h2>
+        <input type="text" id="username" placeholder="اليوزر">
+        <input type="password" id="password" placeholder="الباسورد">
         <button onclick="login()">دخول</button>
     </div>
 
     <div id="main-app" class="hidden">
         <div style="display:flex; justify-content:space-between;">
-            <h3>أهلاً <span id="user-name"></span></h3>
-            <button style="width:auto; background:var(--danger)" onclick="logout()">خروج</button>
+            <h3>أهلاً أدمن: <span id="user-name"></span></h3>
+            <button style="background:red" onclick="logout()">خروج</button>
         </div>
-        <div id="quiz-list"></div>
-        <div id="quiz-area" class="hidden">
-            <div id="questions"></div>
-            <button id="finish-btn" onclick="submitQuiz()">إنهاء</button>
+        
+        <div id="admin-tabs">
+            <button onclick="loadAdminData('users')">إدارة الموظفين</button>
+            <button onclick="loadAdminData('scores')">النتائج والتقارير</button>
+        </div>
+
+        <div id="data-area">
+            <table id="admin-table">
+                <thead><tr id="table-head"></tr></thead>
+                <tbody id="table-body"></tbody>
+            </table>
         </div>
     </div>
 </div>
 
 <script>
     const dbUrl = "https://agent-system-01-default-rtdb.firebaseio.com";
+    let currentUser = null;
 
-    // التحقق من حالة الدخول عند فتح الصفحة
     window.onload = () => {
         const user = localStorage.getItem('user');
-        if (user) {
-            currentUser = JSON.parse(user);
-            showApp();
-        }
+        if (user) { currentUser = JSON.parse(user); showApp(); }
     };
-
-    let currentUser = null;
-    let activeQuiz = [];
 
     async function login() {
         const u = document.getElementById('username').value.trim().toLowerCase();
@@ -60,70 +58,50 @@
         
         if (u === "admin" && p === "admin") {
             currentUser = { username: "admin", role: "admin" };
-            saveAndShow();
+            localStorage.setItem('user', JSON.stringify(currentUser));
+            showApp();
         } else {
             const res = await fetch(`${dbUrl}/users/${u}.json`);
             const data = await res.json();
             if (data && data.password === p) {
                 currentUser = { username: u, role: 'agent' };
-                saveAndShow();
-            } else alert("بيانات خاطئة");
+                localStorage.setItem('user', JSON.stringify(currentUser));
+                showApp();
+            } else alert("بيانات غلط!");
         }
-    }
-
-    function saveAndShow() {
-        localStorage.setItem('user', JSON.stringify(currentUser));
-        showApp();
     }
 
     function showApp() {
         document.getElementById('auth-box').classList.add('hidden');
         document.getElementById('main-app').classList.remove('hidden');
         document.getElementById('user-name').innerText = currentUser.username;
-        if(currentUser.role !== 'admin') loadQuizzes();
     }
 
-    function logout() {
-        localStorage.removeItem('user');
-        location.reload();
-    }
+    // الدالة اللي بتعرض الجداول للأدمن (اللي كانت ناقصة في صورتك)
+    async function loadAdminData(type) {
+        const head = document.getElementById('table-head');
+        const body = document.getElementById('table-body');
+        head.innerHTML = ""; body.innerHTML = "";
 
-    async function loadQuizzes() {
-        const res = await fetch(`${dbUrl}/quizzes.json`);
-        const qs = await res.json();
-        const list = document.getElementById('quiz-list');
-        Object.keys(qs).forEach(name => {
-            if(qs[name].target === currentUser.username) {
-                list.innerHTML += `<button onclick="startQuiz('${name}')">${name}</button>`;
-            }
-        });
-    }
+        const res = await fetch(`${dbUrl}/${type}.json`);
+        const data = await res.json();
 
-    async function startQuiz(name) {
-        const res = await fetch(`${dbUrl}/quizzes/${name}/questions.json`);
-        activeQuiz = Object.values(await res.json());
-        document.getElementById('quiz-list').classList.add('hidden');
-        document.getElementById('quiz-area').classList.remove('hidden');
-        
-        const qDiv = document.getElementById('questions');
-        activeQuiz.forEach((q, i) => {
-            let html = `<p>${q.question}</p>`;
-            q.opts.forEach((o, oi) => {
-                html += `<label class="option-label" id="l_${i}_${oi+1}"><input type="radio" name="q_${i}" value="${oi+1}"> ${o}</label>`;
+        if (!data) { body.innerHTML = "<tr><td colspan='3'>لا توجد بيانات حالياً في هذه القسم</td></tr>"; return; }
+
+        if (type === 'users') {
+            head.innerHTML = "<th>الموظف</th><th>الصلاحية</th>";
+            Object.keys(data).forEach(u => {
+                body.innerHTML += `<tr><td>${u}</td><td>${data[u].role || 'Agent'}</td></tr>`;
             });
-            qDiv.innerHTML += html;
-        });
+        } else {
+            head.innerHTML = "<th>الموظف</th><th>الكويز</th><th>الدرجة</th>";
+            Object.keys(data).forEach(s => {
+                body.innerHTML += `<tr><td>${data[s].username}</td><td>${data[s].quizName}</td><td>${data[s].score}</td></tr>`;
+            });
+        }
     }
 
-    function submitQuiz() {
-        activeQuiz.forEach((q, i) => {
-            const selected = document.querySelector(`input[name="q_${i}"]:checked`);
-            document.getElementById(`l_${i}_${q.correct}`).classList.add('correct-ans');
-            if(selected && selected.value != q.correct) 
-                document.getElementById(`l_${i}_${selected.value}`).classList.add('wrong-ans');
-        });
-        document.getElementById('finish-btn').classList.add('hidden');
-    }
+    function logout() { localStorage.removeItem('user'); location.reload(); }
 </script>
 </body>
 </html>
