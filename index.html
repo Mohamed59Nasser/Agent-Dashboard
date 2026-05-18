@@ -9,44 +9,149 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; --warning: #f59e0b; --bg: #f8fafc; --text: #0f172a; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; min-height: 100vh; display: flex; flex-direction: column; }
-        .container { background: #ffffff; padding: 25px; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); width: 100%; max-width: 850px; margin: 80px auto 20px auto; flex: 1; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; min-height: 100vh; box-sizing: border-box; display: flex; flex-direction: column; }
+        .container { background: #ffffff; padding: 25px; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); width: 100%; max-width: 850px; box-sizing: border-box; margin: 80px auto 20px auto; flex: 1; }
         h2, h3, h4 { text-align: center; color: var(--primary); margin-top: 0; }
         .form-group { margin-bottom: 16px; text-align: right; }
-        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 15px; font-family: inherit; }
         button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; font-weight: bold; margin-top: 10px; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        button:hover { opacity: 0.9; }
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
         .hidden { display: none !important; }
-        .navbar { position: fixed; top: 0; left: 0; right: 0; height: 60px; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; z-index: 1000; }
-        .nav-btn { background: #f1f5f9; color: var(--text); padding: 8px 14px; border-radius: 6px; border: 1px solid #cbd5e1; cursor: pointer; width: auto; margin: 0; }
-        .logout-btn { background: var(--danger); color: white; }
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .menu-btn { padding: 20px; border-radius: 12px; border: 2px solid var(--primary); background: #fff; color: var(--primary); cursor: pointer; font-weight: bold; text-align: center; flex-direction: column; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .navbar { position: fixed; top: 0; left: 0; right: 0; height: 60px; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; z-index: 1000; box-sizing: border-box; }
+        .nav-btn { background: #f1f5f9; color: var(--text); padding: 8px 14px; border-radius: 6px; font-size: 14px; border: 1px solid #cbd5e1; font-weight: 600; cursor: pointer; width: auto; }
+        .logout-btn { background: var(--danger); color: white; border: none; }
+        .menu-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 20px; }
+        @media(min-width: 500px) { .menu-grid { grid-template-columns: 1fr 1fr; } }
+        .menu-btn { padding: 20px; font-size: 16px; border-radius: 12px; border: 2px solid var(--primary); background: #fff; color: var(--primary); cursor: pointer; font-weight: bold; text-align: center; flex-direction: column; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .data-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; text-align: right; }
         .data-table th, .data-table td { border: 1px solid #cbd5e1; padding: 10px; }
         .data-table th { background: #f1f5f9; }
-        .info-card { background: #f1f5f9; padding: 20px; border-radius: 12px; border: 1px solid #cbd5e1; text-align: center; font-weight: bold; margin-bottom: 15px; }
+        .info-card { background: #f1f5f9; padding: 20px; border-radius: 12px; border: 1px solid #cbd5e1; text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 15px; }
         .quiz-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 10px; margin-bottom: 15px; text-align: right; }
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; color: white; font-weight: bold; }
-        .option-label { display: block; padding: 10px; margin: 6px 0; border: 1px solid #cbd5e1; border-radius: 6px; }
-        .correct-ans { background: #d1fae5 !important; border-color: #10b981 !important; color: #065f46 !important; }
-        .wrong-ans { background: #fee2e2 !important; border-color: #ef4444 !important; color: #991b1b !important; }
-        .view-btn { background: #4f46e5; color: white; padding: 5px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; border: none; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; color: white; font-weight: bold; display: inline-block; }
+        .badge-admin { background: #7c3aed; } .badge-leader { background: #2563eb; } .badge-quality { background: #db2777; }
+        .option-label { display: block; padding: 10px; margin: 6px 0; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: normal; transition: background 0.2s; }
+        .correct-ans { background: #d1fae5 !important; border-color: #10b981 !important; color: #065f46 !important; font-weight: bold; }
+        .wrong-ans { background: #fee2e2 !important; border-color: #ef4444 !important; color: #991b1b !important; font-weight: bold; }
+        .view-btn { background: #4f46e5; color: white; padding: 5px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; border: none; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="navbar" id="top-navbar" style="display: none;">
-    <div><button class="nav-btn" onclick="goHome()"><i class="fa-solid fa-house"></i> الرئيسية</button></div>
+    <div>
+        <button class="nav-btn" onclick="goHome()"><i class="fa-solid fa-house"></i></button>
+        <button class="nav-btn" id="nav-profile-btn" onclick="switchView('agent-profile')" style="display:none;"><i class="fa-solid fa-user"></i></button>
+    </div>
     <div style="display: flex; align-items: center; gap: 10px;">
         <span id="user-role-badge" class="badge"></span>
-        <button class="nav-btn logout-btn" onclick="logout()"><i class="fa-solid fa-door-open"></i> خروج</button>
+        <button class="nav-btn logout-btn" onclick="logout()"><i class="fa-solid fa-door-open"></i></button>
     </div>
 </div>
 
 <div class="container">
     <div id="auth-box">
-        <h2>تسجيل دخول منصة العمليات ⚡</h2>
+        <h2>تسجيل دخول النظام ⚡</h2>
         <form onsubmit="handleAuth(event)">
-            <div id="fullname-group" class="hidden"><label>الاسم الكامل</label><input type="text" id="auth-fullname"></div>
-            <div class="form-group"><label>اسم المستخدم</label><input type="text" id="auth
+            <div class="form-group" id="fullname-group" style="display: none;"><label>الاسم الثلاثي</label><input type="text" id="auth-fullname"></div>
+            <div class="form-group"><label>اليوزر</label><input type="text" id="auth-username" required></div>
+            <div class="form-group"><label>كلمة المرور</label><input type="password" id="auth-password" required></div>
+            <button type="submit" id="auth-btn">دخول</button>
+        </form>
+        <p style="text-align:center; cursor:pointer; color:var(--primary)" onclick="toggleAuthMode()" id="toggle-auth-btn">تسجيل جديد؟</p>
+    </div>
+
+    <div id="agent-hub" class="hidden">
+        <h2>أهلاً بك 👋 <span id="agent-welcome-name"></span></h2>
+        <div class="menu-grid">
+            <button class="menu-btn" onclick="loadQuizzesForAgent()"><i class="fa-solid fa-trophy"></i> الاختبارات</button>
+            <button class="menu-btn" onclick="loadAgentScoresArchive()"><i class="fa-solid fa-box-archive"></i> الأرشيف</button>
+        </div>
+    </div>
+
+    <div id="agent-profile" class="hidden">
+        <h2>👤 تحديث البيانات</h2>
+        <div class="form-group"><label>كلمة المرور الجديدة:</label><input type="password" id="profile-new-password" placeholder="اتركها فارغة للتجاهل"></div>
+        <div class="form-group"><label>ملاحظة للإدارة:</label><textarea id="profile-change-request"></textarea></div>
+        <button onclick="updateProfileData()" style="background:var(--success);">حفظ التعديلات 💾</button>
+        <button onclick="switchView('agent-hub')" style="background:#64748b;">رجوع</button>
+    </div>
+
+    <div id="quiz-dashboard" class="hidden">
+        <h2 id="quiz-section-title">الاختبارات</h2>
+        <div id="available-quizzes-list"></div>
+        <div id="active-quiz-area" class="hidden">
+            <h3 id="active-quiz-title"></h3>
+            <div id="quiz-questions-container"></div>
+            <button id="submit-quiz-btn" onclick="submitQuizAnswers()">إنهاء الاختبار</button>
+        </div>
+        <button onclick="switchView('agent-hub')">رجوع</button>
+    </div>
+
+    <div id="admin-dashboard" class="hidden">
+        <h2>لوحة الإدارة</h2>
+        <table class="data-table"><tbody id="admin-scores-list"></tbody></table>
+    </div>
+</div>
+
+<script>
+    const firebaseBaseUrl = "https://agent-system-01-default-rtdb.firebaseio.com";
+    let currentUser = null; let activeQuizQuestions = []; let activeQuizName = ""; let isSignUpMode = false;
+
+    function switchView(id) {
+        ['auth-box', 'agent-hub', 'quiz-dashboard', 'admin-dashboard', 'agent-profile'].forEach(v => document.getElementById(v).classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+        document.getElementById('top-navbar').style.display = (id === 'auth-box') ? 'none' : 'flex';
+    }
+
+    function toggleAuthMode() {
+        isSignUpMode = !isSignUpMode;
+        document.getElementById('fullname-group').style.display = isSignUpMode ? "block" : "none";
+        document.getElementById('auth-btn').innerText = isSignUpMode ? "سجل الآن" : "دخول";
+    }
+
+    function handleAuth(e) {
+        e.preventDefault();
+        const user = document.getElementById('auth-username').value.trim().toLowerCase();
+        const pass = document.getElementById('auth-password').value.trim();
+        fetch(`${firebaseBaseUrl}/users/${user}.json`).then(r => r.json()).then(d => {
+            if(d && d.password === pass) {
+                currentUser = { ...d, username: user };
+                document.getElementById('nav-profile-btn').style.display = "inline-block";
+                d.role === 'active' ? switchView('agent-hub') : switchView('admin-dashboard');
+                document.getElementById('agent-welcome-name').innerText = currentUser.fullName;
+            } else alert("خطأ في البيانات!");
+        });
+    }
+
+    function updateProfileData() {
+        const newPass = document.getElementById('profile-new-password').value.trim();
+        const reqText = document.getElementById('profile-change-request').value.trim();
+        
+        if (newPass) {
+            fetch(`${firebaseBaseUrl}/users/${currentUser.username}/password.json`, { method: 'PUT', body: JSON.stringify(newPass) });
+        }
+        if (reqText) {
+            fetch(`${firebaseBaseUrl}/requests.json`, { method: 'POST', body: JSON.stringify({ username: currentUser.username, text: reqText, timestamp: new Date().toLocaleString() }) });
+        }
+        alert('تم تنفيذ طلبك!');
+        document.getElementById('profile-new-password').value = '';
+    }
+
+    function submitQuizAnswers() {
+        let score = 0;
+        activeQuizQuestions.forEach((q, i) => {
+            let sel = document.querySelector(`input[name="q_ans_${i}"]:checked`);
+            if(sel && sel.value == q.correct) score++;
+        });
+        fetch(`${firebaseBaseUrl}/scores.json`, { method: 'POST', body: JSON.stringify({ username: currentUser.username, quizName: activeQuizName, score: `${score}/${activeQuizQuestions.length}`, timestamp: new Date().toLocaleString() }) });
+        alert("تم الحفظ!");
+        switchView('agent-hub');
+    }
+
+    function logout() { location.reload(); }
+    function goHome() { switchView(currentUser.role === 'active' ? 'agent-hub' : 'admin-dashboard'); }
+</script>
+</body>
+</html>
