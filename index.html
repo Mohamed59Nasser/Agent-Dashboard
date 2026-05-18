@@ -6,16 +6,24 @@
     <title>منصة إدارة واختبارات الايجينتس الاحترافية</title>
     <style>
         :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; --bg: #f8fafc; --text: #0f172a; --dark-card: #1e293b; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { background: #ffffff; padding: 30px; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); width: 100%; max-width: 700px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; pt: 80px; display: flex; justify-content: center; align-items: center; min-height: 100vh; box-sizing: border-box; }
+        .container { background: #ffffff; padding: 30px; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); width: 100%; max-width: 700px; margin-top: 60px; }
         h2, h3 { text-align: center; color: var(--primary); }
         .form-group { margin-bottom: 16px; }
         label { display: block; margin-bottom: 6px; font-weight: 600; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
         button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; font-weight: bold; margin-top: 10px; transition: background 0.2s; }
         button:hover { opacity: 0.9; }
         .hidden { display: none; }
         
+        /* شريط التنقل العلوي الثابت */
+        .navbar { position: fixed; top: 0; left: 0; right: 0; height: 60px; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; z-index: 1000; }
+        .nav-right, .nav-left { display: flex; gap: 10px; align-items: center; }
+        .nav-btn { background: #f1f5f9; color: var(--text); padding: 8px 14px; border-radius: 6px; font-size: 14px; text-decoration: none; font-weight: 600; cursor: pointer; width: auto; margin: 0; border: 1px solid #cbd5e1; }
+        .nav-btn:hover { background: #e2e8f0; }
+        .logout-btn { background: var(--danger); color: white; border: none; }
+        .logout-btn:hover { background: #dc2626; }
+
         .menu-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 20px; }
         .menu-btn { padding: 20px; font-size: 18px; border-radius: 12px; border: 2px solid var(--primary); background: #fff; color: var(--primary); cursor: pointer; font-weight: bold; transition: all 0.3s; text-align: center; }
         .menu-btn:hover { background: var(--primary); color: #fff; transform: translateY(-3px); }
@@ -24,295 +32,26 @@
         .chat-box { background: var(--dark-card); color: #fff; padding: 15px; border-radius: 12px; height: 300px; display: flex; flex-direction: column; justify-content: space-between; }
         .chat-messages { overflow-y: auto; flex-grow: 1; margin-bottom: 10px; font-size: 14px; }
         .info-card { background: #f1f5f9; padding: 20px; border-radius: 12px; border: 1px solid #cbd5e1; text-align: center; font-size: 18px; font-weight: bold; }
+        
+        /* نافذة الـ Popup المنبثقة للصح والغلط */
+        .popup-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 2000; }
+        .popup-content { background: white; padding: 25px; border-radius: 12px; text-align: center; max-width: 400px; width: 90%; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+        .popup-title { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
+        
         .back-btn { background: #64748b; margin-top: 15px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div id="auth-box">
-        <h2 id="auth-title">تسجيل دخول المنصة</h2>
-        <form id="auth-form" onsubmit="handleAuth(event)">
-            <div class="form-group" id="fullname-group" style="display: none;">
-                <label>الاسم الحقيقي بالكامل (كما في جدول الشفتات)</label>
-                <input type="text" id="auth-fullname" placeholder="مثال: Mohamed Nasser">
-            </div>
-            <div class="form-group">
-                <label>اسم المستخدم (اليوزر)</label>
-                <input type="text" id="auth-username" required>
-            </div>
-            <div class="form-group" id="email-group" style="display: none;">
-                <label>الجيميل (Gmail)</label>
-                <input type="email" id="auth-email">
-            </div>
-            <div class="form-group">
-                <label>كلمة المرور</label>
-                <input type="password" id="auth-password" required>
-            </div>
-            <button type="submit" id="auth-btn">دخول</button>
-        </form>
-        <div style="text-align: center; margin-top: 20px;">
-            <a id="toggle-auth-btn" style="color:var(--primary); cursor:pointer; font-weight:bold;" onclick="toggleAuthMode()">ليس لديك حساب؟ سجل الآن</a>
-        </div>
+<div class="navbar" id="top-navbar" style="display: none;">
+    <div class="nav-right">
+        <button class="nav-btn" id="nav-home" onclick="switchView('agent-hub')">🏠 الرئيسية</button>
+        <button class="nav-btn hidden" id="nav-quizzes-back" onclick="switchView('quiz-dashboard')">📚 الاختبارات</button>
     </div>
-
-    <div id="agent-hub" class="hidden">
-        <h2>أهلاً بك يا بطل 👋 <br><span id="agent-welcome-name" style="color:var(--primary)"></span></h2>
-        <p style="text-align: center; color: #64748b;">اختر الخدمات المتاحة لك اليوم من لوحة التحكم:</p>
-        <div class="menu-grid">
-            <button class="menu-btn" onclick="switchView('quiz-dashboard')">🏆 دخول المنصة وبدء الاختبارات</button>
-            <button class="menu-btn" onclick="checkSchedule()">📅 عرض شفتي اليوم (Roster)</button>
-            <button class="menu-btn" onclick="checkBreaks()">☕ ميعاد البريك (Breaks)</button>
-        </div>
-        <button class="back-btn" onclick="logout()">تسجيل الخروج</button>
-    </div>
-
-    <div id="info-display-box" class="hidden">
-        <h2 id="info-box-title">تفاصيل اليوم</h2>
-        <div id="info-content-area" class="info-card">جاري جلب البيانات...</div>
-        <button class="back-btn" onclick="switchView('agent-hub')">العودة للوحة الرئيسية</button>
-    </div>
-
-    <div id="quiz-dashboard" class="hidden">
-        <h2>🏆 الاختبارات المتاحة لحسابك:</h2>
-        <div id="available-quizzes-list">جاري تحميل الاختبارات...</div>
-        <button class="back-btn" onclick="switchView('agent-hub')">العودة للوحة الرئيسية</button>
-    </div>
-
-    <div id="quiz-run-box" class="hidden">
-        <h2 id="run-quiz-title">الاختبار</h2>
-        <div id="question-area">
-            <h3 id="run-question-text">السؤال</h3>
-            <div id="run-options-area"></div>
-        </div>
-        <button onclick="nextQuestion()">السؤال التالي</button>
-    </div>
-
-    <div id="admin-dashboard" class="hidden">
-        <h2>👑 لوحة تحكم محمد السوبر أدمين</h2>
-        <p>مرحباً بك يا رئيس، يمكنك متابعة الموظفين وتحديث الكود مع المطور أونلاين:</p>
-        
-        <div class="admin-layout">
-            <div class="chat-box">
-                <div style="font-weight: bold; border-bottom: 1px solid #475569; padding-bottom: 5px;">🤖 شات مطور النظام (جيميني)</div>
-                <div class="chat-messages" id="chat-messages">
-                    <p style="color:#94a3b8">أهلاً يا محمد! اطلب مني أي تعديل في الكود أو النظام هنا وسأقوم بمساعدتك فوراً.</p>
-                </div>
-                <div style="display:flex; gap:5px;">
-                    <input type="text" id="chat-input" placeholder="اكتب طلب التعديل هنا..." style="background:#334155; color:#fff; border:none;">
-                    <button onclick="sendToAI()" style="width:auto; margin:0; padding:10px 15px;">إرسال</button>
-                </div>
-            </div>
-            
-            <div class="info-card" style="font-size:15px; text-align:right;">
-                <h4>📊 مراقبة حية متطورة للدرجات:</h4>
-                <p>جميع تفاصيل الموظفين، نتائجهم، وتقرير بالـ <b>(الصح والغلط لكل سؤال)</b> بتنزل لايف حالياً داخل صفحة <b>Results</b> في ملف الجوجل شيت الخاص بك للتحليل السريع ومعرفة مستوى كل إيجينت.</p>
-            </div>
-        </div>
-        <button class="back-btn" onclick="logout()">تسجيل الخروج</button>
+    <div class="nav-left">
+        <button class="nav-btn" id="nav-profile" onclick="openProfile()">👤 الصفحة الشخصية</button>
+        <button class="nav-btn logout-btn" onclick="logout()">🚪 خروج</button>
     </div>
 </div>
 
-<script>
-    // ضع رابط الـ Apps Script الجديد هنا بعد الـ New Deployment
-    const webAppUrl = "https://script.google.com/macros/s/AKfycbytR8_PKHJOFjFZxSCnEhgbpw1CjXApp3yQq1KH7abAop6ihLE8NR-BeZMnx80ZElA/exec";
-
-    let isSignUpMode = false;
-    let currentUser = null; 
-    let allQuizzes = [];
-    let activeQuizQuestions = [];
-    let currentQIndex = 0;
-    let currentScore = 0;
-    let quizReportDetails = []; // مصفوفة لتجميع تقرير الصح والغلط لكل سؤال
-
-    function switchView(viewId) {
-        ['auth-box', 'agent-hub', 'info-display-box', 'quiz-dashboard', 'quiz-run-box', 'admin-dashboard'].forEach(id => {
-            document.getElementById(id).classList.add('hidden');
-        });
-        document.getElementById(viewId).classList.remove('hidden');
-    }
-
-    function toggleAuthMode() {
-        isSignUpMode = !isSignUpMode;
-        document.getElementById('auth-title').innerText = isSignUpMode ? "إنشاء حساب إيجينت جديد" : "تسجيل دخول المنصة";
-        document.getElementById('fullname-group').style.display = isSignUpMode ? "block" : "none";
-        document.getElementById('email-group').style.display = isSignUpMode ? "block" : "none";
-        document.getElementById('auth-btn').innerText = isSignUpMode ? "إرسال طلب التسجيل" : "دخول";
-        document.getElementById('toggle-auth-btn').innerText = isSignUpMode ? "لديك حساب بالفعل؟ دخول" : "ليس لديك حساب؟ سجل الآن";
-    }
-
-    function handleAuth(e) {
-        e.preventDefault();
-        const user = document.getElementById('auth-username').value.trim();
-        const pass = document.getElementById('auth-password').value.trim();
-
-        if (isSignUpMode) {
-            const name = document.getElementById('auth-fullname').value.trim();
-            const email = document.getElementById('auth-email').value.trim();
-            if(!user || !pass || !name || !email) { alert("برجاء ملء جميع الخانات!"); return; }
-
-            fetch(webAppUrl, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify({ action: "signup", fullName: name, username: user, password: pass, email: email })
-            });
-            alert('تم إرسال طلب تسجيلك بنجاح! في انتظار موافقة محمد الأدمين في الشيت.');
-            toggleAuthMode();
-            document.getElementById('auth-form').reset();
-        } else {
-            if (user === "admin" && pass === "admin") {
-                currentUser = { username: "admin", role: "Admin", fullName: "محمد الأدمين" };
-                switchView('admin-dashboard');
-                return;
-            }
-
-            fetch(`${webAppUrl}?action=login&user=${user}&pass=${pass}`)
-            .then(res => res.json())
-            .then(res => {
-                if(res.status === "success") {
-                    if(res.role.toLowerCase() === "pending") {
-                        alert("حسابك في انتظار تفعيل محمد الأدمين من الشيت أولاً.");
-                    } else {
-                        currentUser = { username: user, role: res.role, fullName: res.fullName };
-                        document.getElementById('agent-welcome-name').innerText = res.fullName;
-                        switchView('agent-hub');
-                    }
-                } else { alert("خطأ في بيانات الدخول! تأكد من اليوزر والباسورد."); }
-            }).catch(err => alert("مشكلة في الاتصال بالسيرفر!"));
-        }
-    }
-
-    function checkSchedule() {
-        switchView('info-display-box');
-        document.getElementById('info-box-title').innerText = "📅 شفت الحضور والانصراف اليوم";
-        document.getElementById('info-content-area').innerText = "جاري البحث عن اسمك في جدول الشفتات...";
-
-        fetch(`${webAppUrl}?action=get_schedule&fullName=${encodeURIComponent(currentUser.fullName)}`)
-        .then(res => res.json())
-        .then(res => {
-            if(res.status === "success") {
-                document.getElementById('info-content-area').innerHTML = `
-                    <div style="color:var(--primary); font-size:24px; margin-bottom:10px;">${res.shiftTime}</div>
-                    <div style="font-size:14px; color:#64748b;">الاسم المسجل بالجدول: ${currentUser.fullName}</div>
-                `;
-            } else {
-                document.getElementById('info-content-area').innerText = `لم يتم العثور على اسمك (${currentUser.fullName}) في جدول الشفتات.`;
-            }
-        });
-    }
-
-    function checkBreaks() {
-        switchView('info-display-box');
-        document.getElementById('info-box-title').innerText = "☕ ميعاد البريك الخاص بك";
-        document.getElementById('info-content-area').innerText = "جاري جلب مواعيد البريكس بالاسم...";
-
-        fetch(`${webAppUrl}?action=get_breaks&fullName=${encodeURIComponent(currentUser.fullName)}`)
-        .then(res => res.json())
-        .then(res => {
-            if(res.status === "success") {
-                document.getElementById('info-content-area').innerHTML = `
-                    <div style="color:var(--success); font-size:24px; margin-bottom:10px;">${res.breakTime}</div>
-                    <div style="font-size:14px; color:#64748b;">برجاء الالتزام بالميعاد لعدم ضرب الـ Adherence</div>
-                `;
-            } else {
-                document.getElementById('info-content-area').innerText = `لم يتم العثور على مواعيد بريك مسجلة باسمك (${currentUser.fullName}).`;
-            }
-        });
-    }
-
-    function loadQuizzes() {
-        fetch(`${webAppUrl}?action=get_quizzes`)
-        .then(res => res.json())
-        .then(data => {
-            allQuizzes = data;
-            let html = '';
-            let uniqueQuizzes = [...new Set(data.map(q => q.quizName))];
-            uniqueQuizzes.forEach(qName => {
-                let sample = data.find(q => q.quizName === qName);
-                if(sample && sample.access && (sample.access.toLowerCase() === "all" || sample.access === currentUser.username)) {
-                    html += `<div style="background:#f1f5f9; padding:15px; border-radius:8px; margin-bottom:10px; cursor:pointer; border:1px solid #e2e8f0;" onclick="startQuiz('${qName}')">🏆 <b>${qName}</b> (اضغط لبدء الاختبار)</div>`;
-                }
-            });
-            document.getElementById('available-quizzes-list').innerHTML = html || "<p>لا توجد اختبارات متاحة لك حالياً.</p>";
-        });
-    }
-
-    function startQuiz(quizName) {
-        activeQuizQuestions = allQuizzes.filter(q => q.quizName === quizName);
-        currentQIndex = 0; currentScore = 0; quizReportDetails = [];
-        switchView('quiz-run-box');
-        document.getElementById('run-quiz-title').innerText = quizName;
-        showQuestion();
-    }
-
-    function showQuestion() {
-        if(currentQIndex >= activeQuizQuestions.length) {
-            // تجميع تقرير التفاصيل في سطر واحد مفصل للفصل بين الأسئلة بوضوح
-            let finalReportString = quizReportDetails.join(" || ");
-            
-            alert(`انتهى الاختبار! درجتك هي: ${currentScore} من ${activeQuizQuestions.length}\nتم حفظ تقرير إجاباتك بالتفصيل للأدمن.`);
-            
-            fetch(webAppUrl, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify({ 
-                    action: "submit_score", 
-                    username: currentUser.username, 
-                    quizName: document.getElementById('run-quiz-title').innerText, 
-                    score: currentScore + "/" + activeQuizQuestions.length,
-                    details: finalReportString // إرسال التقرير التفصيلي هنا
-                })
-            }).then(() => { switchView('agent-hub'); });
-            return;
-        }
-        let q = activeQuizQuestions[currentQIndex];
-        document.getElementById('run-question-text').innerText = q.q;
-        let optsHtml = '';
-        q.opts.forEach((opt, idx) => {
-            optsHtml += `<label style="display:block; background:#f8fafc; padding:12px; margin:8px 0; border:1px solid #e2e8f0; border-radius:8px; cursor:pointer;"><input type="radio" name="opts" value="${idx+1}"> ${opt}</label>`;
-        });
-        document.getElementById('run-options-area').innerHTML = optsHtml;
-    }
-
-    function nextQuestion() {
-        let selected = document.querySelector('input[name="opts"]:checked');
-        if(!selected) { alert("اختار إجابة أولاً!"); return; }
-        
-        let q = activeQuizQuestions[currentQIndex];
-        let chosenAnswerText = q.opts[parseInt(selected.value) - 1] || selected.value;
-        let correctAnswerText = q.opts[parseInt(q.correct) - 1] || q.correct;
-        let questionNumber = currentQIndex + 1;
-
-        // فحص الإجابة وتسجيل التقرير التفصيلي لكل سؤال
-        if(selected.value === q.correct) { 
-            currentScore++; 
-            quizReportDetails.push(`س${questionNumber}: (✅ صح)`);
-        } else {
-            quizReportDetails.push(`س${questionNumber}: (❌ غلط) -> إجابة الإيجينت: [${chosenAnswerText}] | الصح: [${correctAnswerText}]`);
-        }
-        
-        currentQIndex++;
-        showQuestion();
-    }
-
-    function sendToAI() {
-        let input = document.getElementById('chat-input').value.trim();
-        if(!input) return;
-        let msgArea = document.getElementById('chat-messages');
-        msgArea.innerHTML += `<p style="color:var(--success)"><b>أنت:</b> ${input}</p>`;
-        document.getElementById('chat-input').value = '';
-        
-        setTimeout(() => {
-            msgArea.innerHTML += `<p style="color:#60a5fa"><b>جيميني:</b> علم وينفذ يا رئيس محمد! سأقوم بتحديث كود الـ GitHub بهذا التعديل فوراً.</p>`;
-            msgArea.scrollTop = msgArea.scrollHeight;
-        }, 1000);
-    }
-
-    function logout() { currentUser = null; switchView('auth-box'); document.getElementById('auth-form').reset(); }
-    
-    window.addEventListener('click', function(e){
-        if(e.target && e.target.innerText && e.target.innerText.includes('دخول المنصة وبدء الاختبارات')){ loadQuizzes(); }
-    });
-</script>
-</body>
-</html>	
+<div class="container">
