@@ -2,105 +2,98 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>نظام إدارة العمليات</title>
+    <title>نظام إدارة العمليات المتكامل</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f4f9; padding: 20px; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .hidden { display: none !important; }
-        button { padding: 10px 15px; margin: 5px; cursor: pointer; border: none; border-radius: 5px; background: #007bff; color: white; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-        input { padding: 8px; margin: 5px; width: 95%; }
+        :root { --main: #2c3e50; --accent: #3498db; --bg: #f4f7f6; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; }
+        .sidebar { width: 250px; background: var(--main); color: white; height: 100vh; position: fixed; padding: 20px; }
+        .main-content { margin-right: 270px; padding: 30px; }
+        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        select, button { padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
+        button { background: var(--accent); color: white; border: none; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: center; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div id="auth-box">
+<div id="auth-screen" class="container">
+    <div class="card" style="width: 300px; margin: 100px auto;">
         <h2>تسجيل الدخول</h2>
-        <input type="text" id="username" placeholder="اسم المستخدم">
-        <input type="password" id="password" placeholder="كلمة المرور">
-        <button onclick="login()">دخول</button>
+        <input type="text" id="user" placeholder="اسم المستخدم"><br><br>
+        <input type="password" id="pass" placeholder="كلمة المرور"><br><br>
+        <button onclick="login()" style="width: 100%;">دخول</button>
     </div>
+</div>
 
-    <div id="main-app" class="hidden">
-        <div id="header">
-            <h3>أهلاً: <span id="user-display"></span></h3>
-            <button onclick="logout()" style="background: red;">خروج</button>
+<div id="app-screen" class="hidden">
+    <div class="sidebar">
+        <h3>لوحة التحكم</h3>
+        <button onclick="loadView('users')">إدارة الموظفين</button><br><br>
+        <button onclick="loadView('reports')">التقارير</button><br><br>
+        <button onclick="logout()" style="background: #e74c3c;">خروج</button>
+    </div>
+    <div class="main-content" id="display-area">
+        <div class="card">
+            <h2 id="view-title">مرحباً بك في النظام</h2>
+            <div id="table-container"></div>
         </div>
-        
-        <div id="admin-panel" class="hidden">
-            <button onclick="loadSection('users')">إدارة الموظفين</button>
-            <button onclick="loadSection('scores')">عرض النتائج</button>
-            <button onclick="loadSection('schedule')">الجدول</button>
-        </div>
-
-        <div id="content-area"></div>
     </div>
 </div>
 
 <script>
     const dbUrl = "https://agent-system-01-default-rtdb.firebaseio.com";
-    let currentUser = null;
+    
+    // تسجيل الدخول
+    async function login() {
+        const u = document.getElementById('user').value.trim().toLowerCase();
+        const p = document.getElementById('pass').value.trim();
+        if(u === "admin" && p === "admin") {
+            localStorage.setItem('auth', JSON.stringify({role: 'admin'}));
+            location.reload();
+        }
+    }
 
-    // --- التعديل الأساسي: الحفاظ على الجلسة بعد الـ Refresh ---
+    // التحقق عند الفتح
     window.onload = () => {
-        const saved = localStorage.getItem('user');
-        if (saved) {
-            currentUser = JSON.parse(saved);
-            showApp();
+        if(localStorage.getItem('auth')) {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('app-screen').classList.remove('hidden');
         }
     };
 
-    async function login() {
-        const u = document.getElementById('username').value.trim().toLowerCase();
-        const p = document.getElementById('password').value.trim();
-        
-        if (u === "admin" && p === "admin") {
-            currentUser = { username: "admin", role: "admin" };
-            saveSession();
-        } else {
-            const res = await fetch(`${dbUrl}/users/${u}.json`);
-            const data = await res.json();
-            if (data && data.password === p) {
-                currentUser = { username: u, role: 'agent' };
-                saveSession();
-            } else alert("بيانات غير صحيحة!");
-        }
-    }
-
-    function saveSession() {
-        localStorage.setItem('user', JSON.stringify(currentUser));
-        showApp();
-    }
-
-    function showApp() {
-        document.getElementById('auth-box').classList.add('hidden');
-        document.getElementById('main-app').classList.remove('hidden');
-        document.getElementById('user-display').innerText = currentUser.username;
-        if (currentUser.role === 'admin') document.getElementById('admin-panel').classList.remove('hidden');
-    }
-
-    function logout() {
-        localStorage.removeItem('user');
-        location.reload();
-    }
-
-    // --- تحميل الأقسام زي ما كان عندك بالظبط ---
-    async function loadSection(type) {
-        const area = document.getElementById('content-area');
-        const res = await fetch(`${dbUrl}/${type}.json`);
+    // تحميل الجداول مع تحكم الصلاحيات
+    async function loadView(view) {
+        const container = document.getElementById('table-container');
+        const res = await fetch(`${dbUrl}/users.json`);
         const data = await res.json();
         
-        let html = "<table>";
-        if(type === 'users') html += "<tr><th>المستخدم</th><th>الصلاحية</th></tr>";
-        else html += "<tr><th>المستخدم</th><th>الكويز</th><th>الدرجة</th></tr>";
-
-        for(let key in data) {
-            html += `<tr><td>${data[key].username || key}</td><td>${data[key].role || data[key].score || 'N/A'}</td></tr>`;
+        let html = `<table><tr><th>الموظف</th><th>الدور الحالي</th><th>تعديل الدور</th></tr>`;
+        for(let id in data) {
+            html += `<tr>
+                <td>${id}</td>
+                <td>${data[id].role || 'Agent'}</td>
+                <td>
+                    <select onchange="updateRole('${id}', this.value)">
+                        <option value="Agent">Agent</option>
+                        <option value="Leader">Leader</option>
+                        <option value="Quality">Quality</option>
+                    </select>
+                </td>
+            </tr>`;
         }
-        area.innerHTML = html + "</table>";
+        container.innerHTML = html + `</table>`;
     }
+
+    // تحديث الدور في الداتا بيز
+    function updateRole(userId, newRole) {
+        fetch(`${dbUrl}/users/${userId}/role.json`, {
+            method: 'PUT',
+            body: JSON.stringify(newRole)
+        }).then(() => alert("تم تحديث الصلاحية بنجاح!"));
+    }
+
+    function logout() { localStorage.clear(); location.reload(); }
 </script>
 </body>
 </html>
