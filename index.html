@@ -2,140 +2,127 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>منصة إدارة العمليات ⚡</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; --bg: #f8fafc; }
-        body { font-family: sans-serif; background: var(--bg); margin: 0; padding: 10px; }
-        .container { background: white; padding: 20px; border-radius: 12px; max-width: 800px; margin: 70px auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; }
+        body { font-family: sans-serif; background: #f8fafc; margin: 0; padding: 20px; }
+        .container { background: white; padding: 20px; border-radius: 12px; max-width: 800px; margin: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .hidden { display: none !important; }
-        button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px; font-weight: bold; }
-        input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-        .navbar { position: fixed; top: 0; left: 0; right: 0; padding: 10px 20px; background: #fff; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
         .option-label { display: block; padding: 12px; margin: 6px 0; border: 2px solid #cbd5e1; border-radius: 8px; cursor: pointer; }
-        .correct-ans { background: #d1fae5; border-color: #10b981; color: #065f46; }
-        .wrong-ans { background: #fee2e2; border-color: #ef4444; color: #991b1b; }
+        .correct-ans { background: #d1fae5; border-color: #10b981; }
+        .wrong-ans { background: #fee2e2; border-color: #ef4444; }
     </style>
 </head>
 <body>
 
-<div class="navbar" id="top-navbar" style="display: none;">
-    <span>مرحباً: <b id="user-display"></b></span>
-    <button style="width: auto; background: var(--danger);" onclick="logout()">خروج</button>
-</div>
-
 <div class="container">
     <div id="auth-box">
         <h2>تسجيل الدخول ⚡</h2>
-        <input type="text" id="auth-username" placeholder="اسم المستخدم">
-        <input type="password" id="auth-password" placeholder="كلمة المرور">
+        <input type="text" id="username" placeholder="اسم المستخدم">
+        <input type="password" id="password" placeholder="كلمة المرور">
         <button onclick="login()">دخول</button>
     </div>
 
-    <div id="app-content" class="hidden">
-        <div id="agent-view">
-            <h2>لوحة الايجينت</h2>
-            <div id="quiz-list"></div>
+    <div id="main-app" class="hidden">
+        <div style="display:flex; justify-content:space-between;">
+            <h3>أهلاً <span id="user-name"></span></h3>
+            <button style="width:auto; background:var(--danger)" onclick="logout()">خروج</button>
         </div>
-        <div id="admin-view" class="hidden">
-            <h2>لوحة الأدمن 👑</h2>
-            <button onclick="alert('Admin Panel Ready')">إدارة البيانات</button>
-        </div>
+        <div id="quiz-list"></div>
         <div id="quiz-area" class="hidden">
-            <h3 id="quiz-title"></h3>
             <div id="questions"></div>
-            <button onclick="submitQuiz()" id="submit-btn" style="background:var(--success)">إنهاء الاختبار</button>
+            <button id="finish-btn" onclick="submitQuiz()">إنهاء</button>
         </div>
     </div>
 </div>
 
 <script>
     const dbUrl = "https://agent-system-01-default-rtdb.firebaseio.com";
-    let currentUser = null; let activeQuiz = [];
 
-    // --- الوظيفة الجديدة: التحقق من تسجيل الدخول عند فتح الصفحة ---
+    // التحقق من حالة الدخول عند فتح الصفحة
     window.onload = () => {
-        const savedUser = localStorage.getItem('currentUser');
-        if (savedUser) {
-            currentUser = JSON.parse(savedUser);
-            setupUI();
+        const user = localStorage.getItem('user');
+        if (user) {
+            currentUser = JSON.parse(user);
+            showApp();
         }
     };
 
-    function login() {
-        const u = document.getElementById('auth-username').value.trim().toLowerCase();
-        const p = document.getElementById('auth-password').value.trim();
+    let currentUser = null;
+    let activeQuiz = [];
+
+    async function login() {
+        const u = document.getElementById('username').value.trim().toLowerCase();
+        const p = document.getElementById('password').value.trim();
         
         if (u === "admin" && p === "admin") {
-            handleLoginSuccess({username: "admin", role: "admin"});
+            currentUser = { username: "admin", role: "admin" };
+            saveAndShow();
         } else {
-            fetch(`${dbUrl}/users/${u}.json`).then(r => r.json()).then(data => {
-                if(data && data.password === p) handleLoginSuccess({username: u, role: 'agent'});
-                else alert("بيانات خاطئة!");
-            });
+            const res = await fetch(`${dbUrl}/users/${u}.json`);
+            const data = await res.json();
+            if (data && data.password === p) {
+                currentUser = { username: u, role: 'agent' };
+                saveAndShow();
+            } else alert("بيانات خاطئة");
         }
     }
 
-    function handleLoginSuccess(user) {
-        currentUser = user;
-        localStorage.setItem('currentUser', JSON.stringify(user)); // حفظ البيانات
-        setupUI();
+    function saveAndShow() {
+        localStorage.setItem('user', JSON.stringify(currentUser));
+        showApp();
     }
 
-    function setupUI() {
+    function showApp() {
         document.getElementById('auth-box').classList.add('hidden');
-        document.getElementById('app-content').classList.remove('hidden');
-        document.getElementById('top-navbar').style.display = 'flex';
-        document.getElementById('user-display').innerText = currentUser.username;
-        
-        if (currentUser.role === 'admin') document.getElementById('admin-view').classList.remove('hidden');
-        else loadQuizzes();
+        document.getElementById('main-app').classList.remove('hidden');
+        document.getElementById('user-name').innerText = currentUser.username;
+        if(currentUser.role !== 'admin') loadQuizzes();
     }
 
     function logout() {
-        localStorage.removeItem('currentUser'); // مسح البيانات
+        localStorage.removeItem('user');
         location.reload();
     }
 
-    function loadQuizzes() {
-        fetch(`${dbUrl}/quizzes.json`).then(r => r.json()).then(qs => {
-            const list = document.getElementById('quiz-list');
-            Object.keys(qs).forEach(name => {
-                if(qs[name].target === currentUser.username) {
-                    list.innerHTML += `<button onclick="startQuiz('${name}')">${name}</button>`;
-                }
-            });
+    async function loadQuizzes() {
+        const res = await fetch(`${dbUrl}/quizzes.json`);
+        const qs = await res.json();
+        const list = document.getElementById('quiz-list');
+        Object.keys(qs).forEach(name => {
+            if(qs[name].target === currentUser.username) {
+                list.innerHTML += `<button onclick="startQuiz('${name}')">${name}</button>`;
+            }
         });
     }
 
-    function startQuiz(name) {
-        document.getElementById('agent-view').classList.add('hidden');
+    async function startQuiz(name) {
+        const res = await fetch(`${dbUrl}/quizzes/${name}/questions.json`);
+        activeQuiz = Object.values(await res.json());
+        document.getElementById('quiz-list').classList.add('hidden');
         document.getElementById('quiz-area').classList.remove('hidden');
-        fetch(`${dbUrl}/quizzes/${name}/questions.json`).then(r => r.json()).then(qs => {
-            activeQuiz = Object.values(qs);
-            const container = document.getElementById('questions'); container.innerHTML = '';
-            activeQuiz.forEach((q, i) => {
-                let html = `<div><p>${q.question}</p>`;
-                q.opts.forEach((o, oi) => {
-                    html += `<label class="option-label" id="label_${i}_${oi+1}"><input type="radio" name="q_${i}" value="${oi+1}"> ${o}</label>`;
-                });
-                container.innerHTML += html + '</div>';
+        
+        const qDiv = document.getElementById('questions');
+        activeQuiz.forEach((q, i) => {
+            let html = `<p>${q.question}</p>`;
+            q.opts.forEach((o, oi) => {
+                html += `<label class="option-label" id="l_${i}_${oi+1}"><input type="radio" name="q_${i}" value="${oi+1}"> ${o}</label>`;
             });
+            qDiv.innerHTML += html;
         });
     }
 
     function submitQuiz() {
-        let score = 0;
         activeQuiz.forEach((q, i) => {
             const selected = document.querySelector(`input[name="q_${i}"]:checked`);
-            document.getElementById(`label_${i}_${q.correct}`).classList.add('correct-ans');
-            if(selected && selected.value == q.correct) score++;
-            else if(selected) document.getElementById(`label_${i}_${selected.value}`).classList.add('wrong-ans');
+            document.getElementById(`l_${i}_${q.correct}`).classList.add('correct-ans');
+            if(selected && selected.value != q.correct) 
+                document.getElementById(`l_${i}_${selected.value}`).classList.add('wrong-ans');
         });
-        alert("نتيجتك: " + score);
-        document.getElementById('submit-btn').classList.add('hidden');
+        document.getElementById('finish-btn').classList.add('hidden');
     }
 </script>
 </body>
