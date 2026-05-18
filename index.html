@@ -39,7 +39,7 @@
         .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; color: white; font-weight: bold; display: inline-block; }
         .badge-admin { background: #7c3aed; } .badge-leader { background: #2563eb; } .badge-quality { background: #db2777; }
         
-        .option-label { display: block; padding: 10px; margin: 6px 0; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: normal; }
+        .option-label { display: block; padding: 10px; margin: 6px 0; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: normal; cursor: pointer; transition: background 0.2s; }
         .correct-ans { background: #d1fae5 !important; border-color: #10b981 !important; color: #065f46 !important; font-weight: bold; }
         .wrong-ans { background: #fee2e2 !important; border-color: #ef4444 !important; color: #991b1b !important; font-weight: bold; }
 
@@ -571,7 +571,6 @@
         });
     }
 
-    // 📊 شاشة عرض درجات الايجينت الخاصة به فقط مع إمكانية السحب للإكسيل
     function loadAgentScoresOnlyView() {
         switchView('info-display-box');
         document.getElementById('info-box-title').innerText = "📊 نتائج ودرجات اختباراتي الفورية لايف";
@@ -608,7 +607,6 @@
         });
     }
 
-    // 📥 دالة سحب وتحويل أي جدول بالصفحة لملف إكسيل احترافي فوراً
     function exportTableToExcel(tableId, filename = 'Data_Export') {
         const table = document.getElementById(tableId);
         if(!table || table.rows.length <= 1) { return alert('⚠️ الجدول فارغ أو لا يحتوي على بيانات لتحميلها!'); }
@@ -682,27 +680,61 @@
             document.getElementById('active-quiz-title').innerText = name;
             const container = document.getElementById('quiz-questions-container'); container.innerHTML = '';
             activeQuizQuestions.forEach((q, i) => {
-                let h = `<div style="background:white; padding:10px; margin-bottom:10px; border-radius:6px; border:1px solid #cbd5e1;"><p><b>س ${i+1}:</b> ${q.question}</p>`;
+                let h = `<div style="background:white; padding:15px; margin-bottom:12px; border-radius:8px; border:1px solid #cbd5e1;"><p style="font-size:16px; margin-top:0;"><b>س ${i+1}:</b> ${q.question}</p>`;
                 if(q.opts) {
-                    q.opts.forEach((o, oi) => { if(o) h += `<label class="option-label" id="label_${i}_${oi+1}"><input type="radio" name="q_${i}" value="${oi+1}"> ${o}</label>`; });
+                    q.opts.forEach((o, oi) => { 
+                        if(o) h += `<label class="option-label" id="label_${i}_${oi+1}"><input type="radio" name="q_${i}" value="${oi+1}"> ${o}</label>`; 
+                    });
                 }
                 container.innerHTML += h + `</div>`;
             });
             document.getElementById('active-quiz-area').classList.remove('hidden');
+            document.getElementById('submit-quiz-btn').classList.remove('hidden'); // إظهار زر الإرسال مجدداً
         });
     }
 
+    // 🔥 تعديل دالة الإرسال لتقوم بتلوين وتوضيح الإجابات الصحيحة والخاطئة فوراً للايجينت
     function submitQuizAnswers() {
         let score = 0;
+        let anyUnanswered = false;
+
         activeQuizQuestions.forEach((q, i) => {
-            const sel = document.querySelector(`input[name="q_${i}"]:checked`);
-            if(sel && sel.value == q.correct) score++;
-            const lbl = document.getElementById(`label_${i}_${q.correct}`); if(lbl) lbl.classList.add('correct-ans');
+            const selectedOpt = document.querySelector(`input[name="q_${i}"]:checked`);
+            
+            // تلوين الإجابة الصحيحة باللون الأخضر فوراً
+            const correctLabel = document.getElementById(`label_${i}_${q.correct}`);
+            if(correctLabel) {
+                correctLabel.classList.add('correct-ans');
+            }
+
+            if(selectedOpt) {
+                if(selectedOpt.value == q.correct) {
+                    score++;
+                } else {
+                    // لو اختار غلط، نلون اختياره باللون الأحمر
+                    const wrongLabel = document.getElementById(`label_${i}_${selectedOpt.value}`);
+                    if(wrongLabel) wrongLabel.classList.add('wrong-ans');
+                }
+            } else {
+                anyUnanswered = true;
+            }
         });
+
         let res = `${score} / ${activeQuizQuestions.length}`;
+        
+        // إرسال النتيجة لقاعدة البيانات فوراً
         fetch(`${firebaseBaseUrl}/scores.json`, {
-            method: 'POST', body: JSON.stringify({ username: currentUser.username, quizName: activeQuizName, score: res, timestamp: new Date().toLocaleString('ar-EG') })
-        }).then(() => { alert(`انتهى الاختبار! النتيجة: ${res}`); loadQuizzesForAgent(); });
+            method: 'POST', 
+            body: JSON.stringify({ 
+                username: currentUser.username, 
+                quizName: activeQuizName, 
+                score: res, 
+                timestamp: new Date().toLocaleString('ar-EG') 
+            })
+        }).then(() => { 
+            alert(`🏁 انتهى الاختبار! نتيجتك هي: ${res}\nتم تلوين الإجابات بالأسفل: الأخضر هو الصح والأحمر هو اختيارك الخاطئ.`); 
+            document.getElementById('submit-quiz-btn').classList.add('hidden'); // إخفاء زر الإرسال لمنع التكرار
+        });
     }
 
     function loadAgentScoresArchive() {
