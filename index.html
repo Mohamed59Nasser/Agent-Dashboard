@@ -29,7 +29,7 @@
             width: 100%; 
             max-width: 650px; 
             box-sizing: border-box;
-            margin: 80px auto 20px auto; /* مسافة أمان عشان المنيو اللي فوق */
+            margin: 80px auto 20px auto; 
         }
 
         h2, h3 { text-align: center; color: var(--primary); margin-top: 0; }
@@ -56,7 +56,8 @@
         @media(min-width: 600px) { .admin-layout { grid-template-columns: 1fr 1fr; } }
         
         .chat-box { background: var(--dark-card); color: #fff; padding: 15px; border-radius: 12px; height: 300px; display: flex; flex-direction: column; justify-content: space-between; }
-        .chat-messages { overflow-y: auto; flex-grow: 1; margin-bottom: 10px; font-size: 14px; }
+        .chat-messages { overflow-y: auto; flex-grow: 1; margin-bottom: 10px; font-size: 14px; text-align: right; }
+        .chat-msg-user { background: #334155; padding: 8px 12px; border-radius: 8px; margin: 5px 0; word-break: break-word; }
         .info-card { background: #f1f5f9; padding: 20px; border-radius: 12px; border: 1px solid #cbd5e1; text-align: center; font-size: 18px; font-weight: bold; }
         
         .popup-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 2000; }
@@ -153,18 +154,19 @@
         <h2>👑 لوحة تحكم محمد السوبر أدمين</h2>
         <div class="admin-layout">
             <div class="chat-box">
-                <div style="font-weight: bold; border-bottom: 1px solid #475569; padding-bottom: 5px;">🤖 شات مطور النظام</div>
+                <div style="font-weight: bold; border-bottom: 1px solid #475569; padding-bottom: 5px; text-align:right;">🤖 شات مطور النظام</div>
                 <div class="chat-messages" id="chat-messages">
-                    <p style="color:#94a3b8">جاهز لمساعدتك يا رئيس محمد لتعديل النظام فوراً.</p>
+                    <p style="color:#94a3b8">جاهز لمساعدتك يا رئيس محمد لتعديل النظام فوراً. اكتب طلبك هنا وهيتبعت للشيت.</p>
                 </div>
                 <div style="display:flex; gap:5px;">
-                    <input type="text" id="chat-input" placeholder="اكتب هنا...">
-                    <button style="width:auto; margin:0; padding:10px;">إرسال</button>
+                    <input type="text" id="chat-input" placeholder="اكتب تحديث النظام هنا..." onkeydown="if(event.key === 'Enter') sendAdminDeveloperMessage()">
+                    <button onclick="sendAdminDeveloperMessage()" style="width:auto; margin:0; padding:10px 20px;">إرسال</button>
                 </div>
             </div>
             <div class="info-card" style="font-size:14px; text-align:right; font-weight: normal;">
                 <h4>📊 لوحة المراقبة:</h4>
-                <p>جميع نتائج الكويزات وطلبات تعديل البيانات بتنزل فورا لايف في صفحة <b>Results</b> في الشيت للموافقة عليها.</p>
+                <p>جميع نتائج الكويزات، طلبات تعديل البيانات، وتحديثات المطور بتنزل فوراً لايف في صفحة <b>Results</b> في الشيت للمراقبة والموافقة.</p>
+                <button onclick="logout()" style="background:var(--danger); font-size:14px; padding:8px;">تسجيل الخروج 🚪</button>
             </div>
         </div>
     </div>
@@ -270,6 +272,37 @@
         alert("تم إرسال طلب التعديل بنجاح!");
         document.getElementById('profile-change-text').value = '';
         switchView('agent-hub');
+    }
+
+    // الـ Function الجديدة لإرسال رسائل شات المطور إلى جوجل شيت
+    function sendAdminDeveloperMessage() {
+        const inputEl = document.getElementById('chat-input');
+        const msgText = inputEl.value.trim();
+        if (!msgText) return;
+
+        // إظهار الرسالة في واجهة الشات فوراً بشكل مؤقت
+        const chatMessages = document.getElementById('chat-messages');
+        const newMsgHtml = document.createElement('div');
+        newMsgHtml.className = 'chat-msg-user';
+        newMsgHtml.innerText = `أنت: ${msgText}`;
+        chatMessages.appendChild(newMsgHtml);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        // تفريغ خانة الكتابة
+        inputEl.value = '';
+
+        // إرسال البيانات فوراً لـ الـ Web App الخاص بالجوجل سكريبت
+        fetch(webAppUrl, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify({
+                action: "edit_request", // بنستغل نفس أكشن الإرسال لجدول الـ Results
+                username: "محمد السوبر أدمين 👑",
+                requestDetails: `[طلب تحديث نظام]: ${msgText}`
+            })
+        });
+        
+        alert("تم إرسال طلب التحديث للمطور، وهينزل حالاً في شيت الـ Results!");
     }
 
     function checkSchedule() {
