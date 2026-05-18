@@ -52,6 +52,7 @@
         
         .questions-editor-box { background: #f0fdf4; border: 2px solid #16a34a; padding: 15px; border-radius: 12px; margin-top: 20px; text-align: right; }
         .question-edit-row { background: white; padding: 12px; border: 1px solid #bbf7d0; border-radius: 8px; margin-bottom: 10px; }
+        .add-fast-question-box { background: #e0f2fe; border: 1px dashed #0284c7; padding: 12px; border-radius: 8px; margin-top: 15px; }
     </style>
 </head>
 <body>
@@ -171,7 +172,7 @@
 
         <div id="tab-quizzes" class="admin-tab-content hidden">
             <h4>📝 إنشاء وتحرير المجموعات الامتحانية والأسئلة</h4>
-            <div class="form-group"><label>اسم الكويز:</label><input type="text" id="q-quizname" placeholder="مثال: اختبار الجودة"></div>
+            <div class="form-group"><label>اسم الكويز الجديد:</label><input type="text" id="q-quizname" placeholder="مثال: اختبار الجودة"></div>
             <div class="form-group">
                 <label>تحديد المستهدف الافتراضي:</label>
                 <select id="q-target-select"><option value="all">الكل</option><option value="draft">مسودة مخفية</option></select>
@@ -184,7 +185,7 @@
                 <div class="form-group"><label>الاختيار 4:</label><input type="text" id="q-opt4"></div>
                 <div class="form-group"><label>رقم الإجابة الصحيحة (1-4):</label><input type="number" id="q-correct" min="1" max="4"></div>
             </div>
-            <button onclick="addQuizQuestionAdmin()" style="background:var(--success);">حفظ السؤال داخل هذا الكويز 🚀</button>
+            <button onclick="addQuizQuestionAdmin()" style="background:var(--success);">حفظ السؤال وإنشاء/تحديث الكويز 🚀</button>
 
             <h4 style="margin-top: 30px; color: var(--primary);">📋 قائمة الكويزات وصلاحيات الرؤية وتعديل الأسئلة</h4>
             <table class="data-table">
@@ -194,8 +195,28 @@
 
             <div id="questions-editor-container" class="questions-editor-box hidden">
                 <h3 style="color:#16a34a;"><i class="fa-solid fa-pen-to-square"></i> محرر أسئلة كويز: <span id="current-editing-quiz-title"></span></h3>
+                
                 <div id="individual-questions-list"></div>
-                <button onclick="document.getElementById('questions-editor-container').classList.add('hidden')" style="background:#64748b; margin-top:10px;">إغلاق المحرر ✖️</button>
+                
+                <div class="add-fast-question-box">
+                    <h4 style="color:#0284c7; text-align:right; margin-top:0;"><i class="fa-solid fa-plus-circle"></i> إضافة سؤال جديد لهذا الكويز مباشرة:</h4>
+                    <div class="form-group"><label style="font-size:12px;">نص السؤال الجديد:</label><input type="text" id="fast-q-text"></div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:5px;">
+                        <input type="text" id="fast-q-opt1" placeholder="اختيار 1">
+                        <input type="text" id="fast-q-opt2" placeholder="اختيار 2">
+                        <input type="text" id="fast-q-opt3" placeholder="اختيار 3">
+                        <input type="text" id="fast-q-opt4" placeholder="اختيار 4">
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+                        <div>
+                            <label style="display:inline; font-size:12px;">رقم الإجابة الصح (1-4): </label>
+                            <input type="number" id="fast-q-correct" min="1" max="4" style="width:55px; padding:5px; display:inline;">
+                        </div>
+                        <button class="view-btn" style="background:#0284c7; padding:8px 16px;" onclick="addSingleQuestionFast()">إدراج السؤال فوراً ⚡</button>
+                    </div>
+                </div>
+
+                <button onclick="document.getElementById('questions-editor-container').classList.add('hidden')" style="background:#64748b; margin-top:15px; width:100%;">إغلاق صندوق المحرر ✖️</button>
             </div>
         </div>
 
@@ -213,7 +234,7 @@
 
 <script>
     const firebaseBaseUrl = "https://agent-system-01-default-rtdb.firebaseio.com";
-    let isSignUpMode = false; let currentUser = null; let activeQuizQuestions = []; let activeQuizName = "";
+    let isSignUpMode = false; let currentUser = null; let activeQuizQuestions = []; let activeQuizName = ""; let currentEditingQuizName = "";
 
     function switchView(viewId) {
         ['auth-box', 'agent-hub', 'info-display-box', 'quiz-dashboard', 'admin-dashboard', 'agent-profile'].forEach(id => {
@@ -340,7 +361,7 @@
         loadDropdownUsers();
         if(currentUser.role === 'admin' || currentUser.role === 'leader' || currentUser.role === 'quality') {
             if(currentUser.role === 'admin') { badge.innerText = "أدمن"; badge.classList.add('badge-admin'); }
-            if(currentUser.role === 'leader') { badge.innerText = "ليدر"; badge.classList.add('badge-leader'); }
+            if(currentUser.role === 'leader'',') { badge.innerText = "ليدر"; badge.classList.add('badge-leader'); }
             if(currentUser.role === 'quality') { badge.innerText = "كوالتي"; badge.classList.add('badge-quality'); }
             switchView('admin-dashboard'); loadUsersAdmin(); loadScoresAdmin(); loadQuizzesAdminSection();
         } else {
@@ -375,7 +396,7 @@
                     <td>
                         <button class="view-btn" style="background:var(--success)" onclick="changeQuizTarget('${name}','all')">للكل</button>
                         <button class="view-btn" style="background:var(--warning)" onclick="changeQuizTarget('${name}','draft')">مسودة</button>
-                        <button class="view-btn" style="background:#16a34a" onclick="openQuestionsEditor('${name}')"><i class="fa-solid fa-list-check"></i> تعديل الأسئلة</button>
+                        <button class="view-btn" style="background:#16a34a" onclick="openQuestionsEditor('${name}')"><i class="fa-solid fa-list-check"></i> تعديل وإضافة أسئلة</button>
                         <button class="view-btn" style="background:var(--danger)" onclick="deleteQuizCompletely('${name}')">حذف الكويز</button>
                     </td>
                 </tr>`;
@@ -383,8 +404,9 @@
         });
     }
 
-    // 🌟 ميزة تعديل الأسئلة الفردية جوة الكويز بدون مسحه بالكامل
+    // 🌟 فتح صندوق محرر الأسئلة
     function openQuestionsEditor(quizName) {
+        currentEditingQuizName = quizName;
         document.getElementById('current-editing-quiz-title').innerText = quizName;
         const container = document.getElementById('individual-questions-list');
         container.innerHTML = '<p>جاري تحميل أسئلة الكويز...</p>';
@@ -392,7 +414,7 @@
 
         fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions.json`).then(res => res.json()).then(questions => {
             container.innerHTML = '';
-            if(!questions) { container.innerHTML = '<p>لا توجد أسئلة مسجلة داخل هذا الكويز!</p>'; return; }
+            if(!questions) { container.innerHTML = '<p style="color:var(--danger); font-weight:bold;">⚠️ لا توجد أسئلة حالياً داخل هذا الكويز. يمكنك إضافة أول سؤال بالأسفل!</p>'; return; }
             
             Object.keys(questions).forEach(qKey => {
                 let q = questions[qKey];
@@ -403,15 +425,15 @@
                             <input type="text" id="edit_txt_${qKey}" value="${q.question}">
                         </div>
                         <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:5px;">
-                            <input type="text" id="edit_opt1_${qKey}" value="${q.opts[0] || ''}" placeholder="اختيار 1">
-                            <input type="text" id="edit_opt2_${qKey}" value="${q.opts[1] || ''}" placeholder="اختيار 2">
-                            <input type="text" id="edit_opt3_${qKey}" value="${q.opts[2] || ''}" placeholder="اختيار 3">
-                            <input type="text" id="edit_opt4_${qKey}" value="${q.opts[3] || ''}" placeholder="اختيار 4">
+                            <input type="text" id="edit_opt1_${qKey}" value="${q.opts ? (q.opts[0] || '') : ''}" placeholder="اختيار 1">
+                            <input type="text" id="edit_opt2_${qKey}" value="${q.opts ? (q.opts[1] || '') : ''}" placeholder="اختيار 2">
+                            <input type="text" id="edit_opt3_${qKey}" value="${q.opts ? (q.opts[2] || '') : ''}" placeholder="اختيار 3">
+                            <input type="text" id="edit_opt4_${qKey}" value="${q.opts ? (q.opts[3] || '') : ''}" placeholder="اختيار 4">
                         </div>
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
                             <div>
                                 <label style="display:inline; font-size:12px;">رقم الإجابة الصح (1-4): </label>
-                                <input type="number" id="edit_corr_${qKey}" value="${q.correct}" min="1" max="4" style="width:50px; padding:4px; display:inline;">
+                                <input type="number" id="edit_corr_${qKey}" value="${q.correct || 1}" min="1" max="4" style="width:50px; padding:4px; display:inline;">
                             </div>
                             <div>
                                 <button class="view-btn" style="background:var(--success); padding:6px 12px;" onclick="saveSingleQuestionChanges('${quizName}', '${qKey}')">حفظ التعديل ✔️</button>
@@ -420,6 +442,38 @@
                         </div>
                     </div>`;
             });
+        });
+    }
+
+    // ➕ إضافة سؤال جديد فوراً من جوة الصندوق الأخضر
+    function addSingleQuestionFast() {
+        const txt = document.getElementById('fast-q-text').value.trim();
+        const o1 = document.getElementById('fast-q-opt1').value.trim();
+        const o2 = document.getElementById('fast-q-opt2').value.trim();
+        const o3 = document.getElementById('fast-q-opt3').value.trim();
+        const o4 = document.getElementById('fast-q-opt4').value.trim();
+        const corr = document.getElementById('fast-q-correct').value.trim();
+
+        if(!txt || !o1 || !o2 || !corr) return alert('برجاء كتابة السؤال والاختيارات والإجابة الصحيحة أولاً!');
+        
+        let newQuestionData = {
+            question: txt,
+            opts: [o1, o2, o3, o4],
+            correct: parseInt(corr)
+        };
+
+        fetch(`${firebaseBaseUrl}/quizzes/${currentEditingQuizName}/questions.json`, {
+            method: 'POST',
+            body: JSON.stringify(newQuestionData)
+        }).then(() => {
+            alert('⚡ تم إدراج السؤال الجديد بنجاح داخل هذا الكويز لايف!');
+            // تفريغ الخانات السريعة
+            document.getElementById('fast-q-text').value = '';
+            document.getElementById('fast-q-opt1').value = ''; document.getElementById('fast-q-opt2').value = '';
+            document.getElementById('fast-q-opt3').value = ''; document.getElementById('fast-q-opt4').value = '';
+            document.getElementById('fast-q-correct').value = '';
+            // تحديث العرض فوراً لليوزر
+            openQuestionsEditor(currentEditingQuizName);
         });
     }
 
