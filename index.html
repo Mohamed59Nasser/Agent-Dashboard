@@ -95,7 +95,8 @@
         <h2>أهلاً بك 👋 <br><span id="agent-welcome-name" style="color:var(--primary)"></span></h2>
         <div class="menu-grid">
             <button class="menu-btn" onclick="loadQuizzesForAgent()"><i class="fa-solid fa-trophy fa-2x"></i> بدء الاختبارات الفورية</button>
-            <button class="menu-btn" onclick="loadAgentScoresArchive()"><i class="fa-solid fa-box-archive fa-2x"></i> أرشيف نتائج اختباراتي</button>
+            <button class="menu-btn" onclick="loadAgentScoresOnlyView()"><i class="fa-solid fa-square-poll-vertical fa-2x"></i> 📊 نتائج اختباراتي الفورية لايف</button>
+            <button class="menu-btn" onclick="loadAgentScoresArchive()"><i class="fa-solid fa-box-archive fa-2x"></i> أرشيف نتائج اختباراتي القديمة</button>
             <button class="menu-btn" onclick="viewAgentSchedule()"><i class="fa-solid fa-calendar-days fa-2x"></i> عرض جدول الشفت الأسبوعي 📅</button>
             <button class="menu-btn" onclick="viewAgentBreaks()"><i class="fa-solid fa-mug-hot fa-2x"></i> ميعاد البريك (Breaks)</button>
         </div>
@@ -229,11 +230,16 @@
         </div>
 
         <div id="tab-results" class="admin-tab-content hidden">
-            <h4>📊 نتائج اختبارات الموظفين الكاملة</h4>
-            <table class="data-table">
-                <thead><tr><th>الموظف (اليوزر)</th><th>اسم الكويز</th><th>النتيجة الكلية</th><th>التاريخ والوقت</th></tr></thead>
-                <tbody id="admin-scores-list"></tbody>
-            </table>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap:10px;">
+                <h4 style="margin:0;">📊 نتائج اختبارات الموظفين الكاملة</h4>
+                <button onclick="exportTableToExcel('admin-scores-table', 'All_Agents_Scores')" style="background: var(--success); width: auto; margin:0; padding: 8px 15px; font-size:13px;"><i class="fa-solid fa-file-excel"></i> تحميل النتائج شيت Excel</button>
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="data-table" id="admin-scores-table">
+                    <thead><tr><th>الموظف (اليوزر)</th><th>اسم الكويز</th><th>النتيجة الكلية</th><th>التاريخ والوقت</th></tr></thead>
+                    <tbody id="admin-scores-list"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -416,7 +422,6 @@
         });
     }
 
-    // 🌟 فتح صندوق محرر الأسئلة وتعبئة المستهدف الحالي له
     function openQuestionsEditor(quizName) {
         currentEditingQuizName = quizName;
         document.getElementById('current-editing-quiz-title').innerText = quizName;
@@ -424,7 +429,6 @@
         container.innerHTML = '<p>جاري تحميل أسئلة الكويز...</p>';
         document.getElementById('questions-editor-container').classList.remove('hidden');
 
-        // جلب المستهدف الحالي للكويز وتحديده في القائمة المنسدلة بالمحرر
         fetch(`${firebaseBaseUrl}/quizzes/${quizName}/target.json`).then(res => res.json()).then(target => {
             if(target) document.getElementById('fast-change-target-select').value = target;
         });
@@ -444,8 +448,8 @@
                         <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:5px;">
                             <input type="text" id="edit_opt1_${qKey}" value="${q.opts ? (q.opts[0] || '') : ''}" placeholder="اختيار 1">
                             <input type="text" id="edit_opt2_${qKey}" value="${q.opts ? (q.opts[1] || '') : ''}" placeholder="اختيار 2">
-                            <input type="text" id="edit_opt3_${qKey}" value="${q.opts ? (q.opts[3] || '') : ''}" placeholder="اختيار 3">
-                            <input type="text" id="edit_opt4_${qKey}" value="${q.opts ? (q.opts[4] || '') : ''}" placeholder="اختيار 4">
+                            <input type="text" id="edit_opt3_${qKey}" value="${q.opts ? (q.opts[2] || '') : ''}" placeholder="اختيار 3">
+                            <input type="text" id="edit_opt4_${qKey}" value="${q.opts ? (q.opts[3] || '') : ''}" placeholder="اختيار 4">
                         </div>
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
                             <div>
@@ -462,7 +466,6 @@
         });
     }
 
-    // تحديث مستهدف الكويز من داخل المحرر
     function updateQuizTargetFromEditor() {
         const newTarget = document.getElementById('fast-change-target-select').value;
         fetch(`${firebaseBaseUrl}/quizzes/${currentEditingQuizName}/target.json`, {
@@ -474,7 +477,6 @@
         });
     }
 
-    // ➕ إضافة سؤال جديد فوراً من جوة الصندوق الأزرق
     function addSingleQuestionFast() {
         const txt = document.getElementById('fast-q-text').value.trim();
         const o1 = document.getElementById('fast-q-opt1').value.trim();
@@ -485,15 +487,9 @@
 
         if(!txt || !o1 || !o2 || !corr) return alert('برجاء كتابة السؤال والاختيارات والإجابة الصحيحة أولاً!');
         
-        let newQuestionData = {
-            question: txt,
-            opts: [o1, o2, o3, o4],
-            correct: parseInt(corr)
-        };
-
+        let newQuestionData = { question: txt, opts: [o1, o2, o3, o4], correct: parseInt(corr) };
         fetch(`${firebaseBaseUrl}/quizzes/${currentEditingQuizName}/questions.json`, {
-            method: 'POST',
-            body: JSON.stringify(newQuestionData)
+            method: 'POST', body: JSON.stringify(newQuestionData)
         }).then(() => {
             alert('⚡ تم إدراج السؤال الجديد بنجاح داخل هذا الكويز لايف!');
             document.getElementById('fast-q-text').value = '';
@@ -515,10 +511,8 @@
             ],
             correct: parseInt(document.getElementById(`edit_corr_${qKey}`).value.trim())
         };
-
         fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions/${qKey}.json`, {
-            method: 'PUT',
-            body: JSON.stringify(updatedQuestion)
+            method: 'PUT', body: JSON.stringify(updatedQuestion)
         }).then(() => {
             alert('🟢 تم حفظ تعديل هذا السؤال بنجاح لايف!');
             openQuestionsEditor(quizName);
@@ -570,11 +564,56 @@
     function loadScoresAdmin() {
         fetch(`${firebaseBaseUrl}/scores.json`).then(res => res.json()).then(scores => {
             const tbody = document.getElementById('admin-scores-list'); tbody.innerHTML = '';
-            if(!scores) { tbody.innerHTML = '<tr><td colspan="4">لا توجد نتائج مسجلة.</td></tr>'; return; }
+            if(!scores) { tbody.innerHTML = '<tr><td colspan="4">لا توجد نتائج مسجلة حتى الآن.</td></tr>'; return; }
             Object.keys(scores).forEach(id => {
                 tbody.innerHTML += `<tr><td><b>${scores[id].username}</b></td><td>${scores[id].quizName}</td><td><span class="badge" style="background:var(--success)">${scores[id].score}</span></td><td><small>${scores[id].timestamp}</small></td></tr>`;
             });
         });
+    }
+
+    // 📊 شاشة عرض درجات الايجينت الخاصة به فقط مع إمكانية السحب للإكسيل
+    function loadAgentScoresOnlyView() {
+        switchView('info-display-box');
+        document.getElementById('info-box-title').innerText = "📊 نتائج ودرجات اختباراتي الفورية لايف";
+        
+        fetch(`${firebaseBaseUrl}/scores.json`).then(res => res.json()).then(scores => {
+            let userScoresFound = [];
+            if(scores) {
+                Object.keys(scores).forEach(id => {
+                    if(scores[id].username === currentUser.username) {
+                        userScoresFound.push(scores[id]);
+                    }
+                });
+            }
+
+            if(userScoresFound.length === 0) {
+                document.getElementById('info-content-area').innerHTML = `<div class="info-card" style="color:var(--danger)">لم تقم باجتياز أي اختبارات فورية حتى الآن.</div>`;
+                return;
+            }
+
+            let html = `
+                <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
+                    <button onclick="exportTableToExcel('agent-individual-scores-table', 'My_Quiz_Scores')" style="background:var(--success); width:auto; padding:6px 12px; font-size:13px;"><i class="fa-solid fa-file-excel"></i> تحميل نتائجك شيت Excel</button>
+                </div>
+                <table class="data-table" id="agent-individual-scores-table" style="width:100%">
+                    <thead><tr><th>اسم الكويز الفوري</th><th>النتيجة الكلية</th><th>تاريخ ووقت الامتثال</th></tr></thead>
+                    <tbody>`;
+            
+            userScoresFound.forEach(row => {
+                html += `<tr><td><b>${row.quizName}</b></td><td><span class="badge" style="background:var(--success)">${row.score}</span></td><td><small>${row.timestamp}</small></td></tr>`;
+            });
+
+            html += `</tbody></table>`;
+            document.getElementById('info-content-area').innerHTML = html;
+        });
+    }
+
+    // 📥 دالة سحب وتحويل أي جدول بالصفحة لملف إكسيل احترافي فوراً
+    function exportTableToExcel(tableId, filename = 'Data_Export') {
+        const table = document.getElementById(tableId);
+        if(!table || table.rows.length <= 1) { return alert('⚠️ الجدول فارغ أو لا يحتوي على بيانات لتحميلها!'); }
+        const wb = XLSX.utils.table_to_book(table, {sheet: "الدرجات والنتائج"});
+        XLSX.writeFile(wb, `${filename}_${new Date().toISOString().slice(0,10)}.xlsx`);
     }
 
     function viewAgentSchedule() {
