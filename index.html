@@ -174,8 +174,8 @@
             <h4>📝 إنشاء وتحرير المجموعات الامتحانية والأسئلة</h4>
             <div class="form-group"><label>اسم الكويز الجديد:</label><input type="text" id="q-quizname" placeholder="مثال: اختبار الجودة"></div>
             <div class="form-group">
-                <label>تحديد المستهدف الافتراضي:</label>
-                <select id="q-target-select"><option value="all">الكل</option><option value="draft">مسودة مخفية</option></select>
+                <label>تحديد المستهدف (اختر الموظف المستهدف بالاسم):</label>
+                <select id="q-target-select"><option value="draft">مسودة مخفية ❌</option></select>
             </div>
             <div style="background:#f8fafc; padding:15px; border-radius:10px; border:1px solid #cbd5e1; margin-top:15px;">
                 <div class="form-group"><label>السؤال:</label><input type="text" id="q-text"></div>
@@ -196,6 +196,14 @@
             <div id="questions-editor-container" class="questions-editor-box hidden">
                 <h3 style="color:#16a34a;"><i class="fa-solid fa-pen-to-square"></i> محرر أسئلة كويز: <span id="current-editing-quiz-title"></span></h3>
                 
+                <div class="form-group" style="background: #e0f2fe; padding: 10px; border-radius: 8px; border: 1px solid #7dd3fc;">
+                    <label style="font-size: 13px; color: var(--primary);">تغيير الشخص المستهدف لهذا الكويز حالياً:</label>
+                    <div style="display: flex; gap: 8px;">
+                        <select id="fast-change-target-select" style="padding: 6px; font-size: 13px;"><option value="draft">مسودة مخفية ❌</option></select>
+                        <button class="view-btn" style="background:var(--success); width: auto; margin:0; padding: 0 15px;" onclick="updateQuizTargetFromEditor()">تحديث المستهدف</button>
+                    </div>
+                </div>
+
                 <div id="individual-questions-list"></div>
                 
                 <div class="add-fast-question-box">
@@ -361,7 +369,7 @@
         loadDropdownUsers();
         if(currentUser.role === 'admin' || currentUser.role === 'leader' || currentUser.role === 'quality') {
             if(currentUser.role === 'admin') { badge.innerText = "أدمن"; badge.classList.add('badge-admin'); }
-            if(currentUser.role === 'leader'',') { badge.innerText = "ليدر"; badge.classList.add('badge-leader'); }
+            if(currentUser.role === 'leader') { badge.innerText = "ليدر"; badge.classList.add('badge-leader'); }
             if(currentUser.role === 'quality') { badge.innerText = "كوالتي"; badge.classList.add('badge-quality'); }
             switchView('admin-dashboard'); loadUsersAdmin(); loadScoresAdmin(); loadQuizzesAdminSection();
         } else {
@@ -374,13 +382,19 @@
 
     function loadDropdownUsers() {
         fetch(`${firebaseBaseUrl}/users.json`).then(res => res.json()).then(users => {
-            const select = document.getElementById('q-target-select');
-            select.innerHTML = '<option value="all">الكل</option><option value="draft">مسودة مخفية</option>';
+            const selectMain = document.getElementById('q-target-select');
+            const selectFast = document.getElementById('fast-change-target-select');
+            
+            let optionsHtml = '<option value="draft">مسودة مخفية ❌</option>';
             if(users) {
                 Object.keys(users).forEach(k => {
-                    if(users[k].role === 'agent') select.innerHTML += `<option value="${users[k].username}">${users[k].fullName}</option>`;
+                    if(users[k].role === 'agent') {
+                        optionsHtml += `<option value="${users[k].username}">${users[k].fullName}</option>`;
+                    }
                 });
             }
+            selectMain.innerHTML = optionsHtml;
+            selectFast.innerHTML = optionsHtml;
         });
     }
 
@@ -389,14 +403,12 @@
             const tbody = document.getElementById('admin-quizzes-control-list'); tbody.innerHTML = '';
             if(!quizzes) { tbody.innerHTML = '<tr><td colspan="3">لا توجد كويزات حالية.</td></tr>'; return; }
             Object.keys(quizzes).forEach(name => {
-                let tgt = quizzes[name].target === 'all' ? 'الكل' : (quizzes[name].target === 'draft' ? 'مسودة ❌' : `موظف مخصص (${quizzes[name].target})`);
+                let tgt = quizzes[name].target === 'draft' ? 'مسودة ❌' : `موظف مخصص (${quizzes[name].target})`;
                 tbody.innerHTML += `<tr>
                     <td><b>${name}</b></td>
                     <td><span class="badge" style="background:var(--primary)">${tgt}</span></td>
                     <td>
-                        <button class="view-btn" style="background:var(--success)" onclick="changeQuizTarget('${name}','all')">للكل</button>
-                        <button class="view-btn" style="background:var(--warning)" onclick="changeQuizTarget('${name}','draft')">مسودة</button>
-                        <button class="view-btn" style="background:#16a34a" onclick="openQuestionsEditor('${name}')"><i class="fa-solid fa-list-check"></i> تعديل وإضافة أسئلة</button>
+                        <button class="view-btn" style="background:#16a34a" onclick="openQuestionsEditor('${name}')"><i class="fa-solid fa-list-check"></i> تعديل وإضافة أسئلة / المستهدف</button>
                         <button class="view-btn" style="background:var(--danger)" onclick="deleteQuizCompletely('${name}')">حذف الكويز</button>
                     </td>
                 </tr>`;
@@ -404,13 +416,18 @@
         });
     }
 
-    // 🌟 فتح صندوق محرر الأسئلة
+    // 🌟 فتح صندوق محرر الأسئلة وتعبئة المستهدف الحالي له
     function openQuestionsEditor(quizName) {
         currentEditingQuizName = quizName;
         document.getElementById('current-editing-quiz-title').innerText = quizName;
         const container = document.getElementById('individual-questions-list');
         container.innerHTML = '<p>جاري تحميل أسئلة الكويز...</p>';
         document.getElementById('questions-editor-container').classList.remove('hidden');
+
+        // جلب المستهدف الحالي للكويز وتحديده في القائمة المنسدلة بالمحرر
+        fetch(`${firebaseBaseUrl}/quizzes/${quizName}/target.json`).then(res => res.json()).then(target => {
+            if(target) document.getElementById('fast-change-target-select').value = target;
+        });
 
         fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions.json`).then(res => res.json()).then(questions => {
             container.innerHTML = '';
@@ -427,8 +444,8 @@
                         <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:5px;">
                             <input type="text" id="edit_opt1_${qKey}" value="${q.opts ? (q.opts[0] || '') : ''}" placeholder="اختيار 1">
                             <input type="text" id="edit_opt2_${qKey}" value="${q.opts ? (q.opts[1] || '') : ''}" placeholder="اختيار 2">
-                            <input type="text" id="edit_opt3_${qKey}" value="${q.opts ? (q.opts[2] || '') : ''}" placeholder="اختيار 3">
-                            <input type="text" id="edit_opt4_${qKey}" value="${q.opts ? (q.opts[3] || '') : ''}" placeholder="اختيار 4">
+                            <input type="text" id="edit_opt3_${qKey}" value="${q.opts ? (q.opts[3] || '') : ''}" placeholder="اختيار 3">
+                            <input type="text" id="edit_opt4_${qKey}" value="${q.opts ? (q.opts[4] || '') : ''}" placeholder="اختيار 4">
                         </div>
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
                             <div>
@@ -445,7 +462,19 @@
         });
     }
 
-    // ➕ إضافة سؤال جديد فوراً من جوة الصندوق الأخضر
+    // تحديث مستهدف الكويز من داخل المحرر
+    function updateQuizTargetFromEditor() {
+        const newTarget = document.getElementById('fast-change-target-select').value;
+        fetch(`${firebaseBaseUrl}/quizzes/${currentEditingQuizName}/target.json`, {
+            method: 'PUT',
+            body: JSON.stringify(newTarget)
+        }).then(() => {
+            alert('🟢 تم تحديث الشخص المستهدف لرؤية الكويز بنجاح!');
+            loadQuizzesAdminSection();
+        });
+    }
+
+    // ➕ إضافة سؤال جديد فوراً من جوة الصندوق الأزرق
     function addSingleQuestionFast() {
         const txt = document.getElementById('fast-q-text').value.trim();
         const o1 = document.getElementById('fast-q-opt1').value.trim();
@@ -467,12 +496,10 @@
             body: JSON.stringify(newQuestionData)
         }).then(() => {
             alert('⚡ تم إدراج السؤال الجديد بنجاح داخل هذا الكويز لايف!');
-            // تفريغ الخانات السريعة
             document.getElementById('fast-q-text').value = '';
             document.getElementById('fast-q-opt1').value = ''; document.getElementById('fast-q-opt2').value = '';
             document.getElementById('fast-q-opt3').value = ''; document.getElementById('fast-q-opt4').value = '';
             document.getElementById('fast-q-correct').value = '';
-            // تحديث العرض فوراً لليوزر
             openQuestionsEditor(currentEditingQuizName);
         });
     }
@@ -507,10 +534,6 @@
         }
     }
 
-    function changeQuizTarget(name, target) {
-        fetch(`${firebaseBaseUrl}/quizzes/${name}/target.json`, { method: 'PUT', body: JSON.stringify(target) }).then(() => { loadQuizzesAdminSection(); });
-    }
-
     function deleteQuizCompletely(name) {
         if(confirm(`هل تريد بالتأكيد حذف كويز [ ${name} ] نهائياً؟`)) {
             fetch(`${firebaseBaseUrl}/quizzes/${name}.json`, { method: 'DELETE' }).then(() => { 
@@ -536,7 +559,7 @@
         fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions.json`, { method: 'POST', body: JSON.stringify(data) })
         .then(() => fetch(`${firebaseBaseUrl}/quizzes/${quizName}/target.json`, { method: 'PUT', body: JSON.stringify(target) }))
         .then(() => {
-            alert('تم حفظ السؤال بنجاح!');
+            alert('تم حفظ السؤال بنجاح وتعيين المستهدف المخصص!');
             document.getElementById('q-text').value = ''; document.getElementById('q-opt1').value = '';
             document.getElementById('q-opt2').value = ''; document.getElementById('q-opt3').value = '';
             document.getElementById('q-opt4').value = ''; document.getElementById('q-correct').value = '';
@@ -605,7 +628,7 @@
             const list = document.getElementById('available-quizzes-list'); list.innerHTML = '';
             if(!quizzes) { list.innerHTML = 'لا توجد اختبارات حالياً.'; return; }
             Object.keys(quizzes).forEach(name => {
-                if(quizzes[name].target === "all" || quizzes[name].target === currentUser.username) {
+                if(quizzes[name].target === currentUser.username) {
                     list.innerHTML += `<div class="quiz-box"><h3>📋 ${name}</h3><button onclick="startQuizForAgent('${name}')">ابدأ الآن 🚀</button></div>`;
                 }
             });
