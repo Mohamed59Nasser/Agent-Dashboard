@@ -40,7 +40,11 @@
         .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; color: white; font-weight: bold; display: inline-block; }
         .badge-admin { background: #7c3aed; } .badge-leader { background: #2563eb; } .badge-quality { background: #db2777; }
         
-        /* تذييل الصفحة المخصص للحقوق */
+        /* تنسيقات مراجعة الإجابات بعد حل الكويز */
+        .option-label { display: block; padding: 10px; margin: 6px 0; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: normal; transition: background 0.2s; }
+        .correct-ans { background: #d1fae5 !important; border-color: #10b981 !important; color: #065f46 !important; font-weight: bold; }
+        .wrong-ans { background: #fee2e2 !important; border-color: #ef4444 !important; color: #991b1b !important; font-weight: bold; }
+
         .footer-credits { text-align: center; font-size: 11px; color: #94a3b8; padding: 15px 0; font-family: 'Courier New', Courier, monospace; }
     </style>
 </head>
@@ -118,7 +122,7 @@
         <div id="active-quiz-area" class="hidden" style="border-top: 2px dashed #cbd5e1; margin-top: 20px; padding-top: 20px;">
             <h3 id="active-quiz-title" style="color:var(--success)"></h3>
             <div id="quiz-questions-container"></div>
-            <button onclick="submitQuizAnswers()" style="background:var(--success); margin-top:15px;">إنهاء الكويز وإرسال الدرجة 🏁</button>
+            <button id="submit-quiz-btn" onclick="submitQuizAnswers()" style="background:var(--success); margin-top:15px;">إنهاء الكويز وإرسال الدرجة 🏁</button>
         </div>
         <button onclick="switchView('agent-hub')" style="background:#64748b; margin-top: 15px;">رجوع للرئيسية ↩️</button>
     </div>
@@ -188,7 +192,7 @@
                 <h4 style="margin:0;">نتائج الامتحانات لايف</h4>
                 <button onclick="exportScoresToExcel()" style="background:#15803d; width:auto; margin:0; padding:8px 15px;"><i class="fa-solid fa-download"></i> تحميل النتائج شيت Excel</button>
             </div>
-            <table class="data-table" id="excel-table">
+            <table class="data-table">
                 <thead><tr><th>اليوزر</th><th>اسم الكويز</th><th>النتيجة الكلية</th><th>التاريخ والوقت</th></tr></thead>
                 <tbody id="admin-scores-list"></tbody>
             </table>
@@ -356,14 +360,15 @@
             if(!questions) return alert('خطأ في تحميل الأسئلة!');
             activeQuizQuestions = Object.values(questions);
             document.getElementById('active-quiz-title').innerText = `امتحان: ${quizName}`;
+            document.getElementById('submit-quiz-btn').style.display = 'block'; // إظهار زر الإنهاء عند البدء من جديد
             const container = document.getElementById('quiz-questions-container'); container.innerHTML = '';
             
             activeQuizQuestions.forEach((q, index) => {
-                let html = `<div style="margin-bottom:20px; background:white; padding:15px; border-radius:8px; border:1px solid #cbd5e1;">
+                let html = `<div class="quiz-question-block" style="margin-bottom:20px; background:white; padding:15px; border-radius:8px; border:1px solid #cbd5e1;" data-correct="${q.correct}">
                     <p><b>سؤال ${index+1}:</b> ${q.question}</p>`;
                 q.opts.forEach((opt, oIdx) => {
                     if(opt) {
-                        html += `<label style="display:block; margin:5px 0; font-weight:normal;">
+                        html += `<label class="option-label" id="label_${index}_${oIdx+1}">
                             <input type="radio" name="q_ans_${index}" value="${oIdx+1}"> ${opt}
                         </label>`;
                     }
@@ -377,14 +382,43 @@
 
     function submitQuizAnswers() {
         let score = 0;
+        let totalQuestions = activeQuizQuestions.length;
+
         activeQuizQuestions.forEach((q, idx) => {
             const selected = document.querySelector(`input[name="q_ans_${idx}"]:checked`);
-            if(selected && selected.value == q.correct) { score++; }
+            const correctAnswerNumber = q.correct;
+
+            // 1. تلوين الإجابة الصحيحة باللون الأخضر دائماً عشان الكل يشوفها
+            const correctLabel = document.getElementById(`label_${idx}_${correctAnswerNumber}`);
+            if(correctLabel) correctLabel.classList.add('correct-ans');
+
+            if(selected) {
+                if(selected.value == correctAnswerNumber) {
+                    score++; // إجابة صحيحة
+                } else {
+                    // 2. لو اختار إجابة غلط تلون بالأحمر
+                    const wrongLabel = document.getElementById(`label_${idx}_${selected.value}`);
+                    if(wrongLabel) wrongLabel.classList.add('wrong-ans');
+                }
+            } else {
+                // لو محلش السؤال خالص يعتبر غلط وممكن نلون الإجابة الصح بس
+            }
+            
+            // تعطيل كافة الاختيارات بعد الإرسال لمنع التلاعب وضمان بقاء المراجعة لايف
+            document.querySelectorAll(`input[name="q_ans_${idx}"]`).forEach(input => input.disabled = true);
         });
-        const finalResult = `${score} / ${activeQuizQuestions.length}`;
+
+        const finalResult = `${score} / ${totalQuestions}`;
+        
+        // إخفاء زر الإرسال عشان ميتضغطش مرتين بعد ما النتيجة والاجابات ظهرت
+        document.getElementById('submit-quiz-btn').style.display = 'none';
+
+        // رفع النتيجة فوراً لقاعدة البيانات لايف
         fetch(`${firebaseBaseUrl}/scores.json`, {
             method: 'POST', body: JSON.stringify({ username: currentUser.username, quizName: activeQuizName, score: finalResult, timestamp: new Date().toLocaleString('ar-EG') })
-        }).then(() => { alert(`تم إنهاء الاختبار! نتيجتك هي: ${finalResult}`); loadQuizzesForAgent(); });
+        }).then(() => { 
+            alert(`تم إنهاء الاختبار وإرسال درجتك بنجاح!\nالنتيجة الحالية: ${finalResult}\nيمكنك الآن مراجعة إجاباتك الصحيحة والخاطئة الملونة بالأسفل.`); 
+        });
     }
 
     function loadUsersAdmin() {
@@ -493,12 +527,28 @@
         });
     }
 
+    // الدالة المطورة لحل مشكلة الحروف الغريبة والرموز باستعمال مكتبة XLSX بشكل احترافي
     function exportScoresToExcel() {
-        let table = document.getElementById("excel-table");
-        let html = table.outerHTML;
-        let url = 'data:application/vnd.ms-excel;charset=utf-8,' + encodeURIComponent(html);
-        let downloadLink = document.createElement("a"); downloadLink.href = url;
-        downloadLink.download = `نتائج_المنصة_الكلية.xls`; downloadLink.click();
+        fetch(`${firebaseBaseUrl}/scores.json`).then(res => res.json()).then(scores => {
+            if(!scores) return alert('لا توجد بيانات لتصديرها حالياً!');
+            
+            // تحويل البيانات لصفوف مصفوفة مرتبة ومفهومة للغة العربية
+            let dataRows = [
+                ["اليوزر", "اسم الكويز", "النتيجة الكلية", "التاريخ والوقت"]
+            ];
+            
+            Object.values(scores).forEach(s => {
+                dataRows.push([s.username, s.quizName, s.score, s.timestamp]);
+            });
+            
+            // إنشاء الشيت باستخدام XLSX لتجنب مشاكل الـ HTML والرموز تماماً
+            let worksheet = XLSX.utils.aoa_to_sheet(dataRows);
+            let workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "نتائج الامتحانات");
+            
+            // كتابة وحفظ الملف باسم سليم وتنزيله فوراً
+            XLSX.writeFile(workbook, `نتائج_المنصة_الكلية_${new Date().toLocaleDateString('en-US')}.xlsx`);
+        });
     }
 
     function logout() { currentUser = null; switchView('auth-box'); }
