@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>منصة إدارة واختبارات الايجينتس الاحترافية - السيرفر اللحظي</title>
     <style>
         :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; --bg: #f8fafc; --text: #0f172a; }
@@ -43,7 +46,7 @@
 
 <div class="container">
     <div id="auth-box">
-        <h2>تسجيل دخول المنصة اللحظية ⚡</h2>
+        <h2>تسجيل دخول المنصة اللحظية الجديدة ⚡</h2>
         <form onsubmit="handleAuth(event)">
             <div class="form-group" id="fullname-group" style="display: none;">
                 <label>الاسم الثلاثي بالكامل</label>
@@ -227,6 +230,7 @@
         });
     }
 
+    // تصدير فوري لملف إكسيل حقيقي ونظيف مباشرة من اللوحة
     function exportScoresToExcel() {
         let table = document.getElementById("excel-table");
         let html = table.outerHTML;
