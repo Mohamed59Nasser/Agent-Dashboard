@@ -230,10 +230,13 @@
 
         <div id="tab-results" class="admin-tab-content hidden">
             <h4>📊 نتائج اختبارات الموظفين الكاملة</h4>
-            <table class="data-table">
-                <thead><tr><th>الموظف (اليوزر)</th><th>اسم الكويز</th><th>النتيجة الكلية</th><th>التاريخ والوقت</th></tr></thead>
-                <tbody id="admin-scores-list"></tbody>
-            </table>
+            <button onclick="exportTableToExcel('admin-scores-table', 'نتائج_الموظفين_الكويزات')" style="background:var(--success); margin-bottom: 15px; width: auto; display: inline-flex;"><i class="fa-solid fa-file-excel"></i> سحب شيت إكسيل</button>
+            <div style="overflow-x:auto;">
+                <table class="data-table" id="admin-scores-table">
+                    <thead><tr><th>الموظف (اليوزر)</th><th>اسم الكويز</th><th>النتيجة الكلية</th><th>التاريخ والوقت</th></tr></thead>
+                    <tbody id="admin-scores-list"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -253,7 +256,7 @@
     }
 
     function goHome() { 
-        if(currentUser && (currentUser.role === 'admin' || currentUser.role === 'leader' || currentUser.role === 'quality')) switchView('admin-dashboard'); 
+        if(currentUser && (currentUser.role === 'admin' || currentUser.role === 'leader' || currentUser.role === 'quality')) switchView('admin-dashboard');
         else switchView('agent-hub'); 
     }
 
@@ -384,7 +387,6 @@
         fetch(`${firebaseBaseUrl}/users.json`).then(res => res.json()).then(users => {
             const selectMain = document.getElementById('q-target-select');
             const selectFast = document.getElementById('fast-change-target-select');
-            
             let optionsHtml = '<option value="draft">مسودة مخفية ❌</option>';
             if(users) {
                 Object.keys(users).forEach(k => {
@@ -416,19 +418,15 @@
         });
     }
 
-    // 🌟 فتح صندوق محرر الأسئلة وتعبئة المستهدف الحالي له
     function openQuestionsEditor(quizName) {
         currentEditingQuizName = quizName;
         document.getElementById('current-editing-quiz-title').innerText = quizName;
         const container = document.getElementById('individual-questions-list');
         container.innerHTML = '<p>جاري تحميل أسئلة الكويز...</p>';
         document.getElementById('questions-editor-container').classList.remove('hidden');
-
-        // جلب المستهدف الحالي للكويز وتحديده في القائمة المنسدلة بالمحرر
         fetch(`${firebaseBaseUrl}/quizzes/${quizName}/target.json`).then(res => res.json()).then(target => {
             if(target) document.getElementById('fast-change-target-select').value = target;
         });
-
         fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions.json`).then(res => res.json()).then(questions => {
             container.innerHTML = '';
             if(!questions) { container.innerHTML = '<p style="color:var(--danger); font-weight:bold;">⚠️ لا توجد أسئلة حالياً داخل هذا الكويز. يمكنك إضافة أول سؤال بالأسفل!</p>'; return; }
@@ -444,8 +442,8 @@
                         <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:5px;">
                             <input type="text" id="edit_opt1_${qKey}" value="${q.opts ? (q.opts[0] || '') : ''}" placeholder="اختيار 1">
                             <input type="text" id="edit_opt2_${qKey}" value="${q.opts ? (q.opts[1] || '') : ''}" placeholder="اختيار 2">
-                            <input type="text" id="edit_opt3_${qKey}" value="${q.opts ? (q.opts[3] || '') : ''}" placeholder="اختيار 3">
-                            <input type="text" id="edit_opt4_${qKey}" value="${q.opts ? (q.opts[4] || '') : ''}" placeholder="اختيار 4">
+                            <input type="text" id="edit_opt3_${qKey}" value="${q.opts ? (q.opts[2] || '') : ''}" placeholder="اختيار 3">
+                            <input type="text" id="edit_opt4_${qKey}" value="${q.opts ? (q.opts[3] || '') : ''}" placeholder="اختيار 4">
                         </div>
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
                             <div>
@@ -462,19 +460,16 @@
         });
     }
 
-    // تحديث مستهدف الكويز من داخل المحرر
     function updateQuizTargetFromEditor() {
         const newTarget = document.getElementById('fast-change-target-select').value;
         fetch(`${firebaseBaseUrl}/quizzes/${currentEditingQuizName}/target.json`, {
-            method: 'PUT',
-            body: JSON.stringify(newTarget)
+            method: 'PUT', body: JSON.stringify(newTarget)
         }).then(() => {
             alert('🟢 تم تحديث الشخص المستهدف لرؤية الكويز بنجاح!');
             loadQuizzesAdminSection();
         });
     }
 
-    // ➕ إضافة سؤال جديد فوراً من جوة الصندوق الأزرق
     function addSingleQuestionFast() {
         const txt = document.getElementById('fast-q-text').value.trim();
         const o1 = document.getElementById('fast-q-opt1').value.trim();
@@ -482,18 +477,10 @@
         const o3 = document.getElementById('fast-q-opt3').value.trim();
         const o4 = document.getElementById('fast-q-opt4').value.trim();
         const corr = document.getElementById('fast-q-correct').value.trim();
-
         if(!txt || !o1 || !o2 || !corr) return alert('برجاء كتابة السؤال والاختيارات والإجابة الصحيحة أولاً!');
-        
-        let newQuestionData = {
-            question: txt,
-            opts: [o1, o2, o3, o4],
-            correct: parseInt(corr)
-        };
-
+        let newQuestionData = { question: txt, opts: [o1, o2, o3, o4], correct: parseInt(corr) };
         fetch(`${firebaseBaseUrl}/quizzes/${currentEditingQuizName}/questions.json`, {
-            method: 'POST',
-            body: JSON.stringify(newQuestionData)
+            method: 'POST', body: JSON.stringify(newQuestionData)
         }).then(() => {
             alert('⚡ تم إدراج السؤال الجديد بنجاح داخل هذا الكويز لايف!');
             document.getElementById('fast-q-text').value = '';
@@ -515,10 +502,8 @@
             ],
             correct: parseInt(document.getElementById(`edit_corr_${qKey}`).value.trim())
         };
-
         fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions/${qKey}.json`, {
-            method: 'PUT',
-            body: JSON.stringify(updatedQuestion)
+            method: 'PUT', body: JSON.stringify(updatedQuestion)
         }).then(() => {
             alert('🟢 تم حفظ تعديل هذا السؤال بنجاح لايف!');
             openQuestionsEditor(quizName);
@@ -555,7 +540,6 @@
 
         if(!quizName || !txt || !o1 || !o2 || !corr) return alert('اكمل بيانات السؤال أولاً!');
         let data = { question: txt, opts: [o1, o2, o3, o4], correct: parseInt(corr) };
-
         fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions.json`, { method: 'POST', body: JSON.stringify(data) })
         .then(() => fetch(`${firebaseBaseUrl}/quizzes/${quizName}/target.json`, { method: 'PUT', body: JSON.stringify(target) }))
         .then(() => {
@@ -603,7 +587,8 @@
     }
 
     function viewAgentBreaks() {
-        switchView('info-display-box'); document.getElementById('info-box-title').innerText = "مواعيد البريك المحددة";
+        switchView('info-display-box');
+        document.getElementById('info-box-title').innerText = "مواعيد البريك المحددة";
         fetch(`${firebaseBaseUrl}/users/${currentUser.username}/breaks.json`).then(res => res.json()).then(b => {
             document.getElementById('info-content-area').innerHTML = b ? `<p>☕ <b>تفاصيل البريك:</b> ${b}</p>` : 'لم يتم تحديد مواعيد بريك لك بعد.';
         });
@@ -677,6 +662,12 @@
             });
             list.innerHTML = h + `</tbody></table>`;
         });
+    }
+
+    function exportTableToExcel(tableId, filename) {
+        const table = document.getElementById(tableId);
+        const wb = XLSX.utils.table_to_book(table, { sheet: "النتائج" });
+        XLSX.writeFile(wb, filename + ".xlsx");
     }
 </script>
 </body>
