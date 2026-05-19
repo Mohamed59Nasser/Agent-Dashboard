@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <title>منصة إدارة العمليات ⚡</title>
+    <title>منصة إدارة العمليات الموحدة ⚡</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -36,7 +36,6 @@
         .badge-admin { background: #7c3aed; } .badge-leader { background: #2563eb; } .badge-quality { background: #db2777; }
         .option-label { display: block; padding: 10px; margin: 6px 0; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: normal; transition: background 0.2s; }
         .correct-ans { background: #d1fae5 !important; border-color: #10b981 !important; color: #065f46 !important; font-weight: bold; }
-        .wrong-ans { background: #fee2e2 !important; border-color: #ef4444 !important; color: #991b1b !important; font-weight: bold; }
         .footer-credits { text-align: center; font-size: 11px; color: #94a3b8; padding: 15px 0; font-family: 'Courier New', Courier, monospace; }
         .view-btn { background: #4f46e5; color: white; padding: 5px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; border: none; font-weight: bold; width: auto; margin: 0; display: inline-flex; align-items: center; gap: 4px; }
     </style>
@@ -149,7 +148,7 @@
             <div style="background:#f1f5f9; padding:15px; border-radius:8px; margin-bottom:20px; border:1px solid #cbd5e1;">
                 <label style="color:var(--primary); font-weight:bold;">🟢 رفع الجدول بالكامل من ملف Excel:</label>
                 <input type="file" id="excel-file-input" accept=".xlsx, .xls" style="background:white; padding:8px;" />
-                <p style="font-size:12px; color:#64748b; margin:5px 0 0 0;">* يجب أن يحتوي الشيت على أعمدة باسم: (username) و (shift) و (breaks) - يمكن وضع فواصل للبريكس المتعددة مثل: 12:00 | 15:00</p>
+                <p style="font-size:12px; color:#64748b; margin:5px 0 0 0;">* يجب أن يحتوي الشيت على أعمدة باسم: (username) و (shift) و (breaks)</p>
                 <button onclick="uploadExcelSchedules()" style="background:var(--success); margin-top:10px;"><i class="fa-solid fa-file-excel"></i> بدء المعالجة والرفع الفوري</button>
             </div>
             <hr>
@@ -185,7 +184,7 @@
 
             <h4 style="margin-top:30px;">قائمة الأسئلة الحالية (للتعديل والحذف)</h4>
             <div class="form-group">
-                <input type="text" id="q-filter-name" placeholder="اكتب اسم الكويز هنا لعرض أسئلته..." onkeyup="loadQuestionsForAdmin()">
+                <input type="text" id="q-filter-name" placeholder="اكتب اسم الكويز هنا لعرض أسئلته للتحكم بها..." onkeyup="loadQuestionsForAdmin()">
             </div>
             <table class="data-table">
                 <thead><tr><th>نص السؤال</th><th>الإجراء</th></tr></thead>
@@ -201,15 +200,9 @@
                 <button onclick="exportScoresToExcel()" style="background:#15803d; width:auto; margin:0; padding:8px 15px;"><i class="fa-solid fa-download"></i> تحميل النتائج شيت Excel</button>
             </div>
             <table class="data-table">
-                <thead><tr><th>اليوزر</th><th>اسم الكويز</th><th>النتيجة الكلية</th><th>التاريخ والوقت</th><th>المراجعة الفورية</th></tr></thead>
+                <thead><tr><th>اليوزر</th><th>اسم الكويز</th><th>النتيجة الكلية</th><th>التاريخ والوقت</th></tr></thead>
                 <tbody id="admin-scores-list"></tbody>
             </table>
-
-            <div id="admin-review-box" class="hidden" style="margin-top:20px; padding:15px; border:2px dashed var(--primary); border-radius:12px; background:#faf5ff;">
-                <h3 style="color:var(--primary)">👁️ مراجعة ورقة إجابات الموظف بالتفصيل:</h3>
-                <div id="admin-review-details-container"></div>
-                <button onclick="document.getElementById('admin-review-box').classList.add('hidden')" style="background:#64748b; margin-top:10px;">إغلاق لوحة المراجعة</button>
-            </div>
         </div>
     </div>
 </div>
@@ -275,22 +268,19 @@
         document.getElementById('nav-profile-btn').style.display = "none";
 
         if(currentUser.role === 'admin') {
-            badge.innerText = "أدمن";
-            badge.classList.add('badge-admin');
+            badge.innerText = "أدمن"; badge.classList.add('badge-admin');
             document.getElementById('admin-dashboard-title').innerText = "لوحة التحكم والمراقبة";
             document.getElementById('btn-tab-users').classList.remove('hidden');
             document.getElementById('btn-tab-schedules').classList.remove('hidden');
             switchView('admin-dashboard'); loadUsersAdmin(); loadDropdownUsers();
         } else if(currentUser.role === 'leader') {
-            badge.innerText = "ليدر";
-            badge.classList.add('badge-leader');
+            badge.innerText = "ليدر"; badge.classList.add('badge-leader');
             document.getElementById('admin-dashboard-title').innerText = "لوحة تحكم المشرفين";
             document.getElementById('btn-tab-users').classList.add('hidden');
             document.getElementById('btn-tab-schedules').classList.remove('hidden');
             switchView('admin-dashboard'); switchAdminTab('tab-schedules', document.getElementById('btn-tab-schedules')); loadDropdownUsers();
         } else if(currentUser.role === 'quality') {
-            badge.innerText = "كوالتي";
-            badge.classList.add('badge-quality');
+            badge.innerText = "كوالتي"; badge.classList.add('badge-quality');
             document.getElementById('admin-dashboard-title').innerText = "لوحة المراجعة والجودة";
             document.getElementById('btn-tab-users').classList.add('hidden');
             document.getElementById('btn-tab-schedules').classList.add('hidden');
@@ -358,8 +348,7 @@
             const list = document.getElementById('available-quizzes-list'); list.innerHTML = '';
             if(!quizzes) { list.innerHTML = 'لا توجد اختبارات متاحة حالياً.'; return; }
             Object.keys(quizzes).forEach(quizName => {
-                let qData = quizzes[quizName];
-                let target = qData.target || "all";
+                let qData = quizzes[quizName]; let target = qData.target || "all";
                 if(target === "all" || target === currentUser.username) {
                     list.innerHTML += `<div class="quiz-box">
                         <h3>📋 ${quizName}</h3>
@@ -380,19 +369,17 @@
             document.getElementById('active-quiz-title').innerText = `امتحان: ${quizName}`;
             document.getElementById('submit-quiz-btn').style.display = 'block';
             const container = document.getElementById('quiz-questions-container'); container.innerHTML = '';
-            
-            activeQuizQuestions.forEach((q, index) => {
-                let html = `<div class="quiz-question-block" style="margin-bottom:20px; background:white; padding:15px; border-radius:8px; border:1px solid #cbd5e1;" data-correct="${q.correct}">
-                    <p><b>سؤال ${index+1}:</b> ${q.question}</p>`;
+            activeQuizQuestions.forEach((q, i) => {
+                let html = `<div style="margin-bottom:15px; background:white; padding:12px; border-radius:8px; border:1px solid #cbd5e1;">
+                    <p><b>س ${i+1}:</b> ${q.question}</p>`;
                 q.opts.forEach((opt, oIdx) => {
                     if(opt) {
-                        html += `<label class="option-label" id="label_${index}_${oIdx+1}">
-                            <input type="radio" name="q_ans_${index}" value="${oIdx+1}"> ${opt}
+                        html += `<label class="option-label" id="label_${i}_${oIdx+1}">
+                            <input type="radio" name="q_ans_${i}" value="${oIdx+1}"> ${opt}
                         </label>`;
                     }
                 });
-                html += `</div>`;
-                container.innerHTML += html;
+                html += `</div>`; container.innerHTML += html;
             });
             document.getElementById('active-quiz-area').classList.remove('hidden');
         });
@@ -400,135 +387,33 @@
 
     function submitQuizAnswers() {
         let score = 0;
-        let totalQuestions = activeQuizQuestions.length;
-        let answersDetails = []; 
-
-        activeQuizQuestions.forEach((q, idx) => {
-            const selected = document.querySelector(`input[name="q_ans_${idx}"]:checked`);
-            const correctAnswerNumber = q.correct;
-            let userSelectedValue = selected ? selected.value : "لم يحل";
-            
-            let questionText = q.question;
-            let correctOptionText = q.opts[correctAnswerNumber - 1] || "";
-            let userOptionText = selected ? q.opts[userSelectedValue - 1] : "لم يتم اختيار إجابة";
-
-            const correctLabel = document.getElementById(`label_${idx}_${correctAnswerNumber}`);
-            if(correctLabel) correctLabel.classList.add('correct-ans');
-
-            if(selected) {
-                if(selected.value == correctAnswerNumber) {
-                    score++;
-                } else {
-                    const wrongLabel = document.getElementById(`label_${idx}_${selected.value}`);
-                    if(wrongLabel) wrongLabel.classList.add('wrong-ans');
-                }
-            }
-
-            answersDetails.push({
-                question: questionText,
-                options: q.opts,
-                userAnswer: userSelectedValue,
-                correctAnswer: correctAnswerNumber
-            });
-            document.querySelectorAll(`input[name="q_ans_${idx}"]`).forEach(input => input.disabled = true);
+        activeQuizQuestions.forEach((q, i) => {
+            const sel = document.querySelector(`input[name="q_ans_${i}"]:checked`);
+            if(sel && sel.value == q.correct) score++;
+            const lbl = document.getElementById(`label_${i}_${q.correct}`); if(lbl) lbl.classList.add('correct-ans');
         });
-
-        const finalResult = `${score} / ${totalQuestions}`;
-        document.getElementById('submit-quiz-btn').style.display = 'none';
+        let res = `${score} / ${activeQuizQuestions.length}`;
         fetch(`${firebaseBaseUrl}/scores.json`, {
-            method: 'POST', body: JSON.stringify({ 
-                username: currentUser.username, 
-                quizName: activeQuizName, 
-                score: finalResult, 
-                timestamp: new Date().toLocaleString('ar-EG'),
-                details: answersDetails
-            })
-        }).then(() => { 
-            alert(`تم إنهاء الاختبار وإرسال درجتك بنجاح!\nالنتيجة الحالية: ${finalResult}\nيمكنك الآن مراجعة إجاباتك الملونة بالأسفل، كما تم حفظها في أرشيفك الشخصي.`); 
-        });
+            method: 'POST', body: JSON.stringify({ username: currentUser.username, quizName: activeQuizName, score: res, timestamp: new Date().toLocaleString('ar-EG') })
+        }).then(() => { alert(`انتهى الاختبار! النتيجة: ${res}`); loadQuizzesForAgent(); });
     }
 
     function loadAgentScoresArchive() {
-        switchView('quiz-dashboard');
-        document.getElementById('quiz-section-title').innerText = "🗂️ أرشيف ونتائج امتحاناتك السابقة الموثقة:";
-        document.getElementById('active-quiz-area').classList.add('hidden');
-        
-        const list = document.getElementById('available-quizzes-list');
-        list.innerHTML = 'جاري سحب الأرشيف الخاص بك...';
+        switchView('quiz-dashboard'); document.getElementById('active-quiz-area').classList.add('hidden');
         fetch(`${firebaseBaseUrl}/scores.json`).then(res => res.json()).then(scores => {
-            if(!scores) { list.innerHTML = 'أرشيفك فارغ، لم تقم بحل أي اختبارات بعد.'; return; }
-            
-            let htmlTable = `
-                <table class="data-table" style="width:100%">
-                    <thead>
-                        <tr><th>اسم الكويز</th><th>النتيجة الكلية</th><th>التاريخ والوقت</th><th>تفاصيل ورقتك</th></tr>
-                    </thead>
-                    <tbody>`;
+            const list = document.getElementById('available-quizzes-list'); list.innerHTML = '';
+            if(!scores) { list.innerHTML = 'أرشيفك فارغ.'; return; }
+            let h = `<table class="data-table" style="width:100%"><thead><tr><th>الكويز</th><th>النتيجة</th><th>التاريخ</th></tr></thead><tbody>`;
             let hasData = false;
-
             Object.keys(scores).forEach(id => {
-                let s = scores[id];
-                if(s.username === currentUser.username) {
+                if(scores[id].username === currentUser.username) {
                     hasData = true;
-                    let detailsString = encodeURIComponent(JSON.stringify(s.details || []));
-                    htmlTable += `
-                        <tr>
-                            <td>${s.quizName}</td>
-                            <td><b style="color:var(--primary)">${s.score}</b></td>
-                            <td>${s.timestamp}</td>
-                            <td><button class="view-btn" onclick="viewQuizDetailsDirectly('${s.quizName}', '${detailsString}')"><i class="fa-solid fa-eye"></i> عرض الأخطاء والحل</button></td>
-                        </tr>`;
+                    h += `<tr><td>${scores[id].quizName}</td><td><b>${scores[id].score}</b></td><td>${scores[id].timestamp}</td></tr>`;
                 }
             });
-
-            htmlTable += `</tbody></table>`;
-            list.innerHTML = hasData ? htmlTable : 'أرشيفك فارغ، لم تقم بحل أي اختبارات بعد.';
+            h += `</tbody></table>`;
+            list.innerHTML = hasData ? h : 'أرشيفك فارغ.';
         });
-    }
-
-    function viewQuizDetailsDirectly(quizName, encodedDetails) {
-        let details = JSON.parse(decodeURIComponent(encodedDetails));
-        const activeArea = document.getElementById('active-quiz-area');
-        document.getElementById('active-quiz-title').innerText = `📑 تقرير مراجعة الأخطاء والحل لـ: ${quizName}`;
-        document.getElementById('submit-quiz-btn').style.display = 'none';
-        
-        const container = document.getElementById('quiz-questions-container');
-        container.innerHTML = '';
-
-        if(!details || details.length === 0) {
-            container.innerHTML = '<p style="color:var(--danger); text-align:center;">عذراً، هذا الامتحان قديم ولا تتوفر له تفاصيل أسئلة مسجلة بقاعدة البيانات.</p>';
-            activeArea.classList.remove('hidden');
-            return;
-        }
-
-        details.forEach((q, index) => {
-            let html = `<div style="margin-bottom:20px; background:white; padding:15px; border-radius:8px; border:1px solid #cbd5e1; text-align:right;">
-                <p><b>سؤال ${index+1}:</b> ${q.question}</p>`;
-            
-            q.options.forEach((opt, oIdx) => {
-                if(opt) {
-                    let currentOptionNumber = oIdx + 1;
-                    let classStyle = "";
-                    
-                    if(currentOptionNumber == q.correctAnswer) {
-                        classStyle = "correct-ans";
-                    }
-                    else if(currentOptionNumber == q.userAnswer && q.userAnswer != q.correctAnswer) {
-                        classStyle = "wrong-ans";
-                    }
-
-                    html += `<label class="option-label ${classStyle}">
-                        <input type="radio" disabled ${currentOptionNumber == q.userAnswer ? "checked" : ""}> ${opt}
-                        ${currentOptionNumber == q.correctAnswer ? " ✨ (الإجابة الصحيحة)" : ""}
-                        ${currentOptionNumber == q.userAnswer && q.userAnswer != q.correctAnswer ? " ❌ (إجابتك المختارة)" : ""}
-                    </label>`;
-                }
-            });
-            html += `</div>`;
-            container.innerHTML += html;
-        });
-        activeArea.classList.remove('hidden');
-        window.scrollTo({ top: activeArea.offsetTop - 20, behavior: 'smooth' });
     }
 
     function loadUsersAdmin() {
@@ -553,7 +438,7 @@
     }
 
     function changeUserRole(username, newRole) {
-        fetch(`${firebaseBaseUrl}/users/${username}/role.json`, { method: 'PUT', body: JSON.stringify(newRole) }).then(() => { alert('تم تحديث الرتبة والصلاحيات فوراً!'); loadUsersAdmin(); });
+        fetch(`${firebaseBaseUrl}/users/${username}/role.json`, { method: 'PUT', body: JSON.stringify(newRole) }).then(() => { alert('تم تحديث الرتبة!'); loadUsersAdmin(); });
     }
 
     function loadDropdownUsers() {
@@ -581,43 +466,33 @@
         if(!fileInput.files.length) return alert('من فضلك اختر ملف إكسيل أولاً!');
         const file = fileInput.files[0]; const reader = new FileReader();
         reader.onload = function(e) {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const sheetName = workbook.SheetNames[0];
-            const sheet = workbook.Sheets[sheetName];
-            const jsonData = XLSX.utils.sheet_to_json(sheet);
-            let promises = [];
+            const data = new Uint8Array(e.target.result); const workbook = XLSX.read(data, { type: 'array' });
+            const sheetName = workbook.SheetNames[0]; const sheet = workbook.Sheets[sheetName];
+            const jsonData = XLSX.utils.sheet_to_json(sheet); let promises = [];
             jsonData.forEach(row => {
                 const user = String(row.username || '').trim().toLowerCase();
-                const shift = String(row.shift || '').trim();
-                const breaks = String(row.breaks || '').trim();
+                const shift = String(row.shift || '').trim(); const breaks = String(row.breaks || '').trim();
                 if(user) {
                     let p = fetch(`${firebaseBaseUrl}/users/${user}.json`).then(res => res.json()).then(uExist => {
                         if(uExist) {
-                            return fetch(`${firebaseBaseUrl}/users/${user}.json`, {
-                                method: 'PATCH', body: JSON.stringify({ shift: shift || "لم يحدد", breaks: breaks || "لم يحدد" })
-                            });
+                            return fetch(`${firebaseBaseUrl}/users/${user}.json`, { method: 'PATCH', body: JSON.stringify({ shift: shift || "لم يحدد", breaks: breaks || "لم يحدد" }) });
                         }
-                    });
-                    promises.push(p);
+                    }); promises.push(p);
                 }
             });
-            Promise.all(promises).then(() => { alert('تمت معالجة ورفع شيت الإكسيل وتحديث جميع الموظفين بنجاح! ⚡'); loadDropdownUsers(); });
-        };
-        reader.readAsArrayBuffer(file);
+            Promise.all(promises).then(() => { alert('تم تحديث شيت الإكسيل بنجاح! ⚡'); loadDropdownUsers(); });
+        }; reader.readAsArrayBuffer(file);
     }
 
-    // --- وظائف التعديل والحذف للأسئلة (الجديدة) ---
+    // --- وظائف التعديل والحذف للأسئلة المدمجة بالكامل ---
     function addQuizQuestionAdmin() {
         const editKey = document.getElementById('q-edit-key').value;
         const quizName = document.getElementById('q-quizname').value.trim();
         const target = document.getElementById('q-target-select').value;
         const question = document.getElementById('q-text').value.trim();
         const opts = [
-            document.getElementById('q-opt1').value.trim(), 
-            document.getElementById('q-opt2').value.trim(), 
-            document.getElementById('q-opt3').value.trim(), 
-            document.getElementById('q-opt4').value.trim()
+            document.getElementById('q-opt1').value.trim(), document.getElementById('q-opt2').value.trim(), 
+            document.getElementById('q-opt3').value.trim(), document.getElementById('q-opt4').value.trim()
         ];
         const correct = document.getElementById('q-correct').value.trim();
         
@@ -629,12 +504,9 @@
                 : `${firebaseBaseUrl}/quizzes/${quizName}/questions.json`;
             const method = editKey ? 'PATCH' : 'POST';
 
-            fetch(url, {
-                method: method, body: JSON.stringify({ question, opts, correct })
-            }).then(() => {
+            fetch(url, { method: method, body: JSON.stringify({ question, opts, correct }) }).then(() => {
                 alert(editKey ? 'تم تحديث السؤال بنجاح!' : 'تم حفظ السؤال بنجاح داخل مجموعة الكويز!');
-                clearQuizForm();
-                loadQuestionsForAdmin();
+                clearQuizForm(); loadQuestionsForAdmin();
             });
         });
     }
@@ -654,12 +526,9 @@
         const tbody = document.getElementById('admin-questions-list');
         if(!quizName) { tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;">اكتب اسم الكويز بالأعلى لعرض الأسئلة</td></tr>'; return; }
         
-        fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions.json`)
-        .then(res => res.json())
-        .then(data => {
+        fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions.json`).then(res => res.json()).then(data => {
             tbody.innerHTML = '';
             if(!data) { tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;">لا توجد أسئلة في هذا الكويز</td></tr>'; return; }
-            
             for(let key in data) {
                 let q = data[key];
                 let safeQ = q.question.replace(/'/g, "\\'");
@@ -671,8 +540,8 @@
                 tbody.innerHTML += `<tr>
                     <td>${q.question}</td>
                     <td>
-                        <button class="view-btn" style="background:#f59e0b;" onclick="editQuestionAdmin('${key}', '${quizName}', '${safeQ}', '${opt1}', '${opt2}', '${opt3}', '${opt4}', '${q.correct}')">تعديل ✏️</button>
-                        <button class="view-btn" style="background:var(--danger)" onclick="deleteQuestionAdmin('${key}', '${quizName}')">حذف 🗑️</button>
+                        <button class="view-btn" style="background:#f59e0b; width:auto; display:inline-block; margin:0 5px;" onclick="editQuestionAdmin('${key}', '${quizName}', '${safeQ}', '${opt1}', '${opt2}', '${opt3}', '${opt4}', '${q.correct}')">تعديل ✏️</button>
+                        <button class="view-btn" style="background:var(--danger); width:auto; display:inline-block; margin:0 5px;" onclick="deleteQuestionAdmin('${key}', '${quizName}')">حذف 🗑️</button>
                     </td>
                 </tr>`;
             }
@@ -684,99 +553,34 @@
         document.getElementById('q-quizname').value = quizName;
         document.getElementById('q-filter-name').value = quizName;
         document.getElementById('q-text').value = text;
-        document.getElementById('q-opt1').value = o1;
-        document.getElementById('q-opt2').value = o2;
-        document.getElementById('q-opt3').value = o3;
-        document.getElementById('q-opt4').value = o4;
+        document.getElementById('q-opt1').value = o1; document.getElementById('q-opt2').value = o2;
+        document.getElementById('q-opt3').value = o3; document.getElementById('q-opt4').value = o4;
         document.getElementById('q-correct').value = correct;
         document.getElementById('q-save-btn').innerText = "تحديث السؤال 🔄";
         document.getElementById('q-cancel-btn').classList.remove('hidden');
-        window.scrollTo({ top: document.getElementById('tab-quizzes').offsetTop, behavior: 'smooth' });
     }
 
     function deleteQuestionAdmin(key, quizName) {
-        if(!confirm("هل أنت متأكد من حذف هذا السؤال بشكل نهائي؟")) return;
-        fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions/${key}.json`, { method: 'DELETE' })
-        .then(() => { alert("تم حذف السؤال بنجاح!"); loadQuestionsForAdmin(); });
+        if(!confirm("هل أنت متأكد من حذف هذا السؤال؟")) return;
+        fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions/${key}.json`, { method: 'DELETE' }).then(() => { alert("تم حذف السؤال بنجاح!"); loadQuestionsForAdmin(); });
     }
 
     function loadScoresAdmin() {
         fetch(`${firebaseBaseUrl}/scores.json`).then(res => res.json()).then(scores => {
             const tbody = document.getElementById('admin-scores-list'); tbody.innerHTML = ''; if(!scores) return;
-            document.getElementById('admin-review-box').classList.add('hidden');
-            
             Object.keys(scores).forEach(id => {
-                let s = scores[id];
-                let encodedDetails = encodeURIComponent(JSON.stringify(s.details || []));
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${s.username}</td>
-                        <td>${s.quizName}</td>
-                        <td><b style="color:var(--primary)">${s.score}</b></td>
-                        <td>${s.timestamp}</td>
-                        <td>
-                            <button class="view-btn" style="background:#7c3aed" onclick="reviewAgentQuizAsAdmin('${s.username}', '${s.quizName}', '${encodedDetails}')">
-                                <i class="fa-solid fa-magnifying-glass"></i> تفاصيل الأخطاء 👁️
-                            </button>
-                        </td>
-                    </tr>`;
+                tbody.innerHTML += `<tr><td>${scores[id].username}</td><td>${scores[id].quizName}</td><td><b style="color:var(--primary)">${scores[id].score}</b></td><td>${scores[id].timestamp}</td></tr>`;
             });
         });
-    }
-
-    function reviewAgentQuizAsAdmin(username, quizName, encodedDetails) {
-        let details = JSON.parse(decodeURIComponent(encodedDetails));
-        const reviewBox = document.getElementById('admin-review-box');
-        const container = document.getElementById('admin-review-details-container');
-        
-        container.innerHTML = `<p style="margin-bottom:15px;"><b>الموظف:</b> ${username} | <b>الامتحان:</b> ${quizName}</p>`;
-        if(!details || details.length === 0) {
-            container.innerHTML += '<p style="color:var(--danger)">لا توجد تفاصيل أخطاء مسجلة لهذا الامتحان القديم.</p>';
-            reviewBox.classList.remove('hidden');
-            return;
-        }
-
-        details.forEach((q, index) => {
-            let html = `<div style="margin-bottom:15px; background:white; padding:12px; border-radius:6px; border:1px solid #cbd5e1;">
-                <p><b>س ${index+1}:</b> ${q.question}</p>`;
-            
-            q.options.forEach((opt, oIdx) => {
-                if(opt) {
-                    let currentNum = oIdx + 1;
-                    let style = "";
-                    if(currentNum == q.correctAnswer) style = "correct-ans";
-                    else if(currentNum == q.userAnswer && q.userAnswer != q.correctAnswer) style = "wrong-ans";
-
-                    html += `<label class="option-label ${style}" style="padding:6px; font-size:13px;">
-                        <input type="radio" disabled ${currentNum == q.userAnswer ? "checked" : ""}> ${opt}
-                        ${currentNum == q.correctAnswer ? " [الإجابة الصحيحة ✔️]" : ""}
-                        ${currentNum == q.userAnswer && q.userAnswer != q.correctAnswer ? " [إيجابة الموظف الخاطئة ❌]" : ""}
-                    </label>`;
-                }
-            });
-            html += `</div>`;
-            container.innerHTML += html;
-        });
-        reviewBox.classList.remove('hidden');
-        window.scrollTo({ top: reviewBox.offsetTop - 20, behavior: 'smooth' });
     }
 
     function exportScoresToExcel() {
         fetch(`${firebaseBaseUrl}/scores.json`).then(res => res.json()).then(scores => {
             if(!scores) return alert('لا توجد بيانات لتصديرها حالياً!');
-            
-            let dataRows = [
-                ["اليوزر", "اسم الكويز", "النتيجة الكلية", "التاريخ والوقت"]
-            ];
-            
-            Object.values(scores).forEach(s => {
-                dataRows.push([s.username, s.quizName, s.score, s.timestamp]);
-            });
-            
-            let worksheet = XLSX.utils.aoa_to_sheet(dataRows);
-            let workbook = XLSX.utils.book_new();
+            let dataRows = [ ["اليوزر", "اسم الكويز", "النتيجة الكلية", "التاريخ والوقت"] ];
+            Object.values(scores).forEach(s => { dataRows.push([s.username, s.quizName, s.score, s.timestamp]); });
+            let worksheet = XLSX.utils.aoa_to_sheet(dataRows); let workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "نتائج الامتحانات");
-            
             XLSX.writeFile(workbook, `نتائج_المنصة_الكلية_${new Date().toLocaleDateString('en-US')}.xlsx`);
         });
     }
