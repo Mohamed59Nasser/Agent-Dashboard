@@ -219,13 +219,17 @@
         
         .option-label { 
             display: block;
-            padding: 10px; 
-            margin: 6px 0; 
+            padding: 12px; 
+            margin: 8px 0; 
             border: 1px solid #cbd5e1; 
-            border-radius: 6px; 
+            border-radius: 8px; 
             font-weight: normal;
             transition: all 0.3s;
+            cursor: pointer;
+            background: white;
         }
+        
+        /* Highlight colors for answers */
         .correct-ans { 
             background: #d1fae5 !important; 
             border-color: #10b981 !important; 
@@ -484,7 +488,7 @@
 
         <div id="tab-results" class="admin-tab-content hidden">
             <h4>📊 Employee Scores & Details</h4>
-            <button onclick="exportTableToExcel('admin-scores-table', 'Employee_Scores_HydePark')" style="background:var(--success); margin-bottom: 15px; width: auto; display: inline-flex;"><i class="fa-solid fa-file-excel"></i> Export to Excel</button>
+            <button onclick="exportTableToExcel('admin-scores-table', 'HydePark_Scores_Details')" style="background:var(--success); margin-bottom: 15px; width: auto; display: inline-flex;"><i class="fa-solid fa-file-excel"></i> Export to Excel</button>
             <div style="overflow-x:auto;">
                 <table class="data-table" id="admin-scores-table">
                     <thead><tr><th>Employee (User)</th><th>Quiz Name</th><th>Total Score</th><th>Answers Details</th><th>Date & Time</th></tr></thead>
@@ -616,7 +620,6 @@
         const user = document.getElementById('auth-username').value.trim().toLowerCase();
         const pass = document.getElementById('auth-password').value.trim();
         
-        // Admin Master Bypass based on your request
         if (user === "mohamed nasser" && pass === "592005") {
             currentUser = { username: "mohamed nasser", fullName: "Mohamed Nasser", role: "admin" };
             setupDashboardPermissions(); 
@@ -721,8 +724,8 @@
                         <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:5px;">
                             <input type="text" id="edit_opt1_${qKey}" value="${q.opts ? (q.opts[0] || '') : ''}" placeholder="Opt 1">
                             <input type="text" id="edit_opt2_${qKey}" value="${q.opts ? (q.opts[1] || '') : ''}" placeholder="Opt 2">
-                            <input type="text" id="edit_opt3_${qKey}" value="${q.opts ? (q.opts[2] || '') : ''}" placeholder="Opt 3">
-                            <input type="text" id="edit_opt4_${qKey}" value="${q.opts ? (q.opts[3] || '') : ''}" placeholder="Opt 4">
+                            <input type="text" id="edit_opt3_${qKey}" value="${q.opts ? (q.opts[3] || '') : ''}" placeholder="Opt 3">
+                            <input type="text" id="edit_opt4_${qKey}" value="${q.opts ? (q.opts[4] || '') : ''}" placeholder="Opt 4">
                         </div>
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
                             <div>
@@ -840,7 +843,7 @@
                     <td><b>${scores[id].username}</b></td>
                     <td>${scores[id].quizName}</td>
                     <td><span class="badge" style="background:var(--success)">${scores[id].score}</span></td>
-                    <td style="font-size:11px; color:#475569;">${detailsText}</td>
+                    <td style="font-size:12px; color:#334155; font-weight:bold;">${detailsText}</td>
                     <td><small>${scores[id].timestamp}</small></td>
                 </tr>`;
             });
@@ -938,19 +941,21 @@
             const sel = document.querySelector(`input[name="q_${i}"]:checked`);
             let userAns = sel ? sel.value : null;
             
-            // Highlight correct answer always
+            // Highlight correct answer always (Green)
             const correctLbl = document.getElementById(`label_${i}_${q.correct}`); 
             if(correctLbl) correctLbl.classList.add('correct-ans');
 
             if(userAns == q.correct) {
                 score++;
-                detailsArr.push(`Q${i+1}: Correct`);
+                detailsArr.push(`Q${i+1}: Correct ✅`);
             } else {
-                detailsArr.push(`Q${i+1}: Wrong`);
-                // Highlight user's wrong answer
                 if(userAns) {
+                    detailsArr.push(`Q${i+1}: Wrong ❌`);
+                    // Highlight user's wrong answer (Red)
                     const wrongLbl = document.getElementById(`label_${i}_${userAns}`);
                     if(wrongLbl) wrongLbl.classList.add('wrong-ans');
+                } else {
+                    detailsArr.push(`Q${i+1}: Missed ⚠️`);
                 }
             }
             // Disable all inputs so user cannot change answer after submit
@@ -973,7 +978,7 @@
                 timestamp: new Date().toLocaleString() 
             })
         }).then(() => { 
-            alert(`Quiz Submitted! Your Score: ${res}\nYou can now review your correct and wrong answers.`); 
+            alert(`Quiz Submitted! Your Score: ${res}\nGreen = Correct Answer\nRed = Your Wrong Answer`); 
         });
     }
 
@@ -994,7 +999,6 @@
 
     function exportTableToExcel(tableId, filename) {
         const table = document.getElementById(tableId);
-        // Table element is used directly by XLSX to generate the sheet, including the Details column
         const wb = XLSX.utils.table_to_book(table, { sheet: "Scores" });
         XLSX.writeFile(wb, filename + ".xlsx");
     }
