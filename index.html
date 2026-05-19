@@ -1,372 +1,1075 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>منصة إدارة العمليات الموحدة ⚡</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+
+:root{
+--primary:#2563eb;
+--success:#10b981;
+--danger:#ef4444;
+--warning:#f59e0b;
+--bg:#f8fafc;
+--text:#0f172a;
+}
+
+body{
+font-family:'Segoe UI';
+background:var(--bg);
+margin:0;
+padding:10px;
+direction:rtl;
+}
+
+.container{
+background:white;
+padding:20px;
+border-radius:15px;
+max-width:1000px;
+margin:auto;
+margin-top:80px;
+box-shadow:0 10px 15px rgba(0,0,0,0.1);
+}
+
+h2,h3,h4{
+text-align:center;
+color:var(--primary);
+}
+
+input,select,textarea{
+width:100%;
+padding:12px;
+margin-top:5px;
+border:1px solid #cbd5e1;
+border-radius:8px;
+box-sizing:border-box;
+}
+
+button{
+width:100%;
+padding:12px;
+margin-top:10px;
+border:none;
+border-radius:8px;
+background:var(--primary);
+color:white;
+font-weight:bold;
+cursor:pointer;
+}
+
+.hidden{
+display:none;
+}
+
+.navbar{
+position:fixed;
+top:0;
+left:0;
+right:0;
+height:60px;
+background:white;
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:0 20px;
+box-shadow:0 2px 5px rgba(0,0,0,0.1);
+z-index:999;
+}
+
+.nav-btn{
+background:#f1f5f9;
+padding:8px 12px;
+border-radius:6px;
+border:none;
+cursor:pointer;
+width:auto;
+color:black;
+}
+
+.logout-btn{
+background:var(--danger);
+color:white;
+}
+
+.menu-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:15px;
+margin-top:20px;
+}
+
+.menu-btn{
+padding:20px;
+background:white;
+border:2px solid var(--primary);
+color:var(--primary);
+font-weight:bold;
+border-radius:12px;
+}
+
+.data-table{
+width:100%;
+border-collapse:collapse;
+margin-top:15px;
+}
+
+.data-table th,
+.data-table td{
+border:1px solid #cbd5e1;
+padding:8px;
+text-align:center;
+}
+
+.data-table th{
+background:#f1f5f9;
+}
+
+.correct-ans{
+background:#d1fae5 !important;
+color:#065f46;
+font-weight:bold;
+}
+
+.wrong-ans{
+background:#fee2e2 !important;
+color:#991b1b;
+font-weight:bold;
+}
+
+.option-label{
+display:block;
+padding:10px;
+border:1px solid #cbd5e1;
+margin-top:5px;
+border-radius:6px;
+}
+
+.info-card{
+background:#f1f5f9;
+padding:15px;
+border-radius:10px;
+margin-bottom:15px;
+font-weight:bold;
+text-align:center;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="navbar" id="top-navbar" style="display:none;">
+
+<div>
+
+<button class="nav-btn" onclick="goHome()">
+الرئيسية
+</button>
+
+</div>
+
+<div>
+
+<button class="nav-btn logout-btn"
+onclick="logout()">
+خروج
+</button>
+
+</div>
+
+</div>
+
+<div class="container">
+
+<div id="auth-box">
+
+<h2>
+تسجيل دخول منصة إدارة العمليات ⚡
+</h2>
+
+<form onsubmit="handleAuth(event)">
+
+<input type="text"
+id="auth-fullname"
+placeholder="الاسم بالكامل"
+class="hidden">
+
+<input type="text"
+id="auth-username"
+placeholder="اسم المستخدم"
+required>
+
+<input type="password"
+id="auth-password"
+placeholder="كلمة المرور"
+required>
+
+<button type="submit"
+id="auth-btn">
+دخول
+</button>
+
+</form>
+
+<div style="text-align:center;margin-top:20px;">
+
+<a style="cursor:pointer;color:blue"
+onclick="toggleAuthMode()"
+id="toggle-auth-btn">
+
+ليس لديك حساب؟ سجل الآن
+
+</a>
+
+</div>
+
+</div>
+
+<div id="agent-hub" class="hidden">
+
+<h2>
+
+أهلاً بك
+<span id="agent-welcome-name"></span>
+
+</h2>
+
+<div class="menu-grid">
+
+<button class="menu-btn"
+onclick="loadQuizzesForAgent()">
+
+الاختبارات
+
+</button>
+
+<button class="menu-btn"
+onclick="loadAgentScoresArchive()">
+
+نتائجي
+
+</button>
+
+</div>
+
+</div>
+
+<div id="quiz-dashboard" class="hidden">
+
+<h2>
+الاختبارات
+</h2>
+
+<div id="available-quizzes-list"></div>
+
+<div id="active-quiz-area"
+class="hidden">
+
+<h3 id="active-quiz-title"></h3>
+
+<div id="quiz-questions-container"></div>
+
+<button id="submit-quiz-btn"
+onclick="submitQuizAnswers()">
+
+إنهاء الاختبار
+
+</button>
+
+</div>
+
+</div>
+
+<div id="admin-dashboard"
+class="hidden">
+
+<h2>
+لوحة التحكم
+</h2>
+
+<button onclick="loadScoresAdmin()">
+
+تحديث النتائج
+
+</button>
+
+<button onclick="
+exportTableToExcel(
+'admin-scores-table',
+'نتائج_الموظفين'
+)
+">
+
+سحب Excel
+
+</button>
+
+<table class="data-table"
+id="admin-scores-table">
+
+<thead>
+
+<tr>
+
+<th>الموظف</th>
+
+<th>الكويز</th>
+
+<th>النتيجة</th>
+
+<th>التاريخ</th>
+
+<th>التفاصيل</th>
+
+</tr>
+
+</thead>
+
+<tbody id="admin-scores-list"></tbody>
+
+</table>
+
+</div>
+
+<div id="info-display-box"
+class="hidden">
+
+<h2 id="info-box-title"></h2>
+
+<div id="info-content-area"></div>
+
+<button onclick="goHome()">
+
+رجوع
+
+</button>
+
+</div>
+
+</div>
+
 <script>
+
+const firebaseBaseUrl =
+"https://agent-system-01-default-rtdb.firebaseio.com";
+
+let currentUser = null;
+
+let isSignUpMode = false;
+
+let activeQuizQuestions = [];
+
+let activeQuizName = "";
+
+function switchView(id){
+
+[
+'auth-box',
+'agent-hub',
+'quiz-dashboard',
+'admin-dashboard',
+'info-display-box'
+]
+
+.forEach(el=>{
+
+document.getElementById(el)
+.classList.add('hidden');
+
+});
+
+document.getElementById(id)
+.classList.remove('hidden');
+
+document.getElementById('top-navbar')
+.style.display =
+id === 'auth-box'
+? 'none'
+: 'flex';
+}
+
+function goHome(){
+
+if(
+currentUser.role === 'admin'
+||
+currentUser.role === 'leader'
+||
+currentUser.role === 'quality'
+){
+
+switchView('admin-dashboard');
+
+}else{
+
+switchView('agent-hub');
+
+}
+}
+
+function logout(){
+
+currentUser = null;
+
+switchView('auth-box');
+
+}
+
+function toggleAuthMode(){
+
+isSignUpMode = !isSignUpMode;
+
+document.getElementById('auth-fullname')
+.classList.toggle('hidden');
+
+document.getElementById('auth-btn')
+.innerText =
+isSignUpMode
+? 'تسجيل'
+: 'دخول';
+
+}
+
+function handleAuth(e){
+
+e.preventDefault();
+
+const user =
+document.getElementById('auth-username')
+.value
+.trim()
+.toLowerCase();
+
+const pass =
+document.getElementById('auth-password')
+.value
+.trim();
+
+if(user === 'admin'
+&& pass === 'admin'){
+
+currentUser = {
+
+username:'admin',
+
+fullName:'محمد ناصر',
+
+role:'admin'
+
+};
+
+switchView('admin-dashboard');
+
+return;
+}
+
+if(isSignUpMode){
+
+const fullName =
+document.getElementById('auth-fullname')
+.value
+.trim();
+
+fetch(`${firebaseBaseUrl}/users/${user}.json`,{
+
+method:'PUT',
+
+body:JSON.stringify({
+
+username:user,
+
+password:pass,
+
+fullName:fullName,
+
+role:'agent'
+
+})
+
+})
+.then(()=>{
+
+alert('تم التسجيل');
+
+toggleAuthMode();
+
+});
+
+}else{
+
+fetch(`${firebaseBaseUrl}/users/${user}.json`)
+
+.then(res=>res.json())
+
+.then(data=>{
+
+if(data && data.password === pass){
+
+currentUser = data;
+
+document.getElementById(
+'agent-welcome-name'
+).innerText =
+currentUser.fullName;
+
+if(
+currentUser.role === 'admin'
+||
+currentUser.role === 'leader'
+||
+currentUser.role === 'quality'
+){
+
+switchView('admin-dashboard');
+
+}else{
+
+switchView('agent-hub');
+
+}
+
+}else{
+
+alert('بيانات غير صحيحة');
+
+}
+
+});
+
+}
+}
+
+function loadQuizzesForAgent(){
+
+switchView('quiz-dashboard');
+
+fetch(`${firebaseBaseUrl}/quizzes.json`)
+
+.then(res=>res.json())
+
+.then(quizzes=>{
+
+const list =
+document.getElementById(
+'available-quizzes-list'
+);
+
+list.innerHTML = '';
+
+Object.keys(quizzes).forEach(name=>{
+
+if(
+quizzes[name].target
+=== currentUser.username
+){
+
+list.innerHTML += `
+
+<div class="info-card">
+
+<h3>${name}</h3>
+
+<button
+onclick="
+startQuizForAgent('${name}')
+">
+
+ابدأ الآن
+
+</button>
+
+</div>
+
+`;
+
+}
+
+});
+
+});
+
+}
+
+function startQuizForAgent(name){
+
+activeQuizName = name;
+
+fetch(
+`${firebaseBaseUrl}/quizzes/${name}/questions.json`
+)
+
+.then(res=>res.json())
+
+.then(qs=>{
+
+activeQuizQuestions =
+Object.values(qs);
+
+const container =
+document.getElementById(
+'quiz-questions-container'
+);
+
+container.innerHTML = '';
+
+activeQuizQuestions.forEach((q,i)=>{
+
+let h = `
+
+<div class="info-card">
+
+<p>
+
+<b>
+
+س${i+1}:
+
+</b>
+
+${q.question}
+
+</p>
+
+`;
+
+q.opts.forEach((o,oi)=>{
+
+if(o){
+
+h += `
+
+<label
+class="option-label"
+id="label_${i}_${oi+1}">
+
+<input
+type="radio"
+name="q_${i}"
+value="${oi+1}">
+
+${o}
+
+</label>
+
+`;
+
+}
+
+});
+
+container.innerHTML += h + `</div>`;
+
+});
+
+document.getElementById(
+'active-quiz-area'
+).classList.remove('hidden');
+
+});
+
+}
 
 function submitQuizAnswers() {
 
-    let score = 0;
-    let answersReview = [];
+let score = 0;
 
-    activeQuizQuestions.forEach((q, i) => {
+let answersReview = [];
 
-        const sel = document.querySelector(`input[name="q_${i}"]:checked`);
+activeQuizQuestions.forEach((q, i) => {
 
-        const selectedAnswer = sel ? parseInt(sel.value) : null;
+const sel =
+document.querySelector(`input[name="q_${i}"]:checked`);
 
-        const isCorrect = selectedAnswer === q.correct;
+const selectedAnswer =
+sel ? parseInt(sel.value) : null;
 
-        if(isCorrect) score++;
+const isCorrect =
+selectedAnswer === q.correct;
 
-        const correctLbl =
-        document.getElementById(`label_${i}_${q.correct}`);
+if(isCorrect) score++;
 
-        if(correctLbl) {
-            correctLbl.classList.add('correct-ans');
-        }
+const correctLbl =
+document.getElementById(`label_${i}_${q.correct}`);
 
-        if(sel && selectedAnswer == q.correct) {
+if(correctLbl) {
+correctLbl.classList.add('correct-ans');
+}
 
-            const userCorrect =
-            document.getElementById(`label_${i}_${selectedAnswer}`);
+if(sel && !isCorrect) {
 
-            if(userCorrect) {
-                userCorrect.classList.add('correct-ans');
-            }
-        }
+const wrongLbl =
+document.getElementById(`label_${i}_${selectedAnswer}`);
 
-        if(sel && !isCorrect) {
+if(wrongLbl) {
+wrongLbl.classList.add('wrong-ans');
+}
+}
 
-            const wrongLbl =
-            document.getElementById(`label_${i}_${selectedAnswer}`);
+answersReview.push({
 
-            if(wrongLbl) {
-                wrongLbl.classList.add('wrong-ans');
-            }
-        }
+question: q.question,
 
-        answersReview.push({
+selected: selectedAnswer,
 
-            question: q.question,
+correct: q.correct,
 
-            selected: selectedAnswer,
+options: q.opts,
 
-            correct: q.correct,
+status: isCorrect ? "صح" : "غلط"
+});
+});
 
-            options: q.opts,
+let res =
+`${score} / ${activeQuizQuestions.length}`;
 
-            status: isCorrect ? "صح" : "غلط"
-        });
-    });
+fetch(`${firebaseBaseUrl}/scores.json`, {
 
-    let res = `${score} / ${activeQuizQuestions.length}`;
+method: 'POST',
 
-    fetch(`${firebaseBaseUrl}/scores.json`, {
+body: JSON.stringify({
 
-        method: 'POST',
+username: currentUser.username,
 
-        body: JSON.stringify({
+fullName: currentUser.fullName,
 
-            username: currentUser.username,
+quizName: activeQuizName,
 
-            fullName: currentUser.fullName,
+score: res,
 
-            quizName: activeQuizName,
+answers: answersReview,
 
-            score: res,
+timestamp:
+new Date().toLocaleString('ar-EG')
+})
 
-            answers: answersReview,
+})
+.then(() => {
 
-            timestamp:
-            new Date().toLocaleString('ar-EG')
-        })
+let reviewHTML = `
 
-    })
-    .then(() => {
+<div class="info-card">
 
-        let reviewHTML = `
+✅ نتيجتك النهائية: ${res}
 
-            <div class="info-card">
+</div>
 
-                ✅ نتيجتك النهائية: ${res}
+`;
 
-            </div>
+answersReview.forEach((a, index) => {
 
-        `;
+reviewHTML += `
 
-        answersReview.forEach((a, index) => {
+<div class="info-card">
 
-            reviewHTML += `
+<h4>
 
-                <div style="
-                    background:white;
-                    padding:15px;
-                    margin-bottom:10px;
-                    border-radius:10px;
-                    border:1px solid #cbd5e1;
-                ">
+سؤال ${index + 1}
 
-                    <h4>
+</h4>
 
-                        سؤال ${index + 1}
+<p>
 
-                    </h4>
+<b>${a.question}</b>
 
-                    <p>
+</p>
 
-                        <b>${a.question}</b>
+<p>
 
-                    </p>
+حالتك:
+${a.status}
 
-                    <p style="
-                        color:
-                        ${a.status === 'صح'
-                        ? 'green'
-                        : 'red'};
+</p>
 
-                        font-weight:bold;
-                    ">
+<p>
 
-                        حالتك:
-                        ${a.status}
+إجابتك:
 
-                    </p>
+${
+a.selected
+? a.options[a.selected - 1]
+: 'لم يتم الاختيار'
+}
 
-                    <p>
+</p>
 
-                        <b>إجابتك:</b>
+<p>
 
-                        ${
-                            a.selected
-                            ? a.options[a.selected - 1]
-                            : 'لم يتم الاختيار'
-                        }
+الإجابة الصحيحة:
 
-                    </p>
+${a.options[a.correct - 1]}
 
-                    <p>
+</p>
 
-                        <b>
-                            الإجابة الصحيحة:
-                        </b>
+</div>
 
-                        ${a.options[a.correct - 1]}
+`;
+});
 
-                    </p>
+document.getElementById(
+'quiz-questions-container'
+).innerHTML = reviewHTML;
 
-                </div>
-            `;
-        });
+document.getElementById(
+'submit-quiz-btn'
+).style.display = "none";
 
-        document.getElementById(
-            'quiz-questions-container'
-        ).innerHTML = reviewHTML;
+});
+}
 
-        document.getElementById(
-            'submit-quiz-btn'
-        ).style.display = "none";
+function loadAgentScoresArchive(){
 
-    });
+switchView('quiz-dashboard');
+
+fetch(`${firebaseBaseUrl}/scores.json`)
+
+.then(res=>res.json())
+
+.then(scores=>{
+
+const list =
+document.getElementById(
+'available-quizzes-list'
+);
+
+list.innerHTML = `
+
+<table class="data-table">
+
+<thead>
+
+<tr>
+
+<th>الكويز</th>
+
+<th>النتيجة</th>
+
+<th>التاريخ</th>
+
+</tr>
+
+</thead>
+
+<tbody id="agent-score-body">
+
+</tbody>
+
+</table>
+
+`;
+
+const body =
+document.getElementById(
+'agent-score-body'
+);
+
+Object.keys(scores).forEach(id=>{
+
+if(
+scores[id].username
+=== currentUser.username
+){
+
+body.innerHTML += `
+
+<tr>
+
+<td>${scores[id].quizName}</td>
+
+<td>${scores[id].score}</td>
+
+<td>${scores[id].timestamp}</td>
+
+</tr>
+
+`;
+
+}
+
+});
+
+});
+
 }
 
 function loadScoresAdmin() {
 
-    fetch(`${firebaseBaseUrl}/scores.json`)
+fetch(`${firebaseBaseUrl}/scores.json`)
 
-    .then(res => res.json())
+.then(res => res.json())
 
-    .then(scores => {
+.then(scores => {
 
-        const tbody =
-        document.getElementById(
-            'admin-scores-list'
-        );
+const tbody =
+document.getElementById(
+'admin-scores-list'
+);
 
-        tbody.innerHTML = '';
+tbody.innerHTML = '';
 
-        if(!scores) {
+Object.keys(scores).forEach(id => {
 
-            tbody.innerHTML = `
+let s = scores[id];
 
-                <tr>
+tbody.innerHTML += `
 
-                    <td colspan="5">
+<tr>
 
-                        لا توجد نتائج مسجلة.
+<td>
 
-                    </td>
+${s.fullName}
 
-                </tr>
+</td>
 
-            `;
+<td>
 
-            return;
-        }
+${s.quizName}
 
-        Object.keys(scores).forEach(id => {
+</td>
 
-            let s = scores[id];
+<td>
 
-            tbody.innerHTML += `
+${s.score}
 
-                <tr>
+</td>
 
-                    <td>
+<td>
 
-                        <b>
-                            ${s.fullName || s.username}
-                        </b>
+${s.timestamp}
 
-                    </td>
+</td>
 
-                    <td>
+<td>
 
-                        ${s.quizName}
+<button
+onclick="
+showScoreDetails('${id}')
+">
 
-                    </td>
+عرض
 
-                    <td>
+</button>
 
-                        <span
-                        class="badge"
-                        style="
-                            background:
-                            var(--success)
-                        ">
+</td>
 
-                            ${s.score}
+</tr>
 
-                        </span>
+`;
 
-                    </td>
+});
 
-                    <td>
+});
 
-                        ${s.timestamp}
-
-                    </td>
-
-                    <td>
-
-                        <button
-                        class="view-btn"
-
-                        onclick="
-                        showScoreDetails('${id}')
-                        ">
-
-                            عرض التفاصيل
-
-                        </button>
-
-                    </td>
-
-                </tr>
-
-            `;
-        });
-    });
 }
 
 function showScoreDetails(scoreId) {
 
-    fetch(
-        `${firebaseBaseUrl}/scores/${scoreId}.json`
-    )
+fetch(
+`${firebaseBaseUrl}/scores/${scoreId}.json`
+)
 
-    .then(res => res.json())
+.then(res => res.json())
 
-    .then(data => {
+.then(data => {
 
-        let html = `
+let html = `
 
-            <h3>
+<h3>
 
-                تفاصيل اختبار
-                ${data.fullName}
+تفاصيل اختبار
+${data.fullName}
 
-            </h3>
+</h3>
 
-        `;
+`;
 
-        data.answers.forEach((a, i) => {
+data.answers.forEach((a, i) => {
 
-            html += `
+html += `
 
-                <div style="
-                    background:white;
-                    padding:15px;
-                    margin-bottom:10px;
-                    border-radius:10px;
-                    border:1px solid #cbd5e1;
-                ">
+<div class="info-card">
 
-                    <p>
+<p>
 
-                        <b>
+<b>
 
-                            س${i+1}:
+س${i+1}:
 
-                        </b>
+</b>
 
-                        ${a.question}
+${a.question}
 
-                    </p>
+</p>
 
-                    <p style="
-                        color:
-                        ${a.status === 'صح'
-                        ? 'green'
-                        : 'red'};
+<p>
 
-                        font-weight:bold;
-                    ">
+${a.status}
 
-                        ${a.status}
+</p>
 
-                    </p>
+<p>
 
-                    <p>
+إجابته:
 
-                        <b>
+${
+a.selected
+? a.options[a.selected - 1]
+: 'لم يجب'
+}
 
-                            إجابته:
+</p>
 
-                        </b>
+<p>
 
-                        ${
-                            a.selected
-                            ? a.options[a.selected - 1]
-                            : 'لم يجب'
-                        }
+الإجابة الصحيحة:
 
-                    </p>
+${a.options[a.correct - 1]}
 
-                    <p>
+</p>
 
-                        <b>
+</div>
 
-                            الإجابة الصحيحة:
+`;
 
-                        </b>
+});
 
-                        ${a.options[a.correct - 1]}
+document.getElementById(
+'info-box-title'
+).innerText =
+"تفاصيل النتائج";
 
-                    </p>
+document.getElementById(
+'info-content-area'
+).innerHTML = html;
 
-                </div>
+switchView('info-display-box');
 
-            `;
-        });
+});
+}
 
-        document.getElementById(
-            'info-box-title'
-        ).innerText =
-        "تفاصيل نتائج الاختبار";
+function exportTableToExcel(tableId, filename){
 
-        document.getElementById(
-            'info-content-area'
-        ).innerHTML = html;
+const table =
+document.getElementById(tableId);
 
-        switchView('info-display-box');
-    });
+const wb =
+XLSX.utils.table_to_book(table);
+
+XLSX.writeFile(
+wb,
+filename + ".xlsx"
+);
+
 }
 
 </script>
+
+</body>
+</html>
