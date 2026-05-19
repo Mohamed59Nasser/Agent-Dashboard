@@ -310,6 +310,16 @@
             border-radius: 8px; 
             margin-top: 15px; 
         }
+        
+        .filter-container {
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            background: #e2e8f0; 
+            padding: 10px 15px; 
+            border-radius: 8px;
+            flex-wrap: wrap;
+        }
     </style>
 </head>
 <body>
@@ -488,7 +498,18 @@
 
         <div id="tab-results" class="admin-tab-content hidden">
             <h4>📊 Employee Scores & Details</h4>
-            <button onclick="exportTableToExcel('admin-scores-table', 'HydePark_Scores_Details')" style="background:var(--success); margin-bottom: 15px; width: auto; display: inline-flex;"><i class="fa-solid fa-file-excel"></i> Export to Excel</button>
+            
+            <div style="display: flex; gap: 15px; margin-bottom: 15px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+                <div class="filter-container">
+                    <label style="margin:0; font-size:14px; color:var(--primary); font-weight:bold;"><i class="fa-solid fa-filter"></i> Filter by Quiz:</label>
+                    <select id="admin-quiz-filter" onchange="filterScoresTable()" style="padding: 6px; border-radius: 6px; border: 1px solid #cbd5e1; min-width: 180px;">
+                        <option value="all">All Quizzes</option>
+                    </select>
+                </div>
+                
+                <button onclick="triggerExcelExport()" style="background:var(--success); width: auto; margin: 0;"><i class="fa-solid fa-file-excel"></i> Export Filtered to Excel</button>
+            </div>
+            
             <div style="overflow-x:auto;">
                 <table class="data-table" id="admin-scores-table">
                     <thead><tr><th>Employee (User)</th><th>Quiz Name</th><th>Total Score</th><th>Answers Details</th><th>Date & Time</th></tr></thead>
@@ -503,7 +524,12 @@
 
 <script>
     const firebaseBaseUrl = "https://agent-system-01-default-rtdb.firebaseio.com";
-    let isSignUpMode = false; let currentUser = null; let activeQuizQuestions = []; let activeQuizName = ""; let currentEditingQuizName = "";
+    let isSignUpMode = false; 
+    let currentUser = null; 
+    let activeQuizQuestions = []; 
+    let activeQuizName = ""; 
+    let currentEditingQuizName = "";
+    let globalScoresData = null; // To store fetched scores for fast filtering
 
     // Session Management
     window.addEventListener('DOMContentLoaded', () => {
@@ -833,21 +859,72 @@
         });
     }
 
+    // --- NEW: Scores Filtering & Excel Logic ---
     function loadScoresAdmin() {
         fetch(`${firebaseBaseUrl}/scores.json`).then(res => res.json()).then(scores => {
-            const tbody = document.getElementById('admin-scores-list'); tbody.innerHTML = '';
-            if(!scores) { tbody.innerHTML = '<tr><td colspan="5">No scores recorded yet.</td></tr>'; return; }
-            Object.keys(scores).forEach(id => {
-                let detailsText = scores[id].details || 'N/A';
-                tbody.innerHTML += `<tr>
-                    <td><b>${scores[id].username}</b></td>
-                    <td>${scores[id].quizName}</td>
-                    <td><span class="badge" style="background:var(--success)">${scores[id].score}</span></td>
-                    <td style="font-size:12px; color:#334155; font-weight:bold;">${detailsText}</td>
-                    <td><small>${scores[id].timestamp}</small></td>
-                </tr>`;
-            });
+            globalScoresData = scores; // Save globally for filtering
+            updateQuizFilterDropdown(scores);
+            renderScoresTable();
         });
+    }
+
+    function updateQuizFilterDropdown(scores) {
+        const filterSelect = document.getElementById('admin-quiz-filter');
+        const currentVal = filterSelect.value;
+        
+        let uniqueQuizzes = new Set();
+        if(scores) {
+            Object.values(scores).forEach(s => uniqueQuizzes.add(s.quizName));
+        }
+        
+        let opts = `<option value="all">All Quizzes</option>`;
+        uniqueQuizzes.forEach(q => {
+            opts += `<option value="${q}">${q}</option>`;
+        });
+        
+        filterSelect.innerHTML = opts;
+        
+        // Retain selection if it still exists
+        if (uniqueQuizzes.has(currentVal) || currentVal === "all") {
+            filterSelect.value = currentVal;
+        }
+    }
+
+    function filterScoresTable() {
+        renderScoresTable();
+    }
+
+    function renderScoresTable() {
+        const tbody = document.getElementById('admin-scores-list'); 
+        tbody.innerHTML = '';
+        
+        if(!globalScoresData) { 
+            tbody.innerHTML = '<tr><td colspan="5">No scores recorded yet.</td></tr>'; 
+            return; 
+        }
+        
+        const filterValue = document.getElementById('admin-quiz-filter').value;
+        let hasData = false;
+
+        Object.keys(globalScoresData).forEach(id => {
+            let score = globalScoresData[id];
+            // Filter logic
+            if(filterValue === "all" || score.quizName === filterValue) {
+                hasData = true;
+                let detailsText = score.details || 'N/A';
+                tbody.innerHTML += `<tr>
+                    <td><b>${score.username}</b></td>
+                    <td>${score.quizName}</td>
+                    <td><span class="badge" style="background:var(--success)">${score.score}</span></td>
+                    <td style="font-size:12px; color:#334155; font-weight:bold;">${detailsText}</td>
+                    <td><small>${score.timestamp}</small></td>
+                </tr>`;
+            }
+        });
+
+        if(!hasData) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#64748b; padding:20px;">No records match the selected quiz.</td></tr>`;
+        }
     }
 
     function viewAgentSchedule() {
@@ -997,8 +1074,18 @@
         });
     }
 
+    // Dynamic Excel Export based on Filter
+    function triggerExcelExport() {
+        const filterVal = document.getElementById('admin-quiz-filter').value;
+        // Generate dynamic file name based on selected filter
+        let dynamicFileName = filterVal === 'all' ? 'HydePark_All_Scores' : `HydePark_Scores_${filterVal.replace(/\s+/g, '_')}`;
+        
+        exportTableToExcel('admin-scores-table', dynamicFileName);
+    }
+
     function exportTableToExcel(tableId, filename) {
         const table = document.getElementById(tableId);
+        // Table to Book will extract ONLY the visible rows generated by the filter!
         const wb = XLSX.utils.table_to_book(table, { sheet: "Scores" });
         XLSX.writeFile(wb, filename + ".xlsx");
     }
