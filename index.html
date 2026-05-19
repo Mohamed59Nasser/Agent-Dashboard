@@ -1,468 +1,674 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>منصة إدارة العمليات</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>منصة إدارة العمليات الموحدة ⚡</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; --warning: #f59e0b; --bg: #f8fafc; --text: #0f172a; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; min-height: 100vh; box-sizing: border-box; display: flex; flex-direction: column; }
+        .container { background: #ffffff; padding: 25px; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); width: 100%; max-width: 950px; box-sizing: border-box; margin: 80px auto 20px auto; flex: 1; }
+        h2, h3, h4 { text-align: center; color: var(--primary); margin-top: 0; }
+        .form-group { margin-bottom: 16px; text-align: right; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 15px; font-family: inherit; }
+        button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; font-weight: bold; margin-top: 10px; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
+        .hidden { display: none !important; }
+        
+        .navbar { position: fixed; top: 0; left: 0; right: 0; height: 60px; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; z-index: 1000; box-sizing: border-box; }
+        .nav-btn { background: #f1f5f9; color: var(--text); padding: 8px 14px; border-radius: 6px; font-size: 14px; border: 1px solid #cbd5e1; font-weight: 600; cursor: pointer; width: auto; margin: 0; }
+        .logout-btn { background: var(--danger); color: white; border: none; }
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+        .menu-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 20px; }
+        @media(min-width: 500px) { .menu-grid { grid-template-columns: 1fr 1fr; } }
+        .menu-btn { padding: 20px; font-size: 16px; border-radius: 12px; border: 2px solid var(--primary); background: #fff; color: var(--primary); cursor: pointer; font-weight: bold; text-align: center; flex-direction: column; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        
+        .admin-tabs { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
+        .tab-btn { background: #e2e8f0; color: var(--text); padding: 8px 12px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; font-size: 13px; white-space: nowrap; width: auto; margin: 0; }
+        .tab-btn.active { background: var(--primary); color: white; }
+        
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; text-align: right; }
+        .data-table th, .data-table td { border: 1px solid #cbd5e1; padding: 8px; text-align: center; }
+        .data-table th { background: #f1f5f9; color: var(--text); font-weight: bold; }
+        .info-card { background: #f1f5f9; padding: 20px; border-radius: 12px; border: 1px solid #cbd5e1; text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 15px; }
+        
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; color: white; font-weight: bold; display: inline-block; }
+        .badge-admin { background: #7c3aed; } .badge-leader { background: #2563eb; } .badge-quality { background: #db2777; }
+        
+        .option-label { display: block; padding: 10px; margin: 6px 0; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: normal; }
+        .correct-ans { background: #d1fae5 !important; border-color: #10b981 !important; color: #065f46 !important; font-weight: bold; }
+        .wrong-ans { background: #fee2e2 !important; border-color: #ef4444 !important; color: #991b1b !important; font-weight: bold; }
 
-<style>
-body{
-font-family:Arial;
-background:#f1f5f9;
-padding:20px;
-direction:rtl;
-}
-
-.container{
-background:white;
-padding:20px;
-border-radius:10px;
-max-width:1000px;
-margin:auto;
-}
-
-input,button{
-padding:10px;
-margin:5px 0;
-width:100%;
-}
-
-button{
-background:#2563eb;
-color:white;
-border:none;
-cursor:pointer;
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-margin-top:20px;
-}
-
-th,td{
-border:1px solid #ddd;
-padding:10px;
-text-align:center;
-}
-
-.correct{
-background:#d1fae5;
-}
-
-.wrong{
-background:#fee2e2;
-}
-</style>
+        .footer-credits { text-align: center; font-size: 11px; color: #94a3b8; padding: 15px 0; font-family: 'Courier New', Courier, monospace; }
+        .view-btn { background: #4f46e5; color: white; padding: 5px 10px; border-radius: 4px; font-size: 11px; cursor: pointer; border: none; font-weight: bold; width: auto; margin: 0; }
+        .off-day { background: #fee2e2; color: #ef4444; font-weight: bold; }
+        .work-day { background: #e0f2fe; color: #0369a1; font-weight: bold; }
+        .action-inline { display: flex; gap: 4px; justify-content: center; align-items: center; flex-wrap: wrap; }
+        .input-mini { padding: 4px; font-size: 12px; width: 90px; text-align: center; border-radius: 4px; border: 1px solid #cbd5e1; }
+        
+        .questions-editor-box { background: #f0fdf4; border: 2px solid #16a34a; padding: 15px; border-radius: 12px; margin-top: 20px; text-align: right; }
+        .question-edit-row { background: white; padding: 12px; border: 1px solid #bbf7d0; border-radius: 8px; margin-bottom: 10px; }
+        .add-fast-question-box { background: #e0f2fe; border: 1px dashed #0284c7; padding: 12px; border-radius: 8px; margin-top: 15px; }
+    </style>
 </head>
-
 <body>
 
+<div class="navbar" id="top-navbar" style="display: none;">
+    <div>
+        <button class="nav-btn" onclick="goHome()"><i class="fa-solid fa-house"></i> الرئيسية</button>
+        <button class="nav-btn" id="nav-profile-btn" onclick="switchView('agent-profile')" style="display:none;"><i class="fa-solid fa-user"></i> الشخصية</button>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <span id="user-role-badge" class="badge"></span>
+        <button class="nav-btn logout-btn" onclick="logout()"><i class="fa-solid fa-door-open"></i> خروج</button>
+    </div>
+</div>
+
 <div class="container">
+    <div id="auth-box">
+        <h2>تسجيل دخول منصة إدارة العمليات ⚡</h2>
+        <form onsubmit="handleAuth(event)">
+            <div class="form-group" id="fullname-group" style="display: none;">
+                <label>الاسم بالكامل (ثلاثي ومطابق تماماً للإكسيل)</label>
+                <input type="text" id="auth-fullname" placeholder="مثال: Shahinda Hassan">
+            </div>
+            <div class="form-group">
+                <label>اسم المستخدم (اليوزر)</label>
+                <input type="text" id="auth-username" required placeholder="ادخل اسم المستخدم">
+            </div>
+            <div class="form-group">
+                <label>كلمة المرور</label>
+                <input type="password" id="auth-password" required placeholder="••••••••">
+            </div>
+            <button type="submit" id="auth-btn">دخول المنصة</button>
+        </form>
+        <div style="text-align: center; margin-top: 20px;">
+            <a id="toggle-auth-btn" style="color:var(--primary); cursor:pointer; font-weight:bold;" onclick="toggleAuthMode()">ليس لديك حساب؟ سجل الآن</a>
+        </div>
+    </div>
 
-<h2>منصة الاختبارات</h2>
+    <div id="agent-hub" class="hidden">
+        <h2>أهلاً بك 👋 <br><span id="agent-welcome-name" style="color:var(--primary)"></span></h2>
+        <div class="menu-grid">
+            <button class="menu-btn" onclick="loadQuizzesForAgent()"><i class="fa-solid fa-trophy fa-2x"></i> بدء الاختبارات الفورية</button>
+            <button class="menu-btn" onclick="loadAgentScoresArchive()"><i class="fa-solid fa-box-archive fa-2x"></i> أرشيف نتائج اختباراتي</button>
+            <button class="menu-btn" onclick="viewAgentSchedule()"><i class="fa-solid fa-calendar-days fa-2x"></i> عرض جدول الشفت الأسبوعي 📅</button>
+            <button class="menu-btn" onclick="viewAgentBreaks()"><i class="fa-solid fa-mug-hot fa-2x"></i> ميعاد البريك (Breaks)</button>
+        </div>
+    </div>
 
-<div id="loginBox">
+    <div id="info-display-box" class="hidden">
+        <h2 id="info-box-title">تفاصيل اليوم</h2>
+        <div id="info-content-area" style="overflow-x: auto;">جاري التحميل...</div>
+        <button onclick="goHome()" style="background:#64748b; margin-top: 15px;"><i class="fa-solid fa-arrow-right"></i> رجوع للرئيسية</button>
+    </div>
 
-<input type="text" id="username" placeholder="اسم المستخدم">
-<input type="password" id="password" placeholder="كلمة المرور">
+    <div id="agent-profile" class="hidden">
+        <h2>👤 تعديل بيانات الحساب الشخصي</h2>
+        <div class="info-card" style="text-align: right; font-size:15px; font-weight:normal;">
+            <p><strong>الاسم الحالي:</strong> <span id="prof-name"></span></p>
+            <p><strong>اسم المستخدم:</strong> <span id="prof-user"></span></p>
+        </div>
+        <div class="form-group">
+            <label>طلب تعديل أو بلاغ للإدارة:</label>
+            <textarea id="profile-change-request" rows="3" placeholder="اكتب طلبك هنا..."></textarea>
+        </div>
+        <button onclick="submitDataChangeRequest()" style="background:var(--warning);">إرسال الطلب لايف 🚀</button>
+        <button onclick="switchView('agent-hub')" style="background:#64748b; margin-top:10px;">رجوع</button>
+    </div>
 
-<button onclick="login()">دخول</button>
+    <div id="quiz-dashboard" class="hidden">
+        <h2 id="quiz-section-title">الاختبارات المتاحة لك:</h2>
+        <div id="available-quizzes-list">جاري تحميل الاختبارات...</div>
+        
+        <div id="active-quiz-area" class="hidden" style="border-top: 2px dashed #cbd5e1; margin-top: 20px; padding-top: 20px;">
+            <h3 id="active-quiz-title" style="color:var(--success)"></h3>
+            <div id="quiz-questions-container"></div>
+            <button id="submit-quiz-btn" onclick="submitQuizAnswers()" style="background:var(--success); margin-top:15px;">إنهاء الكويز وإرسال الدرجة 🏁</button>
+        </div>
+        <button onclick="goHome()" style="background:#64748b; margin-top: 15px;">رجوع للرئيسية ↩️</button>
+    </div>
 
+    <div id="admin-dashboard" class="hidden">
+        <h2>لوحة التحكم والمراقبة الكاملة 👑</h2>
+        
+        <div class="admin-tabs" id="admin-tabs-container">
+            <button class="tab-btn active" onclick="switchAdminTab('tab-users', this); loadUsersAdmin();">👥 إدارة اليوزرات والباسوردات</button>
+            <button class="tab-btn" onclick="switchAdminTab('tab-schedules', this)">📅 رفع الشفتات (Excel)</button>
+            <button class="tab-btn" onclick="switchAdminTab('tab-quizzes', this); loadQuizzesAdminSection();">📝 التحكم في الكويزات</button>
+            <button class="tab-btn" onclick="switchAdminTab('tab-results', this); loadScoresAdmin();">📊 نتائج ودرجات الموظفين</button>
+        </div>
+
+        <div id="tab-users" class="admin-tab-content">
+            <h4>👥 التحكم الشامل في حسابات الموظفين وتعديل كلمات المرور لايف</h4>
+            <div style="overflow-x:auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>الاسم الكامل</th>
+                            <th>اسم المستخدم (اليوزر)</th>
+                            <th>الرتبة</th>
+                            <th>تعديل الباسورد لايف</th>
+                            <th>تغيير الصلاحية</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-users-list"><tr><td colspan="5">جاري جلب المستخدمين...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab-schedules" class="admin-tab-content hidden">
+            <h4>📅 رفع وتحديث جداول الشفتات الأسبوعية</h4>
+            <div style="background:#f1f5f9; padding:15px; border-radius:8px; border:1px solid #cbd5e1;">
+                <label style="color:var(--primary); font-weight:bold;">اختر ملف الإكسيل (Schedule):</label>
+                <input type="file" id="excel-file-input" accept=".xlsx, .xls" style="background:white; padding:8px;" />
+                <button onclick="uploadExcelSchedules()" style="background:var(--success); margin-top:10px;"><i class="fa-solid fa-file-excel"></i> معالجة وحفظ الجدول فوراً</button>
+            </div>
+        </div>
+
+        <div id="tab-quizzes" class="admin-tab-content hidden">
+            <h4>📝 إنشاء وتحرير المجموعات الامتحانية والأسئلة</h4>
+            <div class="form-group"><label>اسم الكويز الجديد:</label><input type="text" id="q-quizname" placeholder="مثال: اختبار الجودة"></div>
+            <div class="form-group">
+                <label>تحديد المستهدف (اختر الموظف المستهدف بالاسم):</label>
+                <select id="q-target-select"><option value="draft">مسودة مخفية ❌</option></select>
+            </div>
+            <div style="background:#f8fafc; padding:15px; border-radius:10px; border:1px solid #cbd5e1; margin-top:15px;">
+                <div class="form-group"><label>السؤال:</label><input type="text" id="q-text"></div>
+                <div class="form-group"><label>الاختيار 1:</label><input type="text" id="q-opt1"></div>
+                <div class="form-group"><label>الاختيار 2:</label><input type="text" id="q-opt2"></div>
+                <div class="form-group"><label>الاختيار 3:</label><input type="text" id="q-opt3"></div>
+                <div class="form-group"><label>الاختيار 4:</label><input type="text" id="q-opt4"></div>
+                <div class="form-group"><label>رقم الإجابة الصحيحة (1-4):</label><input type="number" id="q-correct" min="1" max="4"></div>
+            </div>
+            <button onclick="addQuizQuestionAdmin()" style="background:var(--success);">حفظ السؤال وإنشاء/تحديث الكويز 🚀</button>
+
+            <h4 style="margin-top: 30px; color: var(--primary);">📋 قائمة الكويزات وصلاحيات الرؤية وتعديل الأسئلة</h4>
+            <table class="data-table">
+                <thead><tr><th>اسم الكويز</th><th>المستهدف الحالي</th><th>الإجراءات والتحكم بالأسئلة</th></tr></thead>
+                <tbody id="admin-quizzes-control-list"></tbody>
+            </table>
+
+            <div id="questions-editor-container" class="questions-editor-box hidden">
+                <h3 style="color:#16a34a;"><i class="fa-solid fa-pen-to-square"></i> محرر أسئلة كويز: <span id="current-editing-quiz-title"></span></h3>
+                
+                <div class="form-group" style="background: #e0f2fe; padding: 10px; border-radius: 8px; border: 1px solid #7dd3fc;">
+                    <label style="font-size: 13px; color: var(--primary);">تغيير الشخص المستهدف لهذا الكويز حالياً:</label>
+                    <div style="display: flex; gap: 8px;">
+                        <select id="fast-change-target-select" style="padding: 6px; font-size: 13px;"><option value="draft">مسودة مخفية ❌</option></select>
+                        <button class="view-btn" style="background:var(--success); width: auto; margin:0; padding: 0 15px;" onclick="updateQuizTargetFromEditor()">تحديث المستهدف</button>
+                    </div>
+                </div>
+
+                <div id="individual-questions-list"></div>
+                
+                <div class="add-fast-question-box">
+                    <h4 style="color:#0284c7; text-align:right; margin-top:0;"><i class="fa-solid fa-plus-circle"></i> إضافة سؤال جديد لهذا الكويز مباشرة:</h4>
+                    <div class="form-group"><label style="font-size:12px;">نص السؤال الجديد:</label><input type="text" id="fast-q-text"></div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:5px;">
+                        <input type="text" id="fast-q-opt1" placeholder="اختيار 1">
+                        <input type="text" id="fast-q-opt2" placeholder="اختيار 2">
+                        <input type="text" id="fast-q-opt3" placeholder="اختيار 3">
+                        <input type="text" id="fast-q-opt4" placeholder="اختيار 4">
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+                        <div>
+                            <label style="display:inline; font-size:12px;">رقم الإجابة الصح (1-4): </label>
+                            <input type="number" id="fast-q-correct" min="1" max="4" style="width:55px; padding:5px; display:inline;">
+                        </div>
+                        <button class="view-btn" style="background:#0284c7; padding:8px 16px;" onclick="addSingleQuestionFast()">إدراج السؤال فوراً ⚡</button>
+                    </div>
+                </div>
+
+                <button onclick="document.getElementById('questions-editor-container').classList.add('hidden')" style="background:#64748b; margin-top:15px; width:100%;">إغلاق صندوق المحرر ✖️</button>
+            </div>
+        </div>
+
+        <div id="tab-results" class="admin-tab-content hidden">
+            <h4>📊 نتائج اختبارات الموظفين الكاملة</h4>
+            <button onclick="exportTableToExcel('admin-scores-table', 'نتائج_الموظفين_الكويزات')" style="background:var(--success); margin-bottom: 15px; width: auto; display: inline-flex;"><i class="fa-solid fa-file-excel"></i> سحب شيت إكسيل</button>
+            <div style="overflow-x:auto;">
+                <table class="data-table" id="admin-scores-table">
+                    <thead><tr><th>الموظف (اليوزر)</th><th>اسم الكويز</th><th>النتيجة الكلية</th><th>التاريخ والوقت</th></tr></thead>
+                    <tbody id="admin-scores-list"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div id="mainBox" style="display:none;">
-
-<h3 id="welcome"></h3>
-
-<button onclick="loadQuizzes()">عرض الكويزات</button>
-
-<div id="quizList"></div>
-
-<div id="quizBox"></div>
-
-<hr>
-
-<h3>نتائج الاختبارات</h3>
-
-<button onclick="loadScores()">عرض النتائج</button>
-
-<button onclick="exportExcel()">تصدير Excel</button>
-
-<table id="scoresTable">
-
-<thead>
-<tr>
-<th>الاسم</th>
-<th>الكويز</th>
-<th>النتيجة</th>
-<th>التاريخ</th>
-<th>التفاصيل</th>
-</tr>
-</thead>
-
-<tbody id="scoresBody"></tbody>
-
-</table>
-
-</div>
-
-</div>
+<div class="footer-credits">created by Mohamed Nasser</div>
 
 <script>
-
-const firebaseBaseUrl = "https://agent-system-01-default-rtdb.firebaseio.com";
-
-let currentUser = null;
-let activeQuizQuestions = [];
-let activeQuizName = "";
-
-function login(){
-
-const username = document.getElementById("username").value;
-const password = document.getElementById("password").value;
-
-fetch(`${firebaseBaseUrl}/users/${username}.json`)
-.then(res=>res.json())
-.then(user=>{
-
-if(user && user.password === password){
-
-currentUser = user;
-
-document.getElementById("loginBox").style.display = "none";
-document.getElementById("mainBox").style.display = "block";
-
-document.getElementById("welcome").innerText =
-`أهلاً ${user.fullName}`;
-
-}else{
-
-alert("بيانات غلط");
-
-}
-
-});
-
-}
-
-function loadQuizzes(){
-
-fetch(`${firebaseBaseUrl}/quizzes.json`)
-.then(res=>res.json())
-.then(quizzes=>{
-
-const quizList = document.getElementById("quizList");
-
-quizList.innerHTML = "";
-
-Object.keys(quizzes).forEach(name=>{
-
-if(quizzes[name].target === currentUser.username){
-
-quizList.innerHTML += `
-<button onclick="startQuiz('${name}')">
-${name}
-</button>
-`;
-
-}
-
-});
-
-});
-
-}
-
-function startQuiz(name){
-
-activeQuizName = name;
-
-fetch(`${firebaseBaseUrl}/quizzes/${name}/questions.json`)
-.then(res=>res.json())
-.then(qs=>{
-
-activeQuizQuestions = Object.values(qs);
-
-let html = `<h3>${name}</h3>`;
-
-activeQuizQuestions.forEach((q,i)=>{
-
-html += `
-<div style="border:1px solid #ddd;padding:10px;margin:10px 0;">
-
-<p><b>${q.question}</b></p>
-
-`;
-
-q.opts.forEach((o,index)=>{
-
-html += `
-
-<label id="label_${i}_${index+1}">
-
-<input type="radio"
-name="q_${i}"
-value="${index+1}">
-
-${o}
-
-</label>
-
-<br>
-
-`;
-
-});
-
-html += `</div>`;
-
-});
-
-html += `
-<button onclick="submitQuizAnswers()">
-إنهاء الاختبار
-</button>
-`;
-
-document.getElementById("quizBox").innerHTML = html;
-
-});
-
-}
-
-function submitQuizAnswers(){
-
-let score = 0;
-
-let answersReview = [];
-
-activeQuizQuestions.forEach((q,i)=>{
-
-const sel =
-document.querySelector(`input[name="q_${i}"]:checked`);
-
-const selectedAnswer =
-sel ? parseInt(sel.value) : null;
-
-const isCorrect =
-selectedAnswer === q.correct;
-
-if(isCorrect){
-score++;
-}
-
-const correctLbl =
-document.getElementById(`label_${i}_${q.correct}`);
-
-if(correctLbl){
-correctLbl.classList.add("correct");
-}
-
-if(sel && !isCorrect){
-
-const wrongLbl =
-document.getElementById(`label_${i}_${selectedAnswer}`);
-
-if(wrongLbl){
-wrongLbl.classList.add("wrong");
-}
-
-}
-
-answersReview.push({
-
-question:q.question,
-selected:selectedAnswer,
-correct:q.correct,
-options:q.opts,
-status:isCorrect ? "صح" : "غلط"
-
-});
-
-});
-
-const result =
-`${score} / ${activeQuizQuestions.length}`;
-
-fetch(`${firebaseBaseUrl}/scores.json`,{
-
-method:"POST",
-
-body:JSON.stringify({
-
-username:currentUser.username,
-fullName:currentUser.fullName,
-quizName:activeQuizName,
-score:result,
-answers:answersReview,
-timestamp:new Date().toLocaleString("ar-EG")
-
-})
-
-})
-
-.then(()=>{
-
-let html = `
-<h3>النتيجة النهائية: ${result}</h3>
-`;
-
-answersReview.forEach((a,index)=>{
-
-html += `
-
-<div style="
-border:1px solid #ddd;
-padding:10px;
-margin:10px 0;
-">
-
-<p><b>السؤال ${index+1}</b></p>
-
-<p>${a.question}</p>
-
-<p>
-حالتك:
-<b>${a.status}</b>
-</p>
-
-<p>
-إجابتك:
-${a.selected ? a.options[a.selected-1] : "لم تجب"}
-</p>
-
-<p>
-الإجابة الصحيحة:
-${a.options[a.correct-1]}
-</p>
-
-</div>
-
-`;
-
-});
-
-document.getElementById("quizBox").innerHTML = html;
-
-loadScores();
-
-});
-
-}
-
-function loadScores(){
-
-fetch(`${firebaseBaseUrl}/scores.json`)
-.then(res=>res.json())
-.then(scores=>{
-
-const body =
-document.getElementById("scoresBody");
-
-body.innerHTML = "";
-
-Object.keys(scores).forEach(id=>{
-
-const s = scores[id];
-
-body.innerHTML += `
-
-<tr>
-
-<td>${s.fullName}</td>
-
-<td>${s.quizName}</td>
-
-<td>${s.score}</td>
-
-<td>${s.timestamp}</td>
-
-<td>
-
-<button onclick="showDetails('${id}')">
-عرض
-</button>
-
-</td>
-
-</tr>
-
-`;
-
-});
-
-});
-
-}
-
-function showDetails(id){
-
-fetch(`${firebaseBaseUrl}/scores/${id}.json`)
-.then(res=>res.json())
-.then(data=>{
-
-let html = `
-<h2>تفاصيل اختبار ${data.fullName}</h2>
-`;
-
-data.answers.forEach((a,i)=>{
-
-html += `
-
-<div style="
-border:1px solid #ddd;
-padding:10px;
-margin:10px 0;
-">
-
-<p>
-<b>السؤال ${i+1}</b>
-</p>
-
-<p>${a.question}</p>
-
-<p>${a.status}</p>
-
-<p>
-إجابته:
-${a.selected ? a.options[a.selected-1] : "لم يجب"}
-</p>
-
-<p>
-الإجابة الصحيحة:
-${a.options[a.correct-1]}
-</p>
-
-</div>
-
-`;
-
-});
-
-document.getElementById("quizBox").innerHTML = html;
-
-});
-
-}
-
-function exportExcel(){
-
-const table =
-document.getElementById("scoresTable");
-
-const wb =
-XLSX.utils.table_to_book(table,{
-sheet:"النتائج"
-});
-
-XLSX.writeFile(wb,"نتائج_الاختبارات.xlsx");
-
-}
-
+    const firebaseBaseUrl = "https://agent-system-01-default-rtdb.firebaseio.com";
+    let isSignUpMode = false; let currentUser = null; let activeQuizQuestions = []; let activeQuizName = ""; let currentEditingQuizName = "";
+
+    function switchView(viewId) {
+        ['auth-box', 'agent-hub', 'info-display-box', 'quiz-dashboard', 'admin-dashboard', 'agent-profile'].forEach(id => {
+            const el = document.getElementById(id); if(el) el.classList.add('hidden');
+        });
+        document.getElementById(viewId).classList.remove('hidden');
+        document.getElementById('top-navbar').style.display = (viewId === 'auth-box') ? 'none' : 'flex';
+    }
+
+    function goHome() { 
+        if(currentUser && (currentUser.role === 'admin' || currentUser.role === 'leader' || currentUser.role === 'quality')) switchView('admin-dashboard');
+        else switchView('agent-hub'); 
+    }
+
+    function logout() { currentUser = null; switchView('auth-box'); }
+
+    function switchAdminTab(tabId, btn) {
+        document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.remove('hidden');
+        btn.classList.add('active');
+    }
+
+    function loadUsersAdmin() {
+        fetch(`${firebaseBaseUrl}/users.json`).then(res => res.json()).then(users => {
+            const tbody = document.getElementById('admin-users-list'); tbody.innerHTML = '';
+            if(!users) { tbody.innerHTML = '<tr><td colspan="5">لا يوجد مستخدمين مسجلين بعد.</td></tr>'; return; }
+            Object.keys(users).forEach(uKey => {
+                let u = users[uKey];
+                tbody.innerHTML += `<tr>
+                    <td><b>${u.fullName || 'غير مسجل'}</b></td>
+                    <td><code>${u.username}</code></td>
+                    <td><span class="badge" style="background:#64748b">${u.role}</span></td>
+                    <td>
+                        <div class="action-inline">
+                            <input type="text" id="pass_${u.username}" class="input-mini" value="${u.password}" placeholder="جديد">
+                            <button class="view-btn" style="background:var(--success)" onclick="updateUserPasswordDirectly('${u.username}')">حفظ</button>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="action-inline">
+                            <button class="view-btn" style="background:var(--primary)" onclick="changeUserRole('${u.username}','agent')">ايجينت</button>
+                            <button class="view-btn" style="background:var(--warning)" onclick="changeUserRole('${u.username}','leader')">ليدر</button>
+                            <button class="view-btn" style="background:purple" onclick="changeUserRole('${u.username}','quality')">كوالتي</button>
+                        </div>
+                    </td>
+                </tr>`;
+            });
+        });
+    }
+
+    function updateUserPasswordDirectly(username) {
+        const newPass = document.getElementById(`pass_${username}`).value.trim();
+        if(!newPass) return alert('برجاء كتابة كلمة مرور صالحة!');
+        fetch(`${firebaseBaseUrl}/users/${username}/password.json`, { method: 'PUT', body: JSON.stringify(newPass) })
+        .then(() => { alert(`🟢 تم تعديل كلمة مرور الحساب [ ${username} ] بنجاح!`); loadUsersAdmin(); });
+    }
+
+    function changeUserRole(username, newRole) {
+        fetch(`${firebaseBaseUrl}/users/${username}/role.json`, { method: 'PUT', body: JSON.stringify(newRole) })
+        .then(() => { alert('تم تحديث صلاحية ورتبة الموظف!'); loadUsersAdmin(); loadDropdownUsers(); });
+    }
+
+    function uploadExcelSchedules() {
+        const fileInput = document.getElementById('excel-file-input');
+        if(!fileInput.files.length) return alert("من فضلك اختر ملف الجدول أولاً!");
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, {type: 'array'});
+            const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+            const rows = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+            let count = 0;
+            for(let i = 2; i < rows.length; i++) {
+                let row = rows[i];
+                let agentName = row[0];
+                if(!agentName || agentName.trim() === "" || agentName.includes("Agent Name")) continue;
+                let scheduleData = {
+                    sunday: row[4] || "OFF", monday: row[5] || "OFF", tuesday: row[6] || "OFF",
+                    wednesday: row[7] || "OFF", thursday: row[8] || "OFF", friday: row[9] || "OFF", saturday: row[10] || "OFF"
+                };
+                let cleanKey = encodeURIComponent(agentName.trim().toLowerCase());
+                fetch(`${firebaseBaseUrl}/global_schedules/${cleanKey}.json`, { method: 'PUT', body: JSON.stringify(scheduleData) });
+                count++;
+            }
+            alert(`🔥 ممتاز! تم رفع وتحديث جداول الشفتات لعدد ${count} موظف بنجاح.`);
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    function handleAuth(e) {
+        e.preventDefault();
+        const user = document.getElementById('auth-username').value.trim().toLowerCase();
+        const pass = document.getElementById('auth-password').value.trim();
+        if (user === "admin" && pass === "admin") {
+            currentUser = { username: "admin", fullName: "محمد ناصر", role: "admin" };
+            setupDashboardPermissions(); return;
+        }
+        if (isSignUpMode) {
+            const name = document.getElementById('auth-fullname').value.trim();
+            if(!name) return alert('الرجاء كتابة الاسم الكامل المطابق للإكسيل');
+            fetch(`${firebaseBaseUrl}/users/${user}.json`, {
+                method: 'PUT', body: JSON.stringify({ fullName: name, username: user, password: pass, role: "agent" })
+            }).then(() => { alert('تم تسجيل الحساب بنجاح!'); toggleAuthMode(); });
+        } else {
+            fetch(`${firebaseBaseUrl}/users/${user}.json`).then(res => res.json()).then(userData => {
+                if(userData && userData.password === pass) {
+                    currentUser = userData; setupDashboardPermissions();
+                } else { alert("اسم المستخدم أو كلمة المرور غير صحيحة!"); }
+            });
+        }
+    }
+
+    function toggleAuthMode() {
+        isSignUpMode = !isSignUpMode;
+        document.getElementById('fullname-group').style.display = isSignUpMode ? "block" : "none";
+        document.getElementById('auth-btn').innerText = isSignUpMode ? "تسجيل حساب جديد" : "دخول المنصة";
+    }
+
+    function setupDashboardPermissions() {
+        const badge = document.getElementById('user-role-badge');
+        badge.className = "badge"; document.getElementById('nav-profile-btn').style.display = "none";
+        loadDropdownUsers();
+        if(currentUser.role === 'admin' || currentUser.role === 'leader' || currentUser.role === 'quality') {
+            if(currentUser.role === 'admin') { badge.innerText = "أدمن"; badge.classList.add('badge-admin'); }
+            if(currentUser.role === 'leader') { badge.innerText = "ليدر"; badge.classList.add('badge-leader'); }
+            if(currentUser.role === 'quality') { badge.innerText = "كوالتي"; badge.classList.add('badge-quality'); }
+            switchView('admin-dashboard'); loadUsersAdmin(); loadScoresAdmin(); loadQuizzesAdminSection();
+        } else {
+            badge.innerText = "ايجينت"; badge.style.background = "var(--success)";
+            document.getElementById('agent-welcome-name').innerText = currentUser.fullName;
+            document.getElementById('nav-profile-btn').style.display = "inline-block";
+            switchView('agent-hub');
+        }
+    }
+
+    function loadDropdownUsers() {
+        fetch(`${firebaseBaseUrl}/users.json`).then(res => res.json()).then(users => {
+            const selectMain = document.getElementById('q-target-select');
+            const selectFast = document.getElementById('fast-change-target-select');
+            let optionsHtml = '<option value="draft">مسودة مخفية ❌</option>';
+            if(users) {
+                Object.keys(users).forEach(k => {
+                    if(users[k].role === 'agent') {
+                        optionsHtml += `<option value="${users[k].username}">${users[k].fullName}</option>`;
+                    }
+                });
+            }
+            selectMain.innerHTML = optionsHtml;
+            selectFast.innerHTML = optionsHtml;
+        });
+    }
+
+    function loadQuizzesAdminSection() {
+        fetch(`${firebaseBaseUrl}/quizzes.json`).then(res => res.json()).then(quizzes => {
+            const tbody = document.getElementById('admin-quizzes-control-list'); tbody.innerHTML = '';
+            if(!quizzes) { tbody.innerHTML = '<tr><td colspan="3">لا توجد كويزات حالية.</td></tr>'; return; }
+            Object.keys(quizzes).forEach(name => {
+                let tgt = quizzes[name].target === 'draft' ? 'مسودة ❌' : `موظف مخصص (${quizzes[name].target})`;
+                tbody.innerHTML += `<tr>
+                    <td><b>${name}</b></td>
+                    <td><span class="badge" style="background:var(--primary)">${tgt}</span></td>
+                    <td>
+                        <button class="view-btn" style="background:#16a34a" onclick="openQuestionsEditor('${name}')"><i class="fa-solid fa-list-check"></i> تعديل وإضافة أسئلة / المستهدف</button>
+                        <button class="view-btn" style="background:var(--danger)" onclick="deleteQuizCompletely('${name}')">حذف الكويز</button>
+                    </td>
+                </tr>`;
+            });
+        });
+    }
+
+    function openQuestionsEditor(quizName) {
+        currentEditingQuizName = quizName;
+        document.getElementById('current-editing-quiz-title').innerText = quizName;
+        const container = document.getElementById('individual-questions-list');
+        container.innerHTML = '<p>جاري تحميل أسئلة الكويز...</p>';
+        document.getElementById('questions-editor-container').classList.remove('hidden');
+        fetch(`${firebaseBaseUrl}/quizzes/${quizName}/target.json`).then(res => res.json()).then(target => {
+            if(target) document.getElementById('fast-change-target-select').value = target;
+        });
+        fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions.json`).then(res => res.json()).then(questions => {
+            container.innerHTML = '';
+            if(!questions) { container.innerHTML = '<p style="color:var(--danger); font-weight:bold;">⚠️ لا توجد أسئلة حالياً داخل هذا الكويز. يمكنك إضافة أول سؤال بالأسفل!</p>'; return; }
+            
+            Object.keys(questions).forEach(qKey => {
+                let q = questions[qKey];
+                container.innerHTML += `
+                    <div class="question-edit-row" id="row_${qKey}">
+                        <div style="margin-bottom:5px;">
+                            <label style="font-size:12px; color:var(--primary)">نص السؤال:</label>
+                            <input type="text" id="edit_txt_${qKey}" value="${q.question}">
+                        </div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:5px;">
+                            <input type="text" id="edit_opt1_${qKey}" value="${q.opts ? (q.opts[0] || '') : ''}" placeholder="اختيار 1">
+                            <input type="text" id="edit_opt2_${qKey}" value="${q.opts ? (q.opts[1] || '') : ''}" placeholder="اختيار 2">
+                            <input type="text" id="edit_opt3_${qKey}" value="${q.opts ? (q.opts[2] || '') : ''}" placeholder="اختيار 3">
+                            <input type="text" id="edit_opt4_${qKey}" value="${q.opts ? (q.opts[3] || '') : ''}" placeholder="اختيار 4">
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
+                            <div>
+                                <label style="display:inline; font-size:12px;">رقم الإجابة الصح (1-4): </label>
+                                <input type="number" id="edit_corr_${qKey}" value="${q.correct || 1}" min="1" max="4" style="width:50px; padding:4px; display:inline;">
+                            </div>
+                            <div>
+                                <button class="view-btn" style="background:var(--success); padding:6px 12px;" onclick="saveSingleQuestionChanges('${quizName}', '${qKey}')">حفظ التعديل ✔️</button>
+                                <button class="view-btn" style="background:var(--danger); padding:6px 12px;" onclick="deleteSingleQuestion('${quizName}', '${qKey}')">حذف السؤال 🗑️</button>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+        });
+    }
+
+    function updateQuizTargetFromEditor() {
+        const newTarget = document.getElementById('fast-change-target-select').value;
+        fetch(`${firebaseBaseUrl}/quizzes/${currentEditingQuizName}/target.json`, {
+            method: 'PUT', body: JSON.stringify(newTarget)
+        }).then(() => {
+            alert('🟢 تم تحديث الشخص المستهدف لرؤية الكويز بنجاح!');
+            loadQuizzesAdminSection();
+        });
+    }
+
+    function addSingleQuestionFast() {
+        const txt = document.getElementById('fast-q-text').value.trim();
+        const o1 = document.getElementById('fast-q-opt1').value.trim();
+        const o2 = document.getElementById('fast-q-opt2').value.trim();
+        const o3 = document.getElementById('fast-q-opt3').value.trim();
+        const o4 = document.getElementById('fast-q-opt4').value.trim();
+        const corr = document.getElementById('fast-q-correct').value.trim();
+        if(!txt || !o1 || !o2 || !corr) return alert('برجاء كتابة السؤال والاختيارات والإجابة الصحيحة أولاً!');
+        let newQuestionData = { question: txt, opts: [o1, o2, o3, o4], correct: parseInt(corr) };
+        fetch(`${firebaseBaseUrl}/quizzes/${currentEditingQuizName}/questions.json`, {
+            method: 'POST', body: JSON.stringify(newQuestionData)
+        }).then(() => {
+            alert('⚡ تم إدراج السؤال الجديد بنجاح داخل هذا الكويز لايف!');
+            document.getElementById('fast-q-text').value = '';
+            document.getElementById('fast-q-opt1').value = ''; document.getElementById('fast-q-opt2').value = '';
+            document.getElementById('fast-q-opt3').value = ''; document.getElementById('fast-q-opt4').value = '';
+            document.getElementById('fast-q-correct').value = '';
+            openQuestionsEditor(currentEditingQuizName);
+        });
+    }
+
+    function saveSingleQuestionChanges(quizName, qKey) {
+        let updatedQuestion = {
+            question: document.getElementById(`edit_txt_${qKey}`).value.trim(),
+            opts: [
+                document.getElementById(`edit_opt1_${qKey}`).value.trim(),
+                document.getElementById(`edit_opt2_${qKey}`).value.trim(),
+                document.getElementById(`edit_opt3_${qKey}`).value.trim(),
+                document.getElementById(`edit_opt4_${qKey}`).value.trim()
+            ],
+            correct: parseInt(document.getElementById(`edit_corr_${qKey}`).value.trim())
+        };
+        fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions/${qKey}.json`, {
+            method: 'PUT', body: JSON.stringify(updatedQuestion)
+        }).then(() => {
+            alert('🟢 تم حفظ تعديل هذا السؤال بنجاح لايف!');
+            openQuestionsEditor(quizName);
+        });
+    }
+
+    function deleteSingleQuestion(quizName, qKey) {
+        if(confirm('هل تريد حذف هذا السؤال فقط من الكويز؟')) {
+            fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions/${qKey}.json`, { method: 'DELETE' }).then(() => {
+                alert('تم حذف السؤال بنجاح!');
+                openQuestionsEditor(quizName);
+            });
+        }
+    }
+
+    function deleteQuizCompletely(name) {
+        if(confirm(`هل تريد بالتأكيد حذف كويز [ ${name} ] نهائياً؟`)) {
+            fetch(`${firebaseBaseUrl}/quizzes/${name}.json`, { method: 'DELETE' }).then(() => { 
+                document.getElementById('questions-editor-container').classList.add('hidden');
+                loadQuizzesAdminSection(); 
+            });
+        }
+    }
+
+    function addQuizQuestionAdmin() {
+        const quizName = document.getElementById('q-quizname').value.trim();
+        const target = document.getElementById('q-target-select').value;
+        const txt = document.getElementById('q-text').value.trim();
+        const o1 = document.getElementById('q-opt1').value.trim();
+        const o2 = document.getElementById('q-opt2').value.trim();
+        const o3 = document.getElementById('q-opt3').value.trim();
+        const o4 = document.getElementById('q-opt4').value.trim();
+        const corr = document.getElementById('q-correct').value.trim();
+
+        if(!quizName || !txt || !o1 || !o2 || !corr) return alert('اكمل بيانات السؤال أولاً!');
+        let data = { question: txt, opts: [o1, o2, o3, o4], correct: parseInt(corr) };
+        fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions.json`, { method: 'POST', body: JSON.stringify(data) })
+        .then(() => fetch(`${firebaseBaseUrl}/quizzes/${quizName}/target.json`, { method: 'PUT', body: JSON.stringify(target) }))
+        .then(() => {
+            alert('تم حفظ السؤال بنجاح وتعيين المستهدف المخصص!');
+            document.getElementById('q-text').value = ''; document.getElementById('q-opt1').value = '';
+            document.getElementById('q-opt2').value = ''; document.getElementById('q-opt3').value = '';
+            document.getElementById('q-opt4').value = ''; document.getElementById('q-correct').value = '';
+            loadQuizzesAdminSection();
+        });
+    }
+
+    function loadScoresAdmin() {
+        fetch(`${firebaseBaseUrl}/scores.json`).then(res => res.json()).then(scores => {
+            const tbody = document.getElementById('admin-scores-list'); tbody.innerHTML = '';
+            if(!scores) { tbody.innerHTML = '<tr><td colspan="4">لا توجد نتائج مسجلة.</td></tr>'; return; }
+            Object.keys(scores).forEach(id => {
+                tbody.innerHTML += `<tr><td><b>${scores[id].username}</b></td><td>${scores[id].quizName}</td><td><span class="badge" style="background:var(--success)">${scores[id].score}</span></td><td><small>${scores[id].timestamp}</small></td></tr>`;
+            });
+        });
+    }
+
+    function viewAgentSchedule() {
+        switchView('info-display-box');
+        document.getElementById('info-box-title').innerText = "🗓️ جدول شفتاتك الأسبوعي الحالي";
+        let cleanKey = encodeURIComponent(currentUser.fullName.trim().toLowerCase());
+        fetch(`${firebaseBaseUrl}/global_schedules/${cleanKey}.json`).then(res => res.json()).then(schedule => {
+            if(!schedule) {
+                document.getElementById('info-content-area').innerHTML = `<div class="info-card" style="color:var(--danger)">لم نجد شفت مضاف باسمك [ ${currentUser.fullName} ]، تأكد أن الاسم يطابق شيت الإكسيل المرفوع تماماً.</div>`;
+                return;
+            }
+            document.getElementById('info-content-area').innerHTML = `
+                <table class="data-table" style="width:100%">
+                    <thead><tr><th>الأحد</th><th>الإثنين</th><th>الثلاثاء</th><th>الأربعاء</th><th>الخميس</th><th>الجمعة</th><th>السبت</th></tr></thead>
+                    <tbody><tr>
+                        <td class="${schedule.sunday==='OFF'?'off-day':'work-day'}">${schedule.sunday}</td>
+                        <td class="${schedule.monday==='OFF'?'off-day':'work-day'}">${schedule.monday}</td>
+                        <td class="${schedule.tuesday==='OFF'?'off-day':'work-day'}">${schedule.tuesday}</td>
+                        <td class="${schedule.wednesday==='OFF'?'off-day':'work-day'}">${schedule.wednesday}</td>
+                        <td class="${schedule.thursday==='OFF'?'off-day':'work-day'}">${schedule.thursday}</td>
+                        <td class="${schedule.friday==='OFF'?'off-day':'work-day'}">${schedule.friday}</td>
+                        <td class="${schedule.saturday==='OFF'?'off-day':'work-day'}">${schedule.saturday}</td>
+                    </tr></tbody>
+                </table>`;
+        });
+    }
+
+    function viewAgentBreaks() {
+        switchView('info-display-box');
+        document.getElementById('info-box-title').innerText = "مواعيد البريك المحددة";
+        fetch(`${firebaseBaseUrl}/users/${currentUser.username}/breaks.json`).then(res => res.json()).then(b => {
+            document.getElementById('info-content-area').innerHTML = b ? `<p>☕ <b>تفاصيل البريك:</b> ${b}</p>` : 'لم يتم تحديد مواعيد بريك لك بعد.';
+        });
+    }
+
+    function loadProfileData() {
+        document.getElementById('prof-name').innerText = currentUser.fullName;
+        document.getElementById('prof-user').innerText = currentUser.username;
+    }
+
+    function submitDataChangeRequest() {
+        const text = document.getElementById('profile-change-request').value.trim();
+        if(!text) return;
+        fetch(`${firebaseBaseUrl}/requests.json`, {
+            method: 'POST', body: JSON.stringify({ username: currentUser.username, text: text, timestamp: new Date().toLocaleString('ar-EG') })
+        }).then(() => { alert('تم الإرسال!'); document.getElementById('profile-change-request').value = ''; });
+    }
+
+    function loadQuizzesForAgent() {
+        switchView('quiz-dashboard'); document.getElementById('active-quiz-area').classList.add('hidden');
+        fetch(`${firebaseBaseUrl}/quizzes.json`).then(res => res.json()).then(quizzes => {
+            const list = document.getElementById('available-quizzes-list'); list.innerHTML = '';
+            if(!quizzes) { list.innerHTML = 'لا توجد اختبارات حالياً.'; return; }
+            Object.keys(quizzes).forEach(name => {
+                if(quizzes[name].target === currentUser.username) {
+                    list.innerHTML += `<div class="quiz-box"><h3>📋 ${name}</h3><button onclick="startQuizForAgent('${name}')">ابدأ الآن 🚀</button></div>`;
+                }
+            });
+        });
+    }
+
+    function startQuizForAgent(name) {
+        activeQuizName = name;
+        fetch(`${firebaseBaseUrl}/quizzes/${name}/questions.json`).then(res => res.json()).then(qs => {
+            if(!qs) return alert('هذا الكويز فارغ حالياً!');
+            activeQuizQuestions = Object.values(qs);
+            document.getElementById('active-quiz-title').innerText = name;
+            const container = document.getElementById('quiz-questions-container'); container.innerHTML = '';
+            activeQuizQuestions.forEach((q, i) => {
+                let h = `<div style="background:white; padding:10px; margin-bottom:10px; border-radius:6px; border:1px solid #cbd5e1;"><p><b>س ${i+1}:</b> ${q.question}</p>`;
+                if(q.opts) {
+                    q.opts.forEach((o, oi) => { if(o) h += `<label class="option-label" id="label_${i}_${oi+1}"><input type="radio" name="q_${i}" value="${oi+1}"> ${o}</label>`; });
+                }
+                container.innerHTML += h + `</div>`;
+            });
+            document.getElementById('active-quiz-area').classList.remove('hidden');
+        });
+    }
+
+    function submitQuizAnswers() {
+        let score = 0;
+        activeQuizQuestions.forEach((q, i) => {
+            const sel = document.querySelector(`input[name="q_${i}"]:checked`);
+            if(sel && sel.value == q.correct) score++;
+            const lbl = document.getElementById(`label_${i}_${q.correct}`); if(lbl) lbl.classList.add('correct-ans');
+        });
+        let res = `${score} / ${activeQuizQuestions.length}`;
+        fetch(`${firebaseBaseUrl}/scores.json`, {
+            method: 'POST', body: JSON.stringify({ username: currentUser.username, quizName: activeQuizName, score: res, timestamp: new Date().toLocaleString('ar-EG') })
+        }).then(() => { alert(`انتهى الاختبار! النتيجة: ${res}`); loadQuizzesForAgent(); });
+    }
+
+    function loadAgentScoresArchive() {
+        switchView('quiz-dashboard'); document.getElementById('active-quiz-area').classList.add('hidden');
+        fetch(`${firebaseBaseUrl}/scores.json`).then(res => res.json()).then(scores => {
+            const list = document.getElementById('available-quizzes-list'); list.innerHTML = '';
+            if(!scores) { list.innerHTML = 'أرشيفك فارغ.'; return; }
+            let h = `<table class="data-table" style="width:100%"><thead><tr><th>الكويز</th><th>النتيجة</th><th>التاريخ</th></tr></thead><tbody>`;
+            Object.keys(scores).forEach(id => {
+                if(scores[id].username === currentUser.username) h += `<tr><td>${scores[id].quizName}</td><td><b>${scores[id].score}</b></td><td>${scores[id].timestamp}</td></tr>`;
+            });
+            list.innerHTML = h + `</tbody></table>`;
+        });
+    }
+
+    function exportTableToExcel(tableId, filename) {
+        const table = document.getElementById(tableId);
+        const wb = XLSX.utils.table_to_book(table, { sheet: "النتائج" });
+        XLSX.writeFile(wb, filename + ".xlsx");
+    }
 </script>
-
 </body>
 </html>
