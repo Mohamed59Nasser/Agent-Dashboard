@@ -1,55 +1,3 @@
-```html
-<!-- ===========================
-عدّل جزء النتائج بالكامل
-استبدل tab-results القديم بهذا
-=========================== -->
-
-<div id="tab-results" class="admin-tab-content hidden">
-    <h4>📊 نتائج اختبارات الموظفين الكاملة</h4>
-
-    <button onclick="exportTableToExcel('admin-scores-table', 'نتائج_الموظفين_الكويزات')"
-        style="background:var(--success); margin-bottom: 15px; width: auto; display: inline-flex;">
-
-        <i class="fa-solid fa-file-excel"></i>
-        سحب شيت إكسيل
-
-    </button>
-
-    <div style="overflow-x:auto;">
-
-        <table class="data-table" id="admin-scores-table">
-
-            <thead>
-
-                <tr>
-
-                    <th>الموظف</th>
-
-                    <th>اسم الكويز</th>
-
-                    <th>النتيجة</th>
-
-                    <th>التاريخ</th>
-
-                    <th>التفاصيل</th>
-
-                </tr>
-
-            </thead>
-
-            <tbody id="admin-scores-list"></tbody>
-
-        </table>
-
-    </div>
-</div>
-```
-
----
-
-# واستبدل الدوال دي بالكامل داخل `<script>`
-
-```javascript
 function submitQuizAnswers() {
 
     let score = 0;
@@ -58,11 +6,14 @@ function submitQuizAnswers() {
 
     activeQuizQuestions.forEach((q, i) => {
 
-        const sel = document.querySelector(`input[name="q_${i}"]:checked`);
+        const sel =
+        document.querySelector(`input[name="q_${i}"]:checked`);
 
-        const selectedAnswer = sel ? parseInt(sel.value) : null;
+        const selectedAnswer =
+        sel ? parseInt(sel.value) : null;
 
-        const isCorrect = selectedAnswer === q.correct;
+        const isCorrect =
+        selectedAnswer === q.correct;
 
         if(isCorrect) score++;
 
@@ -74,7 +25,18 @@ function submitQuizAnswers() {
             correctLbl.classList.add('correct-ans');
         }
 
-        // تلوين الإجابة الغلط
+        // لو المستخدم اختار الصح
+        if(sel && selectedAnswer == q.correct) {
+
+            const userCorrect =
+            document.getElementById(`label_${i}_${selectedAnswer}`);
+
+            if(userCorrect) {
+                userCorrect.classList.add('correct-ans');
+            }
+        }
+
+        // لو المستخدم اختار غلط
         if(sel && !isCorrect) {
 
             const wrongLbl =
@@ -85,7 +47,7 @@ function submitQuizAnswers() {
             }
         }
 
-        // حفظ تفاصيل الإجابة
+        // حفظ تفاصيل الإجابات
         answersReview.push({
 
             question: q.question,
@@ -100,7 +62,8 @@ function submitQuizAnswers() {
         });
     });
 
-    let res = `${score} / ${activeQuizQuestions.length}`;
+    let res =
+    `${score} / ${activeQuizQuestions.length}`;
 
     fetch(`${firebaseBaseUrl}/scores.json`, {
 
@@ -118,7 +81,8 @@ function submitQuizAnswers() {
 
             answers: answersReview,
 
-            timestamp: new Date().toLocaleString('ar-EG')
+            timestamp:
+            new Date().toLocaleString('ar-EG')
         })
 
     })
@@ -146,7 +110,9 @@ function submitQuizAnswers() {
                     border:1px solid #cbd5e1;
                 ">
 
-                    <h4>سؤال ${index + 1}</h4>
+                    <h4>
+                        سؤال ${index + 1}
+                    </h4>
 
                     <p>
 
@@ -155,11 +121,16 @@ function submitQuizAnswers() {
                     </p>
 
                     <p style="
-                        color:${a.status === 'صح' ? 'green' : 'red'};
+                        color:
+                        ${a.status === 'صح'
+                        ? 'green'
+                        : 'red'};
+
                         font-weight:bold;
                     ">
 
-                        حالتك: ${a.status}
+                        حالتك:
+                        ${a.status}
 
                     </p>
 
@@ -177,7 +148,9 @@ function submitQuizAnswers() {
 
                     <p>
 
-                        <b>الإجابة الصحيحة:</b>
+                        <b>
+                            الإجابة الصحيحة:
+                        </b>
 
                         ${a.options[a.correct - 1]}
 
@@ -187,10 +160,13 @@ function submitQuizAnswers() {
             `;
         });
 
-        document.getElementById('quiz-questions-container').innerHTML =
-        reviewHTML;
+        document.getElementById(
+            'quiz-questions-container'
+        ).innerHTML = reviewHTML;
 
-        document.getElementById('submit-quiz-btn').style.display = "none";
+        document.getElementById(
+            'submit-quiz-btn'
+        ).style.display = "none";
 
     });
 }
@@ -203,18 +179,27 @@ function loadScoresAdmin() {
 
     .then(scores => {
 
-        const tbody = document.getElementById('admin-scores-list');
+        const tbody =
+        document.getElementById(
+            'admin-scores-list'
+        );
 
         tbody.innerHTML = '';
 
         if(!scores) {
 
             tbody.innerHTML = `
+
                 <tr>
+
                     <td colspan="5">
+
                         لا توجد نتائج مسجلة.
+
                     </td>
+
                 </tr>
+
             `;
 
             return;
@@ -229,17 +214,27 @@ function loadScoresAdmin() {
                 <tr>
 
                     <td>
-                        <b>${s.fullName || s.username}</b>
+
+                        <b>
+                            ${s.fullName || s.username}
+                        </b>
+
                     </td>
 
                     <td>
+
                         ${s.quizName}
+
                     </td>
 
                     <td>
 
-                        <span class="badge"
-                        style="background:var(--success)">
+                        <span
+                        class="badge"
+                        style="
+                            background:
+                            var(--success)
+                        ">
 
                             ${s.score}
 
@@ -248,14 +243,19 @@ function loadScoresAdmin() {
                     </td>
 
                     <td>
+
                         ${s.timestamp}
+
                     </td>
 
                     <td>
 
-                        <button class="view-btn"
+                        <button
+                        class="view-btn"
 
-                        onclick="showScoreDetails('${id}')">
+                        onclick="
+                        showScoreDetails('${id}')
+                        ">
 
                             عرض التفاصيل
 
@@ -264,6 +264,7 @@ function loadScoresAdmin() {
                     </td>
 
                 </tr>
+
             `;
         });
     });
@@ -271,7 +272,9 @@ function loadScoresAdmin() {
 
 function showScoreDetails(scoreId) {
 
-    fetch(`${firebaseBaseUrl}/scores/${scoreId}.json`)
+    fetch(
+        `${firebaseBaseUrl}/scores/${scoreId}.json`
+    )
 
     .then(res => res.json())
 
@@ -280,7 +283,10 @@ function showScoreDetails(scoreId) {
         let html = `
 
             <h3>
-                تفاصيل اختبار ${data.fullName}
+
+                تفاصيل اختبار
+                ${data.fullName}
+
             </h3>
 
         `;
@@ -299,14 +305,22 @@ function showScoreDetails(scoreId) {
 
                     <p>
 
-                        <b>س${i+1}:</b>
+                        <b>
+
+                            س${i+1}:
+
+                        </b>
 
                         ${a.question}
 
                     </p>
 
                     <p style="
-                        color:${a.status === 'صح' ? 'green' : 'red'};
+                        color:
+                        ${a.status === 'صح'
+                        ? 'green'
+                        : 'red'};
+
                         font-weight:bold;
                     ">
 
@@ -316,7 +330,11 @@ function showScoreDetails(scoreId) {
 
                     <p>
 
-                        <b>إجابته:</b>
+                        <b>
+
+                            إجابته:
+
+                        </b>
 
                         ${
                             a.selected
@@ -328,22 +346,30 @@ function showScoreDetails(scoreId) {
 
                     <p>
 
-                        <b>الإجابة الصحيحة:</b>
+                        <b>
+
+                            الإجابة الصحيحة:
+
+                        </b>
 
                         ${a.options[a.correct - 1]}
 
                     </p>
 
                 </div>
+
             `;
         });
 
-        document.getElementById('info-box-title').innerText =
+        document.getElementById(
+            'info-box-title'
+        ).innerText =
         "تفاصيل نتائج الاختبار";
 
-        document.getElementById('info-content-area').innerHTML = html;
+        document.getElementById(
+            'info-content-area'
+        ).innerHTML = html;
 
         switchView('info-display-box');
     });
 }
-```
