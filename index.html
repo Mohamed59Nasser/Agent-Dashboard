@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -45,7 +45,7 @@
         }
         .form-group { 
             margin-bottom: 16px; 
-            text-align: left;
+            text-align: right;
         }
         label { 
             display: block; 
@@ -60,6 +60,7 @@
             box-sizing: border-box; 
             font-size: 15px; 
             font-family: inherit; 
+            text-align: right;
         }
         button { 
             width: 100%;
@@ -182,7 +183,7 @@
             border-collapse: collapse; 
             margin-top: 15px; 
             font-size: 13px; 
-            text-align: left; 
+            text-align: right; 
         }
         .data-table th, .data-table td { 
             border: 1px solid #cbd5e1;
@@ -227,9 +228,10 @@
             transition: all 0.3s;
             cursor: pointer;
             background: white;
+            text-align: right;
         }
         
-        /* Highlight colors for answers */
+        /* ألوان التقييم وتحديد الإجابات */
         .correct-ans { 
             background: #d1fae5 !important; 
             border-color: #10b981 !important; 
@@ -283,7 +285,7 @@
             padding: 4px; 
             font-size: 12px; 
             width: 110px; 
-            text-align: center; 
+            text-align: right; 
             border-radius: 4px;
             border: 1px solid #cbd5e1; 
         }
@@ -294,7 +296,7 @@
             padding: 15px; 
             border-radius: 12px; 
             margin-top: 20px; 
-            text-align: left;
+            text-align: right;
         }
         .question-edit-row { 
             background: white; 
@@ -326,12 +328,12 @@
 
 <div class="navbar" id="top-navbar" style="display: none;">
     <div>
-        <button class="nav-btn" onclick="goHome()"><i class="fa-solid fa-house"></i> Home</button>
-        <button class="nav-btn" id="nav-profile-btn" onclick="switchView('agent-profile')" style="display:none;"><i class="fa-solid fa-user"></i> Profile</button>
+        <button class="nav-btn" onclick="goHome()"><i class="fa-solid fa-house"></i> الرئيسية</button>
+        <button class="nav-btn" id="nav-profile-btn" onclick="switchView('agent-profile')" style="display:none;"><i class="fa-solid fa-user"></i> الشخصي</button>
     </div>
     <div style="display: flex; align-items: center; gap: 10px;">
         <span id="user-role-badge" class="badge"></span>
-        <button class="nav-btn logout-btn" onclick="logout()"><i class="fa-solid fa-door-open"></i> Logout</button>
+        <button class="nav-btn logout-btn" onclick="logout()"><i class="fa-solid fa-door-open"></i> خروج</button>
     </div>
 </div>
 
@@ -340,179 +342,179 @@
         <h2>Hyde Park Operations ⚡</h2>
         <form onsubmit="handleAuth(event)">
             <div class="form-group" id="fullname-group" style="display: none;">
-                <label>Full Name (Must match Excel exactly)</label>
-                <input type="text" id="auth-fullname" placeholder="e.g. Shahinda Hassan">
+                <label>الاسم بالكامل (يجب أن يطابق الإكسيل تماماً)</label>
+                <input type="text" id="auth-fullname" placeholder="مثال: شاهندا حسن">
             </div>
             <div class="form-group">
-                <label>Username</label>
-                <input type="text" id="auth-username" required placeholder="Enter username">
+                <label>اسم المستخدم</label>
+                <input type="text" id="auth-username" required placeholder="أدخل اسم المستخدم">
             </div>
             <div class="form-group">
-                <label>Password</label>
+                <label>كلمة المرور</label>
                 <input type="password" id="auth-password" required placeholder="••••••••">
             </div>
-            <button type="submit" id="auth-btn">Login to Platform</button>
+            <button type="submit" id="auth-btn">تسجيل الدخول للمنصة</button>
         </form>
         <div style="text-align: center; margin-top: 20px;">
-            <a id="toggle-auth-btn" style="color:var(--primary); cursor:pointer; font-weight:bold;" onclick="toggleAuthMode()">Don't have an account? Register Now</a>
+            <a id="toggle-auth-btn" style="color:var(--primary); cursor:pointer; font-weight:bold;" onclick="toggleAuthMode()">ليس لديك حساب؟ سجل الآن</a>
         </div>
     </div>
 
     <div id="agent-hub" class="hidden">
-        <h2>Welcome 👋 <br><span id="agent-welcome-name" style="color:var(--primary)"></span></h2>
+        <h2>مرحباً بك 👋 <br><span id="agent-welcome-name" style="color:var(--primary)"></span></h2>
         <div class="menu-grid">
-            <button class="menu-btn" onclick="loadQuizzesForAgent()"><i class="fa-solid fa-trophy fa-2x"></i> Start Quizzes</button>
-            <button class="menu-btn" onclick="loadAgentScoresArchive()"><i class="fa-solid fa-box-archive fa-2x"></i> My Quiz Results</button>
-            <button class="menu-btn" onclick="viewAgentSchedule()"><i class="fa-solid fa-calendar-days fa-2x"></i> View Weekly Schedule 📅</button>
-            <button class="menu-btn" onclick="viewAgentBreaks()"><i class="fa-solid fa-mug-hot fa-2x"></i> My Break Time</button>
+            <button class="menu-btn" onclick="loadQuizzesForAgent()"><i class="fa-solid fa-trophy fa-2x"></i> بدء الاختبارات 🚀</button>
+            <button class="menu-btn" onclick="loadAgentScoresArchive()"><i class="fa-solid fa-box-archive fa-2x"></i> أرشيف نتائجك 📊</button>
+            <button class="menu-btn" onclick="viewAgentSchedule()"><i class="fa-solid fa-calendar-days fa-2x"></i> جدولك الأسبوعي 📅</button>
+            <button class="menu-btn" onclick="viewAgentBreaks()"><i class="fa-solid fa-mug-hot fa-2x"></i> وقت البريك الخاص بك ☕</button>
         </div>
     </div>
 
     <div id="info-display-box" class="hidden">
-        <h2 id="info-box-title">Daily Details</h2>
-        <div id="info-content-area" style="overflow-x: auto;">Loading...</div>
-        <button onclick="goHome()" style="background:#64748b; margin-top: 15px;"><i class="fa-solid fa-arrow-left"></i> Back to Home</button>
+        <h2 id="info-box-title">تفاصيل اليوم</h2>
+        <div id="info-content-area" style="overflow-x: auto;">جاري التحميل...</div>
+        <button onclick="goHome()" style="background:#64748b; margin-top: 15px;"><i class="fa-solid fa-arrow-right"></i> العودة للرئيسية</button>
     </div>
 
     <div id="agent-profile" class="hidden">
-        <h2>👤 Profile Settings</h2>
-        <div class="info-card" style="text-align: left; font-size:15px; font-weight:normal;">
-            <p><strong>Current Name:</strong> <span id="prof-name"></span></p>
-            <p><strong>Username:</strong> <span id="prof-user"></span></p>
+        <h2>👤 إعدادات الملف الشخصي</h2>
+        <div class="info-card" style="text-align: right; font-size:15px; font-weight:normal;">
+            <p><strong>الاسم الحالي:</strong> <span id="prof-name"></span></p>
+            <p><strong>اسم المستخدم:</strong> <span id="prof-user"></span></p>
         </div>
         <div class="form-group">
-            <label>Change Request or Report to Admin:</label>
-            <textarea id="profile-change-request" rows="3" placeholder="Type your request here..."></textarea>
+            <label>طلب تعديل أو إرسال بلاغ للمسؤول:</label>
+            <textarea id="profile-change-request" rows="3" placeholder="اكتب طلبك هنا..."></textarea>
         </div>
-        <button onclick="submitDataChangeRequest()" style="background:var(--warning);">Submit Request 🚀</button>
-        <button onclick="switchView('agent-hub')" style="background:#64748b; margin-top:10px;">Back</button>
+        <button onclick="submitDataChangeRequest()" style="background:var(--warning);">إرسال الطلب للمسؤول 🚀</button>
+        <button onclick="switchView('agent-hub')" style="background:#64748b; margin-top:10px;">رجوع</button>
     </div>
 
     <div id="quiz-dashboard" class="hidden">
-        <h2 id="quiz-section-title">Available Quizzes:</h2>
-        <div id="available-quizzes-list">Loading quizzes...</div>
+        <h2 id="quiz-section-title">الاختبارات المتاحة لك:</h2>
+        <div id="available-quizzes-list">جاري تحميل الاختبارات...</div>
         
         <div id="active-quiz-area" class="hidden" style="border-top: 2px dashed #cbd5e1; margin-top: 20px; padding-top: 20px;">
             <h3 id="active-quiz-title" style="color:var(--success)"></h3>
             <div id="quiz-questions-container"></div>
-            <button id="submit-quiz-btn" onclick="submitQuizAnswers()" style="background:var(--success); margin-top:15px;">Submit Answers 🏁</button>
-            <button id="close-quiz-btn" class="hidden" onclick="loadQuizzesForAgent()" style="background:#64748b; margin-top:15px;">Close Quiz Details ✖️</button>
+            <button id="submit-quiz-btn" onclick="submitQuizAnswers()" style="background:var(--success); margin-top:15px;">تسجيل وإرسال الإجابات 🏁</button>
+            <button id="close-quiz-btn" class="hidden" onclick="loadQuizzesForAgent()" style="background:#64748b; margin-top:15px;">إغلاق تفاصيل الاختبار ✖️</button>
         </div>
-        <button onclick="goHome()" style="background:#64748b; margin-top: 15px;">Back to Home ↩️</button>
+        <button onclick="goHome()" style="background:#64748b; margin-top: 15px;">العودة للقائمة الرئيسية ↩️</button>
     </div>
 
     <div id="admin-dashboard" class="hidden">
-        <h2>Master Control Panel 👑</h2>
+        <h2>لوحة التحكم الرئيسية 👑</h2>
         
         <div class="admin-tabs" id="admin-tabs-container">
-            <button class="tab-btn active" onclick="switchAdminTab('tab-users', this); loadUsersAdmin();">👥 Users & Data</button>
-            <button class="tab-btn" onclick="switchAdminTab('tab-schedules', this)">📅 Schedules (Excel)</button>
-            <button class="tab-btn" onclick="switchAdminTab('tab-quizzes', this); loadQuizzesAdminSection();">📝 Quiz Management</button>
-            <button class="tab-btn" onclick="switchAdminTab('tab-results', this); loadScoresAdmin();">📊 Employee Scores</button>
+            <button class="tab-btn active" onclick="switchAdminTab('tab-users', this); loadUsersAdmin();">👥 الحسابات والبيانات</button>
+            <button class="tab-btn" onclick="switchAdminTab('tab-schedules', this)">📅 الجداول (Excel)</button>
+            <button class="tab-btn" onclick="switchAdminTab('tab-quizzes', this); loadQuizzesAdminSection();">📝 إدارة الاختبارات</button>
+            <button class="tab-btn" onclick="switchAdminTab('tab-results', this); loadScoresAdmin();">📊 نتائج الموظفين</button>
         </div>
 
         <div id="tab-users" class="admin-tab-content">
-            <h4>👥 Manage Accounts, Edit Data & Roles</h4>
+            <h4>👥 إدارة الحسابات، تعديل البيانات والصلاحيات</h4>
             <div style="overflow-x:auto;">
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>Full Name (Live Edit)</th>
-                            <th>Username</th>
-                            <th>Role</th>
-                            <th>Password (Live Edit)</th>
-                            <th>Change Role</th>
+                            <th>الاسم الكامل (تعديل مباشر)</th>
+                            <th>اسم المستخدم</th>
+                            <th>الصلاحية الحالية</th>
+                            <th>كلمة المرور (تعديل مباشر)</th>
+                            <th>تغيير الصلاحية فوراً</th>
                         </tr>
                     </thead>
-                    <tbody id="admin-users-list"><tr><td colspan="5">Fetching users...</td></tr></tbody>
+                    <tbody id="admin-users-list"><tr><td colspan="5">جاري جلب بيانات المستخدمين...</td></tr></tbody>
                 </table>
             </div>
         </div>
 
         <div id="tab-schedules" class="admin-tab-content hidden">
-            <h4>📅 Upload & Update Weekly Schedules</h4>
+            <h4>📅 رفع وتحديث الجدول الأسبوعي</h4>
             <div style="background:#f1f5f9; padding:15px; border-radius:8px; border:1px solid #cbd5e1;">
-                <label style="color:var(--primary); font-weight:bold;">Select Excel File (Schedule):</label>
+                <label style="color:var(--primary); font-weight:bold;">اختر ملف الإكسيل (Schedule):</label>
                 <input type="file" id="excel-file-input" accept=".xlsx, .xls" style="background:white; padding:8px;" />
-                <button onclick="uploadExcelSchedules()" style="background:var(--success); margin-top:10px;"><i class="fa-solid fa-file-excel"></i> Process & Save Instantly</button>
+                <button onclick="uploadExcelSchedules()" style="background:var(--success); margin-top:10px;"><i class="fa-solid fa-file-excel"></i> معالجة وحفظ البيانات فورا</button>
             </div>
         </div>
 
         <div id="tab-quizzes" class="admin-tab-content hidden">
-            <h4>📝 Create & Edit Quizzes</h4>
-            <div class="form-group"><label>New Quiz Name:</label><input type="text" id="q-quizname" placeholder="e.g. Quality Test"></div>
+            <h4>📝 إنشاء وتعديل الاختبارات</h4>
+            <div class="form-group"><label>اسم الاختبار الجديد:</label><input type="text" id="q-quizname" placeholder="مثال: اختبار الجودة"></div>
             <div class="form-group">
-                <label>Target Employee:</label>
-                <select id="q-target-select"><option value="draft">Hidden Draft ❌</option></select>
+                <label>الموظف المستهدف:</label>
+                <select id="q-target-select"><option value="draft">مسودة مخفية ❌</option></select>
             </div>
             <div style="background:#f8fafc; padding:15px; border-radius:10px; border:1px solid #cbd5e1; margin-top:15px;">
-                <div class="form-group"><label>Question Text:</label><input type="text" id="q-text"></div>
-                <div class="form-group"><label>Option 1:</label><input type="text" id="q-opt1"></div>
-                <div class="form-group"><label>Option 2:</label><input type="text" id="q-opt2"></div>
-                <div class="form-group"><label>Option 3:</label><input type="text" id="q-opt3"></div>
-                <div class="form-group"><label>Option 4:</label><input type="text" id="q-opt4"></div>
-                <div class="form-group"><label>Correct Answer Number (1-4):</label><input type="number" id="q-correct" min="1" max="4"></div>
+                <div class="form-group"><label>نص السؤال:</label><input type="text" id="q-text"></div>
+                <div class="form-group"><label>الاختيار 1:</label><input type="text" id="q-opt1"></div>
+                <div class="form-group"><label>الاختيار 2:</label><input type="text" id="q-opt2"></div>
+                <div class="form-group"><label>الاختيار 3:</label><input type="text" id="q-opt3"></div>
+                <div class="form-group"><label>الاختيار 4:</label><input type="text" id="q-opt4"></div>
+                <div class="form-group"><label>رقم الإجابة الصحيحة (1-4):</label><input type="number" id="q-correct" min="1" max="4"></div>
             </div>
-            <button onclick="addQuizQuestionAdmin()" style="background:var(--success);">Save Question & Create Quiz 🚀</button>
+            <button onclick="addQuizQuestionAdmin()" style="background:var(--success);">حفظ السؤال وإنشاء الاختبار 🚀</button>
 
-            <h4 style="margin-top: 30px; color: var(--primary);">📋 Quizzes List & Management</h4>
+            <h4 style="margin-top: 30px; color: var(--primary);">📋 قائمة الاختبارات الحالية وإدارتها</h4>
             <table class="data-table">
-                <thead><tr><th>Quiz Name</th><th>Current Target</th><th>Actions</th></tr></thead>
+                <thead><tr><th>اسم الاختبار</th><th>المستهدف الحالي</th><th>إجراءات</th></tr></thead>
                 <tbody id="admin-quizzes-control-list"></tbody>
             </table>
 
             <div id="questions-editor-container" class="questions-editor-box hidden">
-                <h3 style="color:#16a34a;"><i class="fa-solid fa-pen-to-square"></i> Quiz Editor: <span id="current-editing-quiz-title"></span></h3>
+                <h3 style="color:#16a34a;"><i class="fa-solid fa-pen-to-square"></i> محرر أسئلة اختبار: <span id="current-editing-quiz-title"></span></h3>
                 
                 <div class="form-group" style="background: #e0f2fe; padding: 10px; border-radius: 8px; border: 1px solid #7dd3fc;">
-                    <label style="font-size: 13px; color: var(--primary);">Change Target for this Quiz:</label>
+                    <label style="font-size: 13px; color: var(--primary);">تغيير الشخص المستهدف لهذا الاختبار:</label>
                     <div style="display: flex; gap: 8px;">
-                        <select id="fast-change-target-select" style="padding: 6px; font-size: 13px;"><option value="draft">Hidden Draft ❌</option></select>
-                        <button class="view-btn" style="background:var(--success); width: auto; margin:0; padding: 0 15px;" onclick="updateQuizTargetFromEditor()">Update Target</button>
+                        <select id="fast-change-target-select" style="padding: 6px; font-size: 13px;"><option value="draft">مسودة مخفية ❌</option></select>
+                        <button class="view-btn" style="background:var(--success); width: auto; margin:0; padding: 0 15px;" onclick="updateQuizTargetFromEditor()">تحديث المستهدف</button>
                     </div>
                 </div>
 
                 <div id="individual-questions-list"></div>
                 
                 <div class="add-fast-question-box">
-                    <h4 style="color:#0284c7; text-align:left; margin-top:0;"><i class="fa-solid fa-plus-circle"></i> Add new question directly:</h4>
-                    <div class="form-group"><label style="font-size:12px;">New Question Text:</label><input type="text" id="fast-q-text"></div>
+                    <h4 style="color:#0284c7; text-align:right; margin-top:0;"><i class="fa-solid fa-plus-circle"></i> إضافة سؤال جديد مباشرة:</h4>
+                    <div class="form-group"><label style="font-size:12px;">نص السؤال الجديد:</label><input type="text" id="fast-q-text"></div>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:5px;">
-                        <input type="text" id="fast-q-opt1" placeholder="Option 1">
-                        <input type="text" id="fast-q-opt2" placeholder="Option 2">
-                        <input type="text" id="fast-q-opt3" placeholder="Option 3">
-                        <input type="text" id="fast-q-opt4" placeholder="Option 4">
+                        <input type="text" id="fast-q-opt1" placeholder="الاختيار الأول">
+                        <input type="text" id="fast-q-opt2" placeholder="الاختيار الثاني">
+                        <input type="text" id="fast-q-opt3" placeholder="الاختيار الثالث">
+                        <input type="text" id="fast-q-opt4" placeholder="الاختيار الرابع">
                     </div>
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
                         <div>
-                            <label style="display:inline; font-size:12px;">Correct Answer (1-4): </label>
+                            <label style="display:inline; font-size:12px;">الإجابة الصحيحة (1-4): </label>
                             <input type="number" id="fast-q-correct" min="1" max="4" style="width:55px; padding:5px; display:inline;">
                         </div>
-                        <button class="view-btn" style="background:#0284c7; padding:8px 16px;" onclick="addSingleQuestionFast()">Insert Instantly ⚡</button>
+                        <button class="view-btn" style="background:#0284c7; padding:8px 16px;" onclick="addSingleQuestionFast()">إدراج السؤال فوراً ⚡</button>
                     </div>
                 </div>
 
-                <button onclick="document.getElementById('questions-editor-container').classList.add('hidden')" style="background:#64748b; margin-top:15px; width:100%;">Close Editor ✖️</button>
+                <button onclick="document.getElementById('questions-editor-container').classList.add('hidden')" style="background:#64748b; margin-top:15px; width:100%;">إغلاق المحرر ✖️</button>
             </div>
         </div>
 
         <div id="tab-results" class="admin-tab-content hidden">
-            <h4>📊 Employee Scores & Details</h4>
+            <h4>📊 نتائج وتفاصيل اختبارات الموظفين</h4>
             
             <div style="display: flex; gap: 15px; margin-bottom: 15px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
                 <div class="filter-container">
-                    <label style="margin:0; font-size:14px; color:var(--primary); font-weight:bold;"><i class="fa-solid fa-filter"></i> Filter by Quiz:</label>
+                    <label style="margin:0; font-size:14px; color:var(--primary); font-weight:bold;"><i class="fa-solid fa-filter"></i> فلترة حسب الاختبار:</label>
                     <select id="admin-quiz-filter" onchange="filterScoresTable()" style="padding: 6px; border-radius: 6px; border: 1px solid #cbd5e1; min-width: 180px;">
-                        <option value="all">All Quizzes</option>
+                        <option value="all">كل الاختبارات</option>
                     </select>
                 </div>
                 
-                <button onclick="triggerExcelExport()" style="background:var(--success); width: auto; margin: 0;"><i class="fa-solid fa-file-excel"></i> Export Filtered to Excel</button>
+                <button onclick="triggerExcelExport()" style="background:var(--success); width: auto; margin: 0;"><i class="fa-solid fa-file-excel"></i> تصدير النتائج المفلترة إلى Excel</button>
             </div>
             
             <div style="overflow-x:auto;">
                 <table class="data-table" id="admin-scores-table">
-                    <thead><tr><th>Employee (User)</th><th>Quiz Name</th><th>Total Score</th><th>Answers Details</th><th>Date & Time</th></tr></thead>
+                    <thead><tr><th>الموظف (المستخدم)</th><th>اسم الاختبار</th><th>النتيجة الإجمالية</th><th>تفاصيل الإجابات</th><th>التاريخ والوقت</th></tr></thead>
                     <tbody id="admin-scores-list"></tbody>
                 </table>
             </div>
@@ -529,9 +531,8 @@
     let activeQuizQuestions = []; 
     let activeQuizName = ""; 
     let currentEditingQuizName = "";
-    let globalScoresData = null; // To store fetched scores for fast filtering
+    let globalScoresData = null; 
 
-    // Session Management
     window.addEventListener('DOMContentLoaded', () => {
         const savedUser = localStorage.getItem('currentUser');
         if (savedUser) {
@@ -569,17 +570,17 @@
     function loadUsersAdmin() {
         fetch(`${firebaseBaseUrl}/users.json`).then(res => res.json()).then(users => {
             const tbody = document.getElementById('admin-users-list'); tbody.innerHTML = '';
-            if(!users) { tbody.innerHTML = '<tr><td colspan="5">No users registered yet.</td></tr>'; return; }
+            if(!users) { tbody.innerHTML = '<tr><td colspan="5">لا يوجد مستخدمين مسجلين حتى الآن.</td></tr>'; return; }
             Object.keys(users).forEach(uKey => {
                 let u = users[uKey];
                 tbody.innerHTML += `<tr>
-                    <td><input type="text" id="name_${u.username}" class="input-mini" value="${u.fullName || ''}" style="width:140px; text-align:left;"></td>
+                    <td><input type="text" id="name_${u.username}" class="input-mini" value="${u.fullName || ''}" style="width:140px; text-align:right;"></td>
                     <td><code>${u.username}</code></td>
                     <td><span class="badge" style="background:#64748b">${u.role.toUpperCase()}</span></td>
                     <td>
                         <div class="action-inline">
-                            <input type="text" id="pass_${u.username}" class="input-mini" value="${u.password}" placeholder="New Pass">
-                            <button class="view-btn" style="background:var(--success)" onclick="updateUserDataDirectly('${u.username}')">Save 💾</button>
+                            <input type="text" id="pass_${u.username}" class="input-mini" value="${u.password}" placeholder="كلمة مرور جديدة">
+                            <button class="view-btn" style="background:var(--success)" onclick="updateUserDataDirectly('${u.username}')">حفظ 💾</button>
                         </div>
                     </td>
                     <td>
@@ -598,24 +599,28 @@
     function updateUserDataDirectly(username) {
         const newName = document.getElementById(`name_${username}`).value.trim();
         const newPass = document.getElementById(`pass_${username}`).value.trim();
-        if(!newName || !newPass) return alert('Please enter valid name and password!');
+        if(!newName || !newPass) return alert('برجاء إدخال اسم وكلمة مرور صالحة!');
         
         const updates = { fullName: newName, password: newPass };
         fetch(`${firebaseBaseUrl}/users/${username}.json`, { method: 'PATCH', body: JSON.stringify(updates) })
         .then(() => { 
-            alert(`🟢 Account [ ${username} ] updated successfully!`); 
+            alert(`🟢 تم تحديث بيانات الحساب [ ${username} ] بنجاح دون الحاجة لإعادة تحميل الصفحة!`); 
             loadUsersAdmin(); 
         });
     }
 
     function changeUserRole(username, newRole) {
         fetch(`${firebaseBaseUrl}/users/${username}/role.json`, { method: 'PUT', body: JSON.stringify(newRole) })
-        .then(() => { alert('User role updated!'); loadUsersAdmin(); loadDropdownUsers(); });
+        .then(() => { 
+            alert('🟢 تم تحديث صلاحية الحساب بنجاح وتطبيقها فوراً!'); 
+            loadUsersAdmin(); 
+            loadDropdownUsers(); 
+        });
     }
 
     function uploadExcelSchedules() {
         const fileInput = document.getElementById('excel-file-input');
-        if(!fileInput.files.length) return alert("Please select an Excel file first!");
+        if(!fileInput.files.length) return alert("برجاء اختيار ملف إكسيل أولاً!");
         const file = fileInput.files[0];
         const reader = new FileReader();
         reader.onload = function(e) {
@@ -636,7 +641,7 @@
                 fetch(`${firebaseBaseUrl}/global_schedules/${cleanKey}.json`, { method: 'PUT', body: JSON.stringify(scheduleData) });
                 count++;
             }
-            alert(`🔥 Great! Schedules uploaded successfully for ${count} employees.`);
+            alert(`🔥 ممتاز! تم رفع وتحديث الجداول بنجاح لـ ${count} موظف.`);
         };
         reader.readAsArrayBuffer(file);
     }
@@ -654,15 +659,15 @@
         
         if (isSignUpMode) {
             const name = document.getElementById('auth-fullname').value.trim();
-            if(!name) return alert('Please enter your full name as it appears in Excel');
+            if(!name) return alert('الرجاء كتابة الاسم الثلاثي كما هو مسجل بالإكسيل');
             fetch(`${firebaseBaseUrl}/users/${user}.json`, {
                 method: 'PUT', body: JSON.stringify({ fullName: name, username: user, password: pass, role: "agent" })
-            }).then(() => { alert('Account registered successfully!'); toggleAuthMode(); });
+            }).then(() => { alert('تم إنشاء الحساب بنجاح!'); toggleAuthMode(); });
         } else {
             fetch(`${firebaseBaseUrl}/users/${user}.json`).then(res => res.json()).then(userData => {
                 if(userData && userData.password === pass) {
                     currentUser = userData; setupDashboardPermissions();
-                } else { alert("Invalid username or password!"); }
+                } else { alert("اسم المستخدم أو كلمة المرور غير صحيحة!"); }
             });
         }
     }
@@ -670,7 +675,7 @@
     function toggleAuthMode() {
         isSignUpMode = !isSignUpMode;
         document.getElementById('fullname-group').style.display = isSignUpMode ? "block" : "none";
-        document.getElementById('auth-btn').innerText = isSignUpMode ? "Register Account" : "Login to Platform";
+        document.getElementById('auth-btn').innerText = isSignUpMode ? "إنشاء حساب جديد" : "تسجيل الدخول للمنصة";
     }
 
     function setupDashboardPermissions() {
@@ -681,12 +686,12 @@
         loadDropdownUsers();
         
         if(currentUser.role === 'admin' || currentUser.role === 'leader' || currentUser.role === 'quality') {
-            if(currentUser.role === 'admin') { badge.innerText = "Admin"; badge.classList.add('badge-admin'); }
-            if(currentUser.role === 'leader') { badge.innerText = "Leader"; badge.classList.add('badge-leader'); }
-            if(currentUser.role === 'quality') { badge.innerText = "Quality"; badge.classList.add('badge-quality'); }
+            if(currentUser.role === 'admin') { badge.innerText = "مسؤول النظام"; badge.classList.add('badge-admin'); }
+            if(currentUser.role === 'leader') { badge.innerText = "Team Leader"; badge.classList.add('badge-leader'); }
+            if(currentUser.role === 'quality') { badge.innerText = "الـ Quality"; badge.classList.add('badge-quality'); }
             switchView('admin-dashboard'); loadUsersAdmin(); loadScoresAdmin(); loadQuizzesAdminSection();
         } else {
-            badge.innerText = "Agent"; badge.style.background = "var(--success)";
+            badge.innerText = "موظف"; badge.style.background = "var(--success)";
             document.getElementById('agent-welcome-name').innerText = currentUser.fullName;
             document.getElementById('nav-profile-btn').style.display = "inline-block";
             switchView('agent-hub');
@@ -697,7 +702,7 @@
         fetch(`${firebaseBaseUrl}/users.json`).then(res => res.json()).then(users => {
             const selectMain = document.getElementById('q-target-select');
             const selectFast = document.getElementById('fast-change-target-select');
-            let optionsHtml = '<option value="draft">Hidden Draft ❌</option>';
+            let optionsHtml = '<option value="draft">مسودة مخفية ❌</option>';
             if(users) {
                 Object.keys(users).forEach(k => {
                     optionsHtml += `<option value="${users[k].username}">${users[k].fullName} (${users[k].role})</option>`;
@@ -711,15 +716,15 @@
     function loadQuizzesAdminSection() {
         fetch(`${firebaseBaseUrl}/quizzes.json`).then(res => res.json()).then(quizzes => {
             const tbody = document.getElementById('admin-quizzes-control-list'); tbody.innerHTML = '';
-            if(!quizzes) { tbody.innerHTML = '<tr><td colspan="3">No quizzes available.</td></tr>'; return; }
+            if(!quizzes) { tbody.innerHTML = '<tr><td colspan="3">لا توجد اختبارات منشأة حالياً.</td></tr>'; return; }
             Object.keys(quizzes).forEach(name => {
-                let tgt = quizzes[name].target === 'draft' ? 'Draft ❌' : `Target (${quizzes[name].target})`;
+                let tgt = quizzes[name].target === 'draft' ? 'مسودة ❌' : `مستهدف (${quizzes[name].target})`;
                 tbody.innerHTML += `<tr>
                     <td><b>${name}</b></td>
                     <td><span class="badge" style="background:var(--primary)">${tgt}</span></td>
                     <td>
-                        <button class="view-btn" style="background:#16a34a" onclick="openQuestionsEditor('${name}')"><i class="fa-solid fa-list-check"></i> Edit/Add</button>
-                        <button class="view-btn" style="background:var(--danger)" onclick="deleteQuizCompletely('${name}')">Delete</button>
+                        <button class="view-btn" style="background:#16a34a" onclick="openQuestionsEditor('${name}')"><i class="fa-solid fa-list-check"></i> تعديل/إضافة</button>
+                        <button class="view-btn" style="background:var(--danger)" onclick="deleteQuizCompletely('${name}')">حذف بالكامل</button>
                     </td>
                 </tr>`;
             });
@@ -730,37 +735,37 @@
         currentEditingQuizName = quizName;
         document.getElementById('current-editing-quiz-title').innerText = quizName;
         const container = document.getElementById('individual-questions-list');
-        container.innerHTML = '<p>Loading questions...</p>';
+        container.innerHTML = '<p>جاري تحميل الأسئلة...</p>';
         document.getElementById('questions-editor-container').classList.remove('hidden');
         fetch(`${firebaseBaseUrl}/quizzes/${quizName}/target.json`).then(res => res.json()).then(target => {
             if(target) document.getElementById('fast-change-target-select').value = target;
         });
         fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions.json`).then(res => res.json()).then(questions => {
             container.innerHTML = '';
-            if(!questions) { container.innerHTML = '<p style="color:var(--danger); font-weight:bold;">⚠️ No questions in this quiz. Add one below!</p>'; return; }
+            if(!questions) { container.innerHTML = '<p style="color:var(--danger); font-weight:bold;">⚠️ لا توجد أسئلة داخل هذا الاختبار. قم بإضافة سؤال بالأسفل!</p>'; return; }
             
             Object.keys(questions).forEach(qKey => {
                 let q = questions[qKey];
                 container.innerHTML += `
                     <div class="question-edit-row" id="row_${qKey}">
                         <div style="margin-bottom:5px;">
-                            <label style="font-size:12px; color:var(--primary)">Question Text:</label>
+                            <label style="font-size:12px; color:var(--primary)">نص السؤال:</label>
                             <input type="text" id="edit_txt_${qKey}" value="${q.question}">
                         </div>
                         <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:5px;">
-                            <input type="text" id="edit_opt1_${qKey}" value="${q.opts ? (q.opts[0] || '') : ''}" placeholder="Opt 1">
-                            <input type="text" id="edit_opt2_${qKey}" value="${q.opts ? (q.opts[1] || '') : ''}" placeholder="Opt 2">
-                            <input type="text" id="edit_opt3_${qKey}" value="${q.opts ? (q.opts[3] || '') : ''}" placeholder="Opt 3">
-                            <input type="text" id="edit_opt4_${qKey}" value="${q.opts ? (q.opts[4] || '') : ''}" placeholder="Opt 4">
+                            <input type="text" id="edit_opt1_${qKey}" value="${q.opts ? (q.opts[0] || '') : ''}" placeholder="اختيار 1">
+                            <input type="text" id="edit_opt2_${qKey}" value="${q.opts ? (q.opts[1] || '') : ''}" placeholder="اختيار 2">
+                            <input type="text" id="edit_opt3_${qKey}" value="${q.opts ? (q.opts[2] || '') : ''}" placeholder="اختيار 3">
+                            <input type="text" id="edit_opt4_${qKey}" value="${q.opts ? (q.opts[3] || '') : ''}" placeholder="اختيار 4">
                         </div>
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
                             <div>
-                                <label style="display:inline; font-size:12px;">Correct Answer (1-4): </label>
+                                <label style="display:inline; font-size:12px;">الإجابة الصحيحة (1-4): </label>
                                 <input type="number" id="edit_corr_${qKey}" value="${q.correct || 1}" min="1" max="4" style="width:50px; padding:4px; display:inline;">
                             </div>
                             <div>
-                                <button class="view-btn" style="background:var(--success); padding:6px 12px;" onclick="saveSingleQuestionChanges('${quizName}', '${qKey}')">Save ✔️</button>
-                                <button class="view-btn" style="background:var(--danger); padding:6px 12px;" onclick="deleteSingleQuestion('${quizName}', '${qKey}')">Delete 🗑️</button>
+                                <button class="view-btn" style="background:var(--success); padding:6px 12px;" onclick="saveSingleQuestionChanges('${quizName}', '${qKey}')">حفظ ✔️</button>
+                                <button class="view-btn" style="background:var(--danger); padding:6px 12px;" onclick="deleteSingleQuestion('${quizName}', '${qKey}')">حذف 🗑️</button>
                             </div>
                         </div>
                     </div>`;
@@ -773,7 +778,7 @@
         fetch(`${firebaseBaseUrl}/quizzes/${currentEditingQuizName}/target.json`, {
             method: 'PUT', body: JSON.stringify(newTarget)
         }).then(() => {
-            alert('🟢 Target updated successfully!');
+            alert('🟢 تم تحديث الشخص المستهدف للاختبار بنجاح!');
             loadQuizzesAdminSection();
         });
     }
@@ -785,12 +790,12 @@
         const o3 = document.getElementById('fast-q-opt3').value.trim();
         const o4 = document.getElementById('fast-q-opt4').value.trim();
         const corr = document.getElementById('fast-q-correct').value.trim();
-        if(!txt || !o1 || !o2 || !corr) return alert('Please enter question text, options, and correct answer!');
+        if(!txt || !o1 || !o2 || !corr) return alert('الرجاء كتابة السؤال والاختيارات وتحديد الإجابة الصحيحة!');
         let newQuestionData = { question: txt, opts: [o1, o2, o3, o4], correct: parseInt(corr) };
         fetch(`${firebaseBaseUrl}/quizzes/${currentEditingQuizName}/questions.json`, {
             method: 'POST', body: JSON.stringify(newQuestionData)
         }).then(() => {
-            alert('⚡ Question added successfully!');
+            alert('⚡ تم إضافة السؤال للاختبار بنجاح!');
             document.getElementById('fast-q-text').value = '';
             document.getElementById('fast-q-opt1').value = ''; document.getElementById('fast-q-opt2').value = '';
             document.getElementById('fast-q-opt3').value = ''; document.getElementById('fast-q-opt4').value = '';
@@ -813,22 +818,22 @@
         fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions/${qKey}.json`, {
             method: 'PUT', body: JSON.stringify(updatedQuestion)
         }).then(() => {
-            alert('🟢 Changes saved successfully!');
+            alert('🟢 تم حفظ تعديلات السؤال بنجاح!');
             openQuestionsEditor(quizName);
         });
     }
 
     function deleteSingleQuestion(quizName, qKey) {
-        if(confirm('Are you sure you want to delete this question?')) {
+        if(confirm('هل أنت متأكد من حذف هذا السؤال نهائياً؟')) {
             fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions/${qKey}.json`, { method: 'DELETE' }).then(() => {
-                alert('Question deleted!');
+                alert('تم حذف السؤال.');
                 openQuestionsEditor(quizName);
             });
         }
     }
 
     function deleteQuizCompletely(name) {
-        if(confirm(`Are you sure you want to delete quiz [ ${name} ] entirely?`)) {
+        if(confirm(`هل أنت متأكد من حذف اختبار [ ${name} ] بالكامل بكل أسئلته؟`)) {
             fetch(`${firebaseBaseUrl}/quizzes/${name}.json`, { method: 'DELETE' }).then(() => { 
                 document.getElementById('questions-editor-container').classList.add('hidden');
                 loadQuizzesAdminSection(); 
@@ -846,12 +851,12 @@
         const o4 = document.getElementById('q-opt4').value.trim();
         const corr = document.getElementById('q-correct').value.trim();
 
-        if(!quizName || !txt || !o1 || !o2 || !corr) return alert('Please fill all question details!');
+        if(!quizName || !txt || !o1 || !o2 || !corr) return alert('برجاء تعبئة بيانات السؤال بالكامل لإنشاء الاختبار!');
         let data = { question: txt, opts: [o1, o2, o3, o4], correct: parseInt(corr) };
         fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions.json`, { method: 'POST', body: JSON.stringify(data) })
         .then(() => fetch(`${firebaseBaseUrl}/quizzes/${quizName}/target.json`, { method: 'PUT', body: JSON.stringify(target) }))
         .then(() => {
-            alert('Question saved and target assigned!');
+            alert('تم إنشاء الاختبار وحفظ السؤال بنجاح!');
             document.getElementById('q-text').value = ''; document.getElementById('q-opt1').value = '';
             document.getElementById('q-opt2').value = ''; document.getElementById('q-opt3').value = '';
             document.getElementById('q-opt4').value = ''; document.getElementById('q-correct').value = '';
@@ -859,10 +864,9 @@
         });
     }
 
-    // --- NEW: Scores Filtering & Excel Logic ---
     function loadScoresAdmin() {
         fetch(`${firebaseBaseUrl}/scores.json`).then(res => res.json()).then(scores => {
-            globalScoresData = scores; // Save globally for filtering
+            globalScoresData = scores; 
             updateQuizFilterDropdown(scores);
             renderScoresTable();
         });
@@ -877,14 +881,13 @@
             Object.values(scores).forEach(s => uniqueQuizzes.add(s.quizName));
         }
         
-        let opts = `<option value="all">All Quizzes</option>`;
+        let opts = `<option value="all">كل الاختبارات</option>`;
         uniqueQuizzes.forEach(q => {
             opts += `<option value="${q}">${q}</option>`;
         });
         
         filterSelect.innerHTML = opts;
         
-        // Retain selection if it still exists
         if (uniqueQuizzes.has(currentVal) || currentVal === "all") {
             filterSelect.value = currentVal;
         }
@@ -899,7 +902,7 @@
         tbody.innerHTML = '';
         
         if(!globalScoresData) { 
-            tbody.innerHTML = '<tr><td colspan="5">No scores recorded yet.</td></tr>'; 
+            tbody.innerHTML = '<tr><td colspan="5">لا توجد نتائج مسجلة حتى الآن.</td></tr>'; 
             return; 
         }
         
@@ -908,10 +911,11 @@
 
         Object.keys(globalScoresData).forEach(id => {
             let score = globalScoresData[id];
-            // Filter logic
+            
+            // الفلترة الذكية: لو اخترنا اختبار معين، يتم جلب الموظفين الذين اختبروه فقط وحذف الصفوف الفارغة الأخرى
             if(filterValue === "all" || score.quizName === filterValue) {
                 hasData = true;
-                let detailsText = score.details || 'N/A';
+                let detailsText = score.details || 'لا يوجد تفاصيل';
                 tbody.innerHTML += `<tr>
                     <td><b>${score.username}</b></td>
                     <td>${score.quizName}</td>
@@ -923,22 +927,22 @@
         });
 
         if(!hasData) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#64748b; padding:20px;">No records match the selected quiz.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#64748b; padding:20px;">لا توجد أي سجلات مطابقة للاختبار المحدد.</td></tr>`;
         }
     }
 
     function viewAgentSchedule() {
         switchView('info-display-box');
-        document.getElementById('info-box-title').innerText = "🗓️ Your Weekly Schedule";
+        document.getElementById('info-box-title').innerText = "🗓️ جدولك الأسبوعي الحالي";
         let cleanKey = encodeURIComponent(currentUser.fullName.trim().toLowerCase());
         fetch(`${firebaseBaseUrl}/global_schedules/${cleanKey}.json`).then(res => res.json()).then(schedule => {
             if(!schedule) {
-                document.getElementById('info-content-area').innerHTML = `<div class="info-card" style="color:var(--danger)">No schedule found for [ ${currentUser.fullName} ]. Make sure your name matches the Excel sheet.</div>`;
+                document.getElementById('info-content-area').innerHTML = `<div class="info-card" style="color:var(--danger)">لم يتم العثور على جدول باسم [ ${currentUser.fullName} ]، تأكد من مطابقة اسم حسابك لملف الإكسيل.</div>`;
                 return;
             }
             document.getElementById('info-content-area').innerHTML = `
                 <table class="data-table" style="width:100%">
-                    <thead><tr><th>Sunday</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th><th>Saturday</th></tr></thead>
+                    <thead><tr><th>الأحد</th><th>الإثنين</th><th>الثلاثاء</th><th>الأربعاء</th><th>الخميس</th><th>الجمعة</th><th>السبت</th></tr></thead>
                     <tbody><tr>
                         <td class="${schedule.sunday==='OFF'?'off-day':'work-day'}">${schedule.sunday}</td>
                         <td class="${schedule.monday==='OFF'?'off-day':'work-day'}">${schedule.monday}</td>
@@ -954,9 +958,9 @@
 
     function viewAgentBreaks() {
         switchView('info-display-box');
-        document.getElementById('info-box-title').innerText = "Assigned Breaks";
+        document.getElementById('info-box-title').innerText = "البريك المخصص لك";
         fetch(`${firebaseBaseUrl}/users/${currentUser.username}/breaks.json`).then(res => res.json()).then(b => {
-            document.getElementById('info-content-area').innerHTML = b ? `<p>☕ <b>Break Details:</b> ${b}</p>` : 'No break assigned yet.';
+            document.getElementById('info-content-area').innerHTML = b ? `<p>☕ <b>تفاصيل البريك الخاص بك:</b> ${b}</p>` : 'لم يتم تعيين بريك لك بعد.';
         });
     }
 
@@ -964,8 +968,8 @@
         const text = document.getElementById('profile-change-request').value.trim();
         if(!text) return;
         fetch(`${firebaseBaseUrl}/requests.json`, {
-            method: 'POST', body: JSON.stringify({ username: currentUser.username, text: text, timestamp: new Date().toLocaleString() })
-        }).then(() => { alert('Request Submitted!'); document.getElementById('profile-change-request').value = ''; });
+            method: 'POST', body: JSON.stringify({ username: currentUser.username, text: text, timestamp: new Date().toLocaleString('ar-EG') })
+        }).then(() => { alert('تم إرسال الطلب للمسؤول بنجاح!'); document.getElementById('profile-change-request').value = ''; });
     }
 
     function loadQuizzesForAgent() {
@@ -976,10 +980,10 @@
 
         fetch(`${firebaseBaseUrl}/quizzes.json`).then(res => res.json()).then(quizzes => {
             const list = document.getElementById('available-quizzes-list'); list.innerHTML = '';
-            if(!quizzes) { list.innerHTML = 'No quizzes available at the moment.'; return; }
+            if(!quizzes) { list.innerHTML = 'لا توجد اختبارات متاحة لك حالياً.'; return; }
             Object.keys(quizzes).forEach(name => {
                 if(quizzes[name].target === currentUser.username) {
-                    list.innerHTML += `<div class="info-card" style="text-align:left;"><h3>📋 ${name}</h3><button onclick="startQuizForAgent('${name}')">Start Now 🚀</button></div>`;
+                    list.innerHTML += `<div class="info-card" style="text-align:right;"><h3>📋 ${name}</h3><button onclick="startQuizForAgent('${name}')">ابدأ الاختبار الآن 🚀</button></div>`;
                 }
             });
         });
@@ -988,7 +992,7 @@
     function startQuizForAgent(name) {
         activeQuizName = name;
         fetch(`${firebaseBaseUrl}/quizzes/${name}/questions.json`).then(res => res.json()).then(qs => {
-            if(!qs) return alert('This quiz is currently empty!');
+            if(!qs) return alert('هذا الاختبار فارغ حالياً!');
             activeQuizQuestions = Object.values(qs);
             document.getElementById('active-quiz-title').innerText = name;
             const container = document.getElementById('quiz-questions-container'); container.innerHTML = '';
@@ -998,7 +1002,7 @@
             document.getElementById('close-quiz-btn').classList.add('hidden');
 
             activeQuizQuestions.forEach((q, i) => {
-                let h = `<div style="background:white; padding:15px; margin-bottom:15px; border-radius:8px; border:1px solid #cbd5e1;"><p><b>Q${i+1}:</b> ${q.question}</p>`;
+                let h = `<div style="background:white; padding:15px; margin-bottom:15px; border-radius:8px; border:1px solid #cbd5e1;"><p><b>السؤال ${i+1}:</b> ${q.question}</p>`;
                 if(q.opts) {
                     q.opts.forEach((o, oi) => { 
                         if(o) h += `<label class="option-label" id="label_${i}_${oi+1}"><input type="radio" name="q_${i}" value="${oi+1}"> ${o}</label>`; 
@@ -1018,31 +1022,30 @@
             const sel = document.querySelector(`input[name="q_${i}"]:checked`);
             let userAns = sel ? sel.value : null;
             
-            // Highlight correct answer always (Green)
+            // إظهار الإجابة الصحيحة دائماً باللون الأخضر
             const correctLbl = document.getElementById(`label_${i}_${q.correct}`); 
             if(correctLbl) correctLbl.classList.add('correct-ans');
 
             if(userAns == q.correct) {
                 score++;
-                detailsArr.push(`Q${i+1}: Correct ✅`);
+                detailsArr.push(`س${i+1}: صح ✅`);
             } else {
                 if(userAns) {
-                    detailsArr.push(`Q${i+1}: Wrong ❌`);
-                    // Highlight user's wrong answer (Red)
+                    detailsArr.push(`س${i+1}: خطأ ❌`);
+                    // تمييز إجابة الموظف الخاطئة باللون الأحمر
                     const wrongLbl = document.getElementById(`label_${i}_${userAns}`);
                     if(wrongLbl) wrongLbl.classList.add('wrong-ans');
                 } else {
-                    detailsArr.push(`Q${i+1}: Missed ⚠️`);
+                    detailsArr.push(`س${i+1}: لم يتم الحل ⚠️`);
                 }
             }
-            // Disable all inputs so user cannot change answer after submit
+            // قفل جميع مدخلات الراديو لمنع التلاعب بالإجابات بعد الإرسال تماماً
             document.querySelectorAll(`input[name="q_${i}"]`).forEach(el => el.disabled = true);
         });
 
         let res = `${score} / ${activeQuizQuestions.length}`;
         let detailsString = detailsArr.join(" | ");
 
-        // UI Updates
         document.getElementById('submit-quiz-btn').style.display = 'none';
         document.getElementById('close-quiz-btn').classList.remove('hidden');
 
@@ -1052,10 +1055,10 @@
                 quizName: activeQuizName, 
                 score: res, 
                 details: detailsString,
-                timestamp: new Date().toLocaleString() 
+                timestamp: new Date().toLocaleString('ar-EG') 
             })
         }).then(() => { 
-            alert(`Quiz Submitted! Your Score: ${res}\nGreen = Correct Answer\nRed = Your Wrong Answer`); 
+            alert(`انتهى الاختبار وتم تسجيل النتيجة بنجاح!\nدرجتك الحالية: ${res}\n(اللون الأخضر = الإجابة الصحيحة | اللون الأحمر = إجابتك الخاطئة)`); 
         });
     }
 
@@ -1063,8 +1066,8 @@
         switchView('quiz-dashboard'); document.getElementById('active-quiz-area').classList.add('hidden');
         fetch(`${firebaseBaseUrl}/scores.json`).then(res => res.json()).then(scores => {
             const list = document.getElementById('available-quizzes-list'); list.innerHTML = '';
-            if(!scores) { list.innerHTML = 'Archive is empty.'; return; }
-            let h = `<table class="data-table" style="width:100%"><thead><tr><th>Quiz Name</th><th>Score</th><th>Date</th></tr></thead><tbody>`;
+            if(!scores) { list.innerHTML = 'الأرشيف الخاص بك فارغ حالياً.'; return; }
+            let h = `<table class="data-table" style="width:100%"><thead><tr><th>اسم الاختبار</th><th>النتيجة</th><th>التاريخ والوقت</th></tr></thead><tbody>`;
             Object.keys(scores).forEach(id => {
                 if(scores[id].username === currentUser.username) {
                     h += `<tr><td>${scores[id].quizName}</td><td><b>${scores[id].score}</b></td><td>${scores[id].timestamp}</td></tr>`;
@@ -1074,18 +1077,17 @@
         });
     }
 
-    // Dynamic Excel Export based on Filter
     function triggerExcelExport() {
         const filterVal = document.getElementById('admin-quiz-filter').value;
-        // Generate dynamic file name based on selected filter
-        let dynamicFileName = filterVal === 'all' ? 'HydePark_All_Scores' : `HydePark_Scores_${filterVal.replace(/\s+/g, '_')}`;
+        // تسمية ملف الإكسيل المفلتر تلقائياً وديناميكياً باسم الاختبار المختار لمنع التداخل واللخبطة
+        let dynamicFileName = filterVal === 'all' ? 'جميع_نتائج_العمليات' : `نتائج_${filterVal.replace(/\s+/g, '_')}`;
         
         exportTableToExcel('admin-scores-table', dynamicFileName);
     }
 
     function exportTableToExcel(tableId, filename) {
         const table = document.getElementById(tableId);
-        // Table to Book will extract ONLY the visible rows generated by the filter!
+        // الدالة تأخذ بيانات الجدول المعروض أمام الإدمن في الـ DOM فقط (الصفوف المفلترة وبدون أي صفوف فارغة)
         const wb = XLSX.utils.table_to_book(table, { sheet: "Scores" });
         XLSX.writeFile(wb, filename + ".xlsx");
     }
