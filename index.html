@@ -1,23 +1,20 @@
+<script>
+
 function submitQuizAnswers() {
 
     let score = 0;
-
     let answersReview = [];
 
     activeQuizQuestions.forEach((q, i) => {
 
-        const sel =
-        document.querySelector(`input[name="q_${i}"]:checked`);
+        const sel = document.querySelector(`input[name="q_${i}"]:checked`);
 
-        const selectedAnswer =
-        sel ? parseInt(sel.value) : null;
+        const selectedAnswer = sel ? parseInt(sel.value) : null;
 
-        const isCorrect =
-        selectedAnswer === q.correct;
+        const isCorrect = selectedAnswer === q.correct;
 
         if(isCorrect) score++;
 
-        // تلوين الإجابة الصحيحة
         const correctLbl =
         document.getElementById(`label_${i}_${q.correct}`);
 
@@ -25,7 +22,6 @@ function submitQuizAnswers() {
             correctLbl.classList.add('correct-ans');
         }
 
-        // لو المستخدم اختار الصح
         if(sel && selectedAnswer == q.correct) {
 
             const userCorrect =
@@ -36,7 +32,6 @@ function submitQuizAnswers() {
             }
         }
 
-        // لو المستخدم اختار غلط
         if(sel && !isCorrect) {
 
             const wrongLbl =
@@ -47,7 +42,6 @@ function submitQuizAnswers() {
             }
         }
 
-        // حفظ تفاصيل الإجابات
         answersReview.push({
 
             question: q.question,
@@ -62,8 +56,7 @@ function submitQuizAnswers() {
         });
     });
 
-    let res =
-    `${score} / ${activeQuizQuestions.length}`;
+    let res = `${score} / ${activeQuizQuestions.length}`;
 
     fetch(`${firebaseBaseUrl}/scores.json`, {
 
@@ -111,7 +104,9 @@ function submitQuizAnswers() {
                 ">
 
                     <h4>
+
                         سؤال ${index + 1}
+
                     </h4>
 
                     <p>
@@ -373,3 +368,5 @@ function showScoreDetails(scoreId) {
         switchView('info-display-box');
     });
 }
+
+</script>
