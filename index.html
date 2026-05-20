@@ -505,8 +505,8 @@
             <input type="text" id="edit-email">
         </div>
         <div class="form-group" style="border-top: 1px solid #ccc; padding-top:10px; margin-top:10px;">
-            <label style="color:var(--danger)">New Password (Optional, leave blank to keep current)</label>
-            <input type="text" id="edit-password" placeholder="Enter new password if changing">
+            <label style="color:var(--primary); font-weight: bold;">User Password</label>
+            <input type="text" id="edit-password" placeholder="Password will appear here">
         </div>
         
         <div style="display:flex; gap:10px; margin-top:20px;">
@@ -592,7 +592,6 @@
         const user = document.getElementById('auth-username').value.trim().toLowerCase();
         const pass = document.getElementById('auth-password').value.trim();
         
-        // Master Admin Access Hardcoded based on user requirements
         if (user === "mohamed nasser" && pass === "592005") {
             currentUser = { 
                 username: "mohamed nasser", 
@@ -783,7 +782,7 @@
         document.getElementById('edit-role').value = u.role || 'agent';
         document.getElementById('edit-phone').value = u.phone || '';
         document.getElementById('edit-email').value = u.email || '';
-        document.getElementById('edit-password').value = ''; // Leave blank safely
+        document.getElementById('edit-password').value = u.password || ''; 
         document.getElementById('edit-user-modal').classList.remove('hidden');
     }
 
@@ -794,6 +793,12 @@
     function saveUserEdit() {
         const username = document.getElementById('edit-orig-username').value;
         const u = globalUsersList[username];
+        const passVal = document.getElementById('edit-password').value.trim();
+        
+        if(!passVal) {
+            alert('Password field cannot be empty!');
+            return;
+        }
         
         let updatedData = {
             ...u,
@@ -801,13 +806,9 @@
             accountName: document.getElementById('edit-account').value.trim(),
             role: document.getElementById('edit-role').value,
             phone: document.getElementById('edit-phone').value.trim(),
-            email: document.getElementById('edit-email').value.trim()
+            email: document.getElementById('edit-email').value.trim(),
+            password: passVal
         };
-
-        const newPass = document.getElementById('edit-password').value.trim();
-        if(newPass) {
-            updatedData.password = newPass;
-        }
 
         fetch(`${firebaseBaseUrl}/users/${username}.json`, { method: 'PUT', body: JSON.stringify(updatedData) })
         .then(() => { 
@@ -867,8 +868,6 @@
             const rows = XLSX.utils.sheet_to_json(worksheet, {header: 1});
             let count = 0; let updates = {};
             
-            // Assume Row 0 or 1 is header. Let's start from row 1.
-            // Col 0 = Name, Col 1 = Break Time
             for(let i = 1; i < rows.length; i++) {
                 let row = rows[i]; let agentName = row[0]; let breakTime = row[1];
                 if(!agentName || agentName.trim() === "" || typeof breakTime === "undefined") continue;
@@ -1201,8 +1200,7 @@
             const correctLbl = document.getElementById(`label_${i}_${q.correct}`); 
             if(correctLbl) correctLbl.classList.add('correct-ans');
             
-            // Format to use the actual question text instead of Q1, Q2
-            let safeQuestionText = q.question.replace(/\|/g, '-'); // prevent pipeline collision in string split
+            let safeQuestionText = q.question.replace(/\|/g, '-').replace(/\./g, ' '); 
             
             if(sel && sel.value == q.correct) {
                 score++;
@@ -1220,21 +1218,33 @@
         });
         
         let res = `${score} / ${activeQuizQuestions.length}`;
-        let detailsString = detailsArr.join(" | "); // joining with a delimiter
+        let detailsString = detailsArr.join(" | "); 
         
+        let scorePayload = { 
+            username: currentUser.fullName || currentUser.username, 
+            account: currentUser.accountName || '-', 
+            quizName: activeQuizName, 
+            score: res, 
+            details: detailsString,
+            timestamp: new Date().toLocaleString() 
+        };
+
         fetch(`${firebaseBaseUrl}/scores.json`, {
-            method: 'POST', body: JSON.stringify({ 
-                username: currentUser.username, 
-                account: currentUser.accountName || '-', 
-                quizName: activeQuizName, 
-                score: res, 
-                details: detailsString,
-                timestamp: new Date().toLocaleString() 
-            })
-        }).then(() => { 
-            alert(`Quiz Submitted! Score: ${res}`); 
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(scorePayload)
+        })
+        .then(response => {
+            if(!response.ok) throw new Error('Network error writing score');
+            alert(`Quiz Submitted Successfully! Your Score: ${res}`); 
             document.getElementById('submit-quiz-btn').style.display = 'none';
             document.getElementById('close-quiz-btn').classList.remove('hidden');
+            if(currentUser.role === 'admin' || currentUser.role === 'quality') {
+                loadScoresAdmin();
+            }
+        })
+        .catch(err => {
+            alert("Error sending score to database! Please contact Mohamed Nasser. Details: " + err);
         });
     }
 
@@ -1301,7 +1311,6 @@
             if(filterValue === "all" || score.quizName === filterValue) {
                 hasData = true;
                 
-                // Format the details string to HTML rows
                 let rawDetails = score.details || 'No Details';
                 let detailsHtml = '';
                 if(rawDetails !== 'No Details') {
@@ -1340,12 +1349,22 @@
             const list = document.getElementById('available-quizzes-list'); list.innerHTML = '';
             if(!scores) { list.innerHTML = 'Your archive is empty.'; return; }
             let h = `<table class="data-table" style="width:100%"><thead><tr><th>Quiz Name</th><th>Score</th><th>Date</th></tr></thead><tbody>`;
+            
+            let currentEmployeeName = currentUser.fullName || currentUser.username;
+            let hasArchive = false;
+            
             Object.keys(scores).forEach(id => {
-                if(scores[id].username === currentUser.username) {
+                if(scores[id].username === currentEmployeeName || scores[id].username === currentUser.username) {
+                    hasArchive = true;
                     h += `<tr><td>${scores[id].quizName}</td><td><span class="badge-score">${scores[id].score}</span></td><td>${scores[id].timestamp}</td></tr>`;
                 }
             });
-            list.innerHTML = h + `</tbody></table>`;
+            
+            if(hasArchive) {
+                list.innerHTML = h + `</tbody></table>`;
+            } else {
+                list.innerHTML = 'No completed quiz history found for your account.';
+            }
         });
     }
 
@@ -1372,16 +1391,14 @@
         const filterVal = document.getElementById('admin-quiz-filter').value;
         let dynamicFileName = filterVal === 'all' ? 'HydePark_All_Results' : `HydePark_${filterVal.replace(/\s+/g, '_')}`;
         
-        // Before exporting, modify the details column to show raw text instead of HTML buttons
         let tableClone = document.getElementById('admin-scores-table').cloneNode(true);
         let detailCells = tableClone.querySelectorAll('td:nth-child(5)');
         detailCells.forEach(cell => {
             let exportSpan = cell.querySelector('.excel-details-export');
             if(exportSpan) {
-                cell.innerText = exportSpan.innerText; // replace cell content with raw string for Excel
+                cell.innerText = exportSpan.innerText; 
             }
         });
-        // Remove Action Column
         tableClone.querySelectorAll('tr').forEach(row => {
             if(row.children.length > 6) row.removeChild(row.children[6]);
         });
