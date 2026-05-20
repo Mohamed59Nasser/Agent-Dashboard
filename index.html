@@ -460,7 +460,7 @@
                 <div class="filter-container">
                     <label style="margin:0; font-size:14px; color:var(--primary); font-weight:bold;"><i class="fa-solid fa-filter"></i> Filter by Quiz:</label>
                     <select id="admin-quiz-filter" onchange="filterScoresTable()" style="padding: 6px; border-radius: 6px; border: 1px solid #cbd5e1; min-width: 180px;">
-                        <option value="all">All Quizzes</option>
+                        <option value="ALL_QUIZZES">All Quizzes</option>
                     </select>
                 </div>
                 
@@ -1140,8 +1140,36 @@
         if(confirm('Delete this question permanently?')) fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions/${qKey}.json`, { method: 'DELETE' }).then(() => openQuestionsEditor(quizName));
     }
 
+    // ⭐ تم تحديث هذه الدالة لتقوم بالحذف الشامل (الكويز + كل الدرجات المرتبطة به)
     function deleteQuizCompletely(name) {
-        if(confirm(`Are you sure you want to completely delete quiz [ ${name} ]?`)) fetch(`${firebaseBaseUrl}/quizzes/${name}.json`, { method: 'DELETE' }).then(() => loadQuizzesAdminSection());
+        if(confirm(`تحذير هام ⚠️\nهل أنت متأكد من حذف الكويز [ ${name} ] نهائياً؟\nسيتم مسحه من عند جميع الموظفين وحذف جميع نتائجه من النظام بالكامل.`)) {
+            // 1. مسح الكويز من قائمة الكويزات
+            fetch(`${firebaseBaseUrl}/quizzes/${name}.json`, { method: 'DELETE' })
+            .then(() => {
+                // 2. البحث عن درجات هذا الكويز ومسحها بالكامل
+                return fetch(`${firebaseBaseUrl}/scores.json`).then(res => res.json()).then(scores => {
+                    if (scores) {
+                        let deletePromises = [];
+                        Object.keys(scores).forEach(id => {
+                            if (scores[id] && scores[id].quizName === name) {
+                                deletePromises.push(fetch(`${firebaseBaseUrl}/scores/${id}.json`, { method: 'DELETE' }));
+                            }
+                        });
+                        return Promise.all(deletePromises);
+                    }
+                });
+            })
+            .then(() => {
+                alert('تم حذف الكويز وجميع درجاته بالكامل من النظام! 🗑️✅');
+                loadQuizzesAdminSection();
+                if (document.getElementById('tab-results') && !document.getElementById('tab-results').classList.contains('hidden')) {
+                    loadScoresAdmin();
+                }
+            })
+            .catch(err => {
+                alert('حدث خطأ أثناء عملية الحذف: ' + err);
+            });
+        }
     }
 
     function addQuizQuestionAdmin() {
@@ -1288,22 +1316,30 @@
         });
     }
 
+    // ⭐ تم تحديث هذه الدالة لضمان عمل فلتر الكل بدون أخطاء
     function updateQuizFilterDropdown(scores) {
         const filterSelect = document.getElementById('admin-quiz-filter');
         if (!filterSelect) return;
-        const currentVal = filterSelect.value || "all";
+        
+        const currentVal = filterSelect.value || "ALL_QUIZZES";
         let uniqueQuizzes = new Set();
         
         if(scores) {
             Object.values(scores).forEach(s => { if(s && s.quizName) uniqueQuizzes.add(s.quizName); });
         }
         
-        let opts = `<option value="all">All Quizzes</option>`;
-        uniqueQuizzes.forEach(q => { opts += `<option value="${q}">${q}</option>`; });
+        // استخدام ALL_QUIZZES كقيمة برمجية فريدة لضمان عدم تعارضها مع أي اسم كويز
+        let opts = `<option value="ALL_QUIZZES">All Quizzes</option>`;
+        uniqueQuizzes.forEach(q => { 
+            let safeQ = q.replace(/"/g, '&quot;'); // حماية الأسماء المكتوبة بعلامات تنصيص
+            opts += `<option value="${safeQ}">${q}</option>`; 
+        });
         filterSelect.innerHTML = opts;
         
-        if (uniqueQuizzes.has(currentVal) || currentVal === "all") {
+        if (uniqueQuizzes.has(currentVal) || currentVal === "ALL_QUIZZES") {
             filterSelect.value = currentVal;
+        } else {
+            filterSelect.value = "ALL_QUIZZES";
         }
     }
 
@@ -1326,21 +1362,28 @@
         }
     }
 
+    // ⭐ تم تحديث الدالة لقراءة ALL_QUIZZES بشكل صحيح
     function renderScoresTable() {
         const tbody = document.getElementById('admin-scores-list'); 
         if (!tbody) return;
         tbody.innerHTML = '';
-        if(!globalScoresData) { tbody.innerHTML = '<tr><td colspan="8">No results recorded yet.</td></tr>'; return; }
+        if(!globalScoresData || Object.keys(globalScoresData).length === 0) { 
+            tbody.innerHTML = '<tr><td colspan="8">No results recorded yet.</td></tr>'; 
+            return; 
+        }
         
         const filterSelect = document.getElementById('admin-quiz-filter');
-        const filterValue = filterSelect ? filterSelect.value : "all";
+        let filterValue = filterSelect ? filterSelect.value : "ALL_QUIZZES";
+        if (!filterValue) filterValue = "ALL_QUIZZES";
+
         let hasData = false;
 
         Object.keys(globalScoresData).forEach(id => {
             let score = globalScoresData[id];
             if (!score) return; 
             
-            if(filterValue === "all" || score.quizName === filterValue) {
+            // تحقق إذا كان الفلتر هو الكل أو يطابق اسم الكويز
+            if(filterValue === "ALL_QUIZZES" || score.quizName === filterValue) {
                 hasData = true;
                 
                 let rawDetails = score.details || 'No Details';
@@ -1371,7 +1414,9 @@
             }
         });
 
-        if(!hasData) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#64748b; padding:20px;">No matching records found.</td></tr>`; }
+        if(!hasData) { 
+            tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#64748b; padding:20px;">No matching records found.</td></tr>`; 
+        }
     }
 
     function loadAgentScoresArchive() {
@@ -1421,8 +1466,8 @@
 
     function triggerExcelExport() {
         const filterSelect = document.getElementById('admin-quiz-filter');
-        const filterVal = filterSelect ? filterSelect.value : "all";
-        let dynamicFileName = filterVal === 'all' ? 'HydePark_All_Results' : `HydePark_${filterVal.replace(/\s+/g, '_')}`;
+        const filterVal = filterSelect ? filterSelect.value : "ALL_QUIZZES";
+        let dynamicFileName = filterVal === 'ALL_QUIZZES' ? 'HydePark_All_Results' : `HydePark_${filterVal.replace(/\s+/g, '_')}`;
         
         let tableClone = document.getElementById('admin-scores-table').cloneNode(true);
         // Details is the 6th column (nth-child(6))
