@@ -164,12 +164,10 @@
         .viewer-box { background: #fdf4ff; border: 1px solid #e879f9; padding: 15px; border-radius: 8px; margin-top: 15px; }
         .viewer-q { background: white; padding: 10px; border-left: 4px solid #d946ef; margin-bottom: 10px; border-radius: 4px; text-align: left; }
 
-        /* Excel Upload Split */
         .excel-split-container { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; }
         .excel-box { flex: 1; min-width: 300px; background: #f8fafc; padding: 20px; border-radius: 10px; border: 2px dashed #94a3b8; text-align: center; }
         .excel-box h5 { color: #334155; font-size: 16px; margin-bottom: 15px; }
 
-        /* Modal Overlay for Editing User */
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
             background: rgba(0,0,0,0.5); display: flex; justify-content: center; 
@@ -294,13 +292,13 @@
         <h2>Master Control Panel 👑</h2>
         
         <div class="admin-tabs" id="admin-tabs-container">
-            <button class="tab-btn active" id="tab-btn-users" onclick="switchAdminTab('tab-users', this); loadUsersAdmin();">👥 Users & Accounts</button>
+            <button class="tab-btn" id="tab-btn-users" onclick="switchAdminTab('tab-users', this); loadUsersAdmin();">👥 Users & Accounts</button>
             <button class="tab-btn" id="tab-btn-schedules" onclick="switchAdminTab('tab-schedules', this); loadAdminSchedulesAndBreaks();">📅 Excel (Schedules/Breaks)</button>
             <button class="tab-btn" id="tab-btn-quizzes" onclick="switchAdminTab('tab-quizzes', this); loadQuizzesAdminSection();">📝 Quizzes Manager</button>
             <button class="tab-btn" id="tab-btn-results" onclick="switchAdminTab('tab-results', this); loadScoresAdmin();">📊 Results & Grades</button>
         </div>
 
-        <div id="tab-users" class="admin-tab-content">
+        <div id="tab-users" class="admin-tab-content hidden">
             <h4>👥 System Users Management</h4>
             
             <div id="admin-only-add-user" class="admin-add-user-box hidden">
@@ -388,7 +386,7 @@
                 <select id="q-target-select">
                     <option value="draft">Hidden Draft ❌</option>
                     <option value="all">All Employees</option>
-                    </select>
+                </select>
             </div>
             <div style="background:#f8fafc; padding:15px; border-radius:10px; border:1px solid #cbd5e1; margin-top:15px;">
                 <div class="form-group"><label>Question Text:</label><input type="text" id="q-text"></div>
@@ -577,7 +575,7 @@
         document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.add('hidden'));
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
         document.getElementById(tabId).classList.remove('hidden');
-        btn.classList.add('active');
+        if(btn) btn.classList.add('active');
     }
 
     function toggleAuthMode() {
@@ -587,8 +585,8 @@
         document.getElementById('toggle-auth-btn').innerText = isSignUpMode ? "Already have an account? Login here" : "Don't have an account? Register now (Requires Approval)";
     }
 
-    function handleAuth(e) {
-        e.preventDefault();
+    function handleAuth(event) {
+        event.preventDefault();
         const user = document.getElementById('auth-username').value.trim().toLowerCase();
         const pass = document.getElementById('auth-password').value.trim();
         
@@ -651,6 +649,7 @@
     }
 
     function setupDashboardPermissions() {
+        if (!currentUser) return;
         localStorage.setItem('currentUser', JSON.stringify(currentUser));
         const badge = document.getElementById('user-role-badge');
         badge.className = "badge"; 
@@ -667,6 +666,7 @@
             document.getElementById('tab-btn-users').style.display = (currentUser.role === 'admin' || currentUser.role === 'leader') ? 'block' : 'none';
             document.getElementById('tab-btn-schedules').style.display = (currentUser.role === 'admin' || currentUser.role === 'leader') ? 'block' : 'none';
             document.getElementById('tab-btn-quizzes').style.display = (currentUser.role === 'admin' || currentUser.role === 'quality') ? 'block' : 'none';
+            document.getElementById('tab-btn-results').style.display = (currentUser.role === 'admin' || currentUser.role === 'leader' || currentUser.role === 'quality') ? 'block' : 'none';
             document.getElementById('admin-only-add-user').classList.toggle('hidden', currentUser.role !== 'admin');
             
             if(currentUser.role === 'admin') { 
@@ -705,6 +705,7 @@
             
             Object.keys(users).forEach(uKey => {
                 let u = users[uKey];
+                if (!u) return; // Null safety check
                 let accMatch = !filterAcc || (u.accountName && u.accountName.toLowerCase().includes(filterAcc));
                 let statusMatch = filterStatus === 'all' || u.status === filterStatus;
                 
@@ -795,10 +796,7 @@
         const u = globalUsersList[username];
         const passVal = document.getElementById('edit-password').value.trim();
         
-        if(!passVal) {
-            alert('Password field cannot be empty!');
-            return;
-        }
+        if(!passVal) return alert('Password field cannot be empty!');
         
         let updatedData = {
             ...u,
@@ -911,27 +909,32 @@
             const tbody = document.getElementById('admin-schedule-list'); tbody.innerHTML = '';
             if(!scheds) { tbody.innerHTML = '<tr><td colspan="8">No schedules uploaded currently.</td></tr>'; return; }
             Object.keys(scheds).forEach(k => {
-                let name = decodeURIComponent(k); let s = scheds[k];
+                let s = scheds[k];
+                if (!s) return; // Null safety check
+                let name = decodeURIComponent(k); 
                 tbody.innerHTML += `<tr>
                     <td><b>${name}</b></td>
-                    <td class="${s.sunday==='OFF'?'off-day':''}">${s.sunday}</td>
-                    <td class="${s.monday==='OFF'?'off-day':''}">${s.monday}</td>
-                    <td class="${s.tuesday==='OFF'?'off-day':''}">${s.tuesday}</td>
-                    <td class="${s.wednesday==='OFF'?'off-day':''}">${s.wednesday}</td>
-                    <td class="${s.thursday==='OFF'?'off-day':''}">${s.thursday}</td>
-                    <td class="${s.friday==='OFF'?'off-day':''}">${s.friday}</td>
-                    <td class="${s.saturday==='OFF'?'off-day':''}">${s.saturday}</td>
+                    <td class="${s.sunday==='OFF'?'off-day':''}">${s.sunday || 'OFF'}</td>
+                    <td class="${s.monday==='OFF'?'off-day':''}">${s.monday || 'OFF'}</td>
+                    <td class="${s.tuesday==='OFF'?'off-day':''}">${s.tuesday || 'OFF'}</td>
+                    <td class="${s.wednesday==='OFF'?'off-day':''}">${s.wednesday || 'OFF'}</td>
+                    <td class="${s.thursday==='OFF'?'off-day':''}">${s.thursday || 'OFF'}</td>
+                    <td class="${s.friday==='OFF'?'off-day':''}">${s.friday || 'OFF'}</td>
+                    <td class="${s.saturday==='OFF'?'off-day':''}">${s.saturday || 'OFF'}</td>
                 </tr>`;
             });
         });
     }
 
+    // --- Breaks Manager ---
     function loadAdminBreaks() {
         fetch(`${firebaseBaseUrl}/global_breaks.json`).then(res => res.json()).then(breaks => {
             const tbody = document.getElementById('admin-breaks-list'); tbody.innerHTML = '';
             if(!breaks) { tbody.innerHTML = '<tr><td colspan="2">No breaks uploaded currently.</td></tr>'; return; }
             Object.keys(breaks).forEach(k => {
-                let name = decodeURIComponent(k); let b = breaks[k];
+                let b = breaks[k];
+                if (!b) return; // Null safety check
+                let name = decodeURIComponent(k); 
                 tbody.innerHTML += `<tr><td><b>${name}</b></td><td>${b}</td></tr>`;
             });
         });
@@ -966,7 +969,7 @@
         });
     }
 
-    // --- Quizzes Management (Admin & Quality) ---
+    // --- Quizzes Management ---
     function loadDropdownTargets() {
         fetch(`${firebaseBaseUrl}/users.json`).then(res => res.json()).then(users => {
             const selectMain = document.getElementById('q-target-select');
@@ -975,7 +978,7 @@
             
             let accounts = new Set();
             if(users) {
-                Object.values(users).forEach(u => { if(u.accountName) accounts.add(u.accountName); });
+                Object.values(users).forEach(u => { if(u && u.accountName) accounts.add(u.accountName); });
                 if(accounts.size > 0) {
                     optionsHtml += `<optgroup label="By Account / Campaign">`;
                     accounts.forEach(acc => optionsHtml += `<option value="ACC_${acc}">Campaign: ${acc}</option>`);
@@ -983,7 +986,8 @@
                 }
                 optionsHtml += `<optgroup label="By Specific Employee">`;
                 Object.keys(users).forEach(k => {
-                    if(users[k].role === 'agent') optionsHtml += `<option value="${users[k].username}">${users[k].fullName}</option>`;
+                    let u = users[k];
+                    if(u && u.role === 'agent') optionsHtml += `<option value="${u.username}">${u.fullName}</option>`;
                 });
                 optionsHtml += `</optgroup>`;
             }
@@ -998,7 +1002,9 @@
             if(!quizzes) { tbody.innerHTML = '<tr><td colspan="3">No quizzes created yet.</td></tr>'; return; }
             
             Object.keys(quizzes).forEach(name => {
-                let tgt = quizzes[name].target;
+                let q = quizzes[name];
+                if (!q) return; // Null safety check
+                let tgt = q.target || 'draft';
                 let tgtDisplay = tgt === 'draft' ? 'Draft ❌' : tgt === 'all' ? 'All' : tgt.startsWith('ACC_') ? `Camp: ${tgt.replace('ACC_','')}` : `User: ${tgt}`;
                 
                 tbody.innerHTML += `<tr>
@@ -1028,6 +1034,7 @@
             if(!qs) { container.innerHTML = '<p>No questions found.</p>'; return; }
             
             Object.values(qs).forEach((q, idx) => {
+                if (!q) return;
                 let optsHtml = '';
                 if(q.opts) {
                     q.opts.forEach((o, i) => {
@@ -1057,6 +1064,7 @@
             if(!questions) { container.innerHTML = '<p style="color:var(--danger);">⚠️ No questions here.</p>'; return; }
             Object.keys(questions).forEach(qKey => {
                 let q = questions[qKey];
+                if (!q) return;
                 container.innerHTML += `
                     <div class="question-edit-row">
                         <label style="font-size:12px; color:var(--primary)">Question Text:</label>
@@ -1154,7 +1162,9 @@
             if(!quizzes) { list.innerHTML = 'No quizzes available for you currently.'; return; }
             
             Object.keys(quizzes).forEach(name => {
-                let tgt = quizzes[name].target;
+                let q = quizzes[name];
+                if (!q) return;
+                let tgt = q.target;
                 if(tgt === 'all' || tgt === currentUser.username || tgt === `ACC_${currentUser.accountName}`) {
                     list.innerHTML += `<div class="info-card" style="margin-bottom:10px; text-align:left; display:flex; justify-content:space-between; align-items:center;">
                         <span style="font-weight:bold; color:var(--primary);"><i class="fa-solid fa-file-pen"></i> ${name}</span>
@@ -1177,6 +1187,7 @@
             document.getElementById('close-quiz-btn').classList.add('hidden');
 
             activeQuizQuestions.forEach((q, i) => {
+                if (!q) return;
                 let h = `<div style="background:white; padding:15px; margin-bottom:15px; border-radius:8px; border:2px solid #e2e8f0;"><p style="margin-top:0; font-size:16px; color:var(--text); font-weight:bold;">Q${i+1}: ${q.question}</p>`;
                 if(q.opts) {
                     q.opts.forEach((o, oi) => { 
@@ -1194,6 +1205,7 @@
         let detailsArr = [];
         
         activeQuizQuestions.forEach((q, i) => {
+            if (!q) return;
             const sel = document.querySelector(`input[name="q_${i}"]:checked`);
             let userAns = sel ? sel.value : null;
             
@@ -1254,16 +1266,20 @@
             globalScoresData = scores; 
             updateQuizFilterDropdown(scores);
             renderScoresTable();
+        }).catch(err => {
+            console.error(err);
+            document.getElementById('admin-scores-list').innerHTML = `<tr><td colspan="7">Error loading data.</td></tr>`;
         });
     }
 
     function updateQuizFilterDropdown(scores) {
         const filterSelect = document.getElementById('admin-quiz-filter');
-        const currentVal = filterSelect.value;
+        if (!filterSelect) return;
+        const currentVal = filterSelect.value || "all";
         let uniqueQuizzes = new Set();
         
         if(scores) {
-            Object.values(scores).forEach(s => uniqueQuizzes.add(s.quizName));
+            Object.values(scores).forEach(s => { if(s && s.quizName) uniqueQuizzes.add(s.quizName); });
         }
         
         let opts = `<option value="all">All Quizzes</option>`;
@@ -1281,11 +1297,7 @@
 
     function toggleDetails(elementId) {
         const el = document.getElementById(elementId);
-        if(el.classList.contains('hidden')) {
-            el.classList.remove('hidden');
-        } else {
-            el.classList.add('hidden');
-        }
+        if(el) el.classList.toggle('hidden');
     }
 
     function deleteScoreFromSystem(scoreId) {
@@ -1300,14 +1312,18 @@
 
     function renderScoresTable() {
         const tbody = document.getElementById('admin-scores-list'); 
+        if (!tbody) return;
         tbody.innerHTML = '';
         if(!globalScoresData) { tbody.innerHTML = '<tr><td colspan="7">No results recorded yet.</td></tr>'; return; }
         
-        const filterValue = document.getElementById('admin-quiz-filter').value;
+        const filterSelect = document.getElementById('admin-quiz-filter');
+        const filterValue = filterSelect ? filterSelect.value : "all";
         let hasData = false;
 
         Object.keys(globalScoresData).forEach(id => {
             let score = globalScoresData[id];
+            if (!score) return; // Crash protection
+            
             if(filterValue === "all" || score.quizName === filterValue) {
                 hasData = true;
                 
@@ -1315,26 +1331,24 @@
                 let detailsHtml = '';
                 if(rawDetails !== 'No Details') {
                     let parts = rawDetails.split(' | ');
-                    parts.forEach(p => {
-                        detailsHtml += `<div class="details-row">${p}</div>`;
-                    });
+                    parts.forEach(p => { detailsHtml += `<div class="details-row">${p}</div>`; });
                 } else {
                     detailsHtml = 'No detailed breakdown available.';
                 }
 
                 tbody.innerHTML += `<tr>
-                    <td><b>${score.username}</b></td>
+                    <td><b>${score.username || 'Unknown'}</b></td>
                     <td>${score.account||'-'}</td>
-                    <td>${score.quizName}</td>
-                    <td><span class="badge-score">${score.score}</span></td>
+                    <td>${score.quizName || '-'}</td>
+                    <td><span class="badge-score">${score.score || '0'}</span></td>
                     <td>
                         <button class="view-btn" onclick="toggleDetails('det_${id}')" style="background:#0ea5e9; font-size:10px; padding:4px 8px;">View Details</button>
                         <div id="det_${id}" class="details-container hidden">${detailsHtml}</div>
                         <span style="display:none;" class="excel-details-export">${rawDetails}</span>
                     </td>
-                    <td><small>${score.timestamp}</small></td>
+                    <td><small>${score.timestamp || '-'}</small></td>
                     <td>
-                        ${currentUser.role === 'admin' ? `<button class="view-btn" style="background:var(--danger); font-size:10px; padding:4px 8px;" onclick="deleteScoreFromSystem('${id}')">Delete</button>` : '<span style="font-size:10px; color:#94a3b8">N/A</span>'}
+                        ${currentUser && currentUser.role === 'admin' ? `<button class="view-btn" style="background:var(--danger); font-size:10px; padding:4px 8px;" onclick="deleteScoreFromSystem('${id}')">Delete</button>` : '<span style="font-size:10px; color:#94a3b8">N/A</span>'}
                     </td>
                 </tr>`;
             }
@@ -1354,9 +1368,11 @@
             let hasArchive = false;
             
             Object.keys(scores).forEach(id => {
-                if(scores[id].username === currentEmployeeName || scores[id].username === currentUser.username) {
+                let s = scores[id];
+                if (!s) return;
+                if(s.username === currentEmployeeName || s.username === currentUser.username) {
                     hasArchive = true;
-                    h += `<tr><td>${scores[id].quizName}</td><td><span class="badge-score">${scores[id].score}</span></td><td>${scores[id].timestamp}</td></tr>`;
+                    h += `<tr><td>${s.quizName || '-'}</td><td><span class="badge-score">${s.score || '0'}</span></td><td>${s.timestamp || '-'}</td></tr>`;
                 }
             });
             
@@ -1368,7 +1384,6 @@
         });
     }
 
-    // --- Misc ---
     function viewAgentBreaks() {
         switchView('info-display-box'); 
         document.getElementById('info-box-title').innerText = "Your Scheduled Break Time";
@@ -1395,9 +1410,7 @@
         let detailCells = tableClone.querySelectorAll('td:nth-child(5)');
         detailCells.forEach(cell => {
             let exportSpan = cell.querySelector('.excel-details-export');
-            if(exportSpan) {
-                cell.innerText = exportSpan.innerText; 
-            }
+            if(exportSpan) { cell.innerText = exportSpan.innerText; }
         });
         tableClone.querySelectorAll('tr').forEach(row => {
             if(row.children.length > 6) row.removeChild(row.children[6]);
