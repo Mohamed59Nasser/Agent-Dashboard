@@ -156,7 +156,7 @@
         .admin-add-user-box { 
             background: #f1f5f9; padding: 15px; border-radius: 8px; 
             margin-bottom: 15px; border: 1px solid #cbd5e1; 
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; 
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; 
         }
         .admin-add-user-box h5 { grid-column: 1 / -1; margin: 0 0 10px 0; color: var(--text); }
         .filter-bar { display: flex; gap: 10px; background: #e2e8f0; padding: 10px; border-radius: 8px; margin-bottom: 10px; flex-wrap: wrap;}
@@ -185,6 +185,10 @@
         }
         .details-row { margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid #e2e8f0; }
         .details-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+        @media(max-width: 768px) {
+            .admin-add-user-box { grid-template-columns: 1fr 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -307,7 +311,8 @@
                 <input type="text" id="dir-user" placeholder="Username" class="input-mini">
                 <input type="password" id="dir-pass" placeholder="Password" class="input-mini">
                 <input type="text" id="dir-acc" placeholder="Account / Campaign" class="input-mini">
-                <select id="dir-role" class="input-mini" style="grid-column: 1 / -1;">
+                <input type="text" id="dir-hrid" placeholder="HR ID (Optional)" class="input-mini">
+                <select id="dir-role" class="input-mini">
                     <option value="agent">Agent</option>
                     <option value="leader">Leader</option>
                     <option value="quality">Quality</option>
@@ -464,7 +469,7 @@
             
             <div style="overflow-x:auto;">
                 <table class="data-table" id="admin-scores-table">
-                    <thead><tr><th>Employee</th><th>Account</th><th>Quiz Name</th><th>Score</th><th>Details</th><th>Date & Time</th><th>Action</th></tr></thead>
+                    <thead><tr><th>Employee</th><th>HR ID</th><th>Account</th><th>Quiz Name</th><th>Score</th><th>Details</th><th>Date & Time</th><th>Action</th></tr></thead>
                     <tbody id="admin-scores-list"></tbody>
                 </table>
             </div>
@@ -480,6 +485,10 @@
         <div class="form-group">
             <label>Full Name</label>
             <input type="text" id="edit-fullname">
+        </div>
+        <div class="form-group">
+            <label>HR ID (Admin/Leader only)</label>
+            <input type="text" id="edit-hrid" placeholder="e.g. 12345">
         </div>
         <div class="form-group">
             <label>Account</label>
@@ -598,7 +607,8 @@
                 status: "approved", 
                 accountName: "Hyde Park", 
                 phone: "01000000000", 
-                email: "admin@hydepark.com" 
+                email: "admin@hydepark.com",
+                hrId: "ADMIN-01"
             };
             setupDashboardPermissions(); 
             return;
@@ -611,7 +621,7 @@
             
             let newUserData = { 
                 fullName: name, username: user, password: pass, role: "agent", 
-                accountName: acc, status: "pending", phone: "", email: "" 
+                accountName: acc, status: "pending", phone: "", email: "", hrId: ""
             };
             fetch(`${firebaseBaseUrl}/users/${user}.json`, { method: 'PUT', body: JSON.stringify(newUserData) })
             .then(() => { 
@@ -705,7 +715,7 @@
             
             Object.keys(users).forEach(uKey => {
                 let u = users[uKey];
-                if (!u) return; // Null safety check
+                if (!u) return; 
                 let accMatch = !filterAcc || (u.accountName && u.accountName.toLowerCase().includes(filterAcc));
                 let statusMatch = filterStatus === 'all' || u.status === filterStatus;
                 
@@ -727,7 +737,7 @@
                     }
 
                     tbody.innerHTML += `<tr>
-                        <td><b>${u.fullName || 'No Name'}</b><br><small style="color:#64748b;">${u.phone||'No Phone'} | ${u.email||'No Email'}</small></td>
+                        <td><b>${u.fullName || 'No Name'}</b><br><small style="color:#64748b;">HR ID: ${u.hrId || 'Not Set'} | ${u.phone||'No Phone'} | ${u.email||'No Email'}</small></td>
                         <td><code>${u.username}</code></td>
                         <td>${u.accountName || '-'}</td>
                         <td><span class="badge" style="background:#64748b; text-transform:capitalize;">${u.role}</span></td>
@@ -745,19 +755,21 @@
         const pass = document.getElementById('dir-pass').value.trim();
         const acc = document.getElementById('dir-acc').value.trim();
         const role = document.getElementById('dir-role').value;
+        const hrid = document.getElementById('dir-hrid').value.trim();
 
         if(!name || !user || !pass || !acc) return alert('Please complete all basic fields!');
         
         let newUserData = { 
             fullName: name, username: user, password: pass, 
             role: role, accountName: acc, status: "approved", 
-            phone: "", email: "" 
+            phone: "", email: "", hrId: hrid 
         };
         fetch(`${firebaseBaseUrl}/users/${user}.json`, { method: 'PUT', body: JSON.stringify(newUserData) })
         .then(() => { 
             alert('User added and activated successfully!'); 
             document.getElementById('dir-name').value = ''; document.getElementById('dir-user').value = ''; 
             document.getElementById('dir-pass').value = ''; document.getElementById('dir-acc').value = '';
+            document.getElementById('dir-hrid').value = '';
             loadUsersAdmin(); loadDropdownTargets();
         });
     }
@@ -779,6 +791,7 @@
         if(!u) return;
         document.getElementById('edit-orig-username').value = username;
         document.getElementById('edit-fullname').value = u.fullName || '';
+        document.getElementById('edit-hrid').value = u.hrId || '';
         document.getElementById('edit-account').value = u.accountName || '';
         document.getElementById('edit-role').value = u.role || 'agent';
         document.getElementById('edit-phone').value = u.phone || '';
@@ -801,6 +814,7 @@
         let updatedData = {
             ...u,
             fullName: document.getElementById('edit-fullname').value.trim(),
+            hrId: document.getElementById('edit-hrid').value.trim(),
             accountName: document.getElementById('edit-account').value.trim(),
             role: document.getElementById('edit-role').value,
             phone: document.getElementById('edit-phone').value.trim(),
@@ -910,7 +924,7 @@
             if(!scheds) { tbody.innerHTML = '<tr><td colspan="8">No schedules uploaded currently.</td></tr>'; return; }
             Object.keys(scheds).forEach(k => {
                 let s = scheds[k];
-                if (!s) return; // Null safety check
+                if (!s) return; 
                 let name = decodeURIComponent(k); 
                 tbody.innerHTML += `<tr>
                     <td><b>${name}</b></td>
@@ -933,7 +947,7 @@
             if(!breaks) { tbody.innerHTML = '<tr><td colspan="2">No breaks uploaded currently.</td></tr>'; return; }
             Object.keys(breaks).forEach(k => {
                 let b = breaks[k];
-                if (!b) return; // Null safety check
+                if (!b) return; 
                 let name = decodeURIComponent(k); 
                 tbody.innerHTML += `<tr><td><b>${name}</b></td><td>${b}</td></tr>`;
             });
@@ -1003,7 +1017,7 @@
             
             Object.keys(quizzes).forEach(name => {
                 let q = quizzes[name];
-                if (!q) return; // Null safety check
+                if (!q) return; 
                 let tgt = q.target || 'draft';
                 let tgtDisplay = tgt === 'draft' ? 'Draft ❌' : tgt === 'all' ? 'All' : tgt.startsWith('ACC_') ? `Camp: ${tgt.replace('ACC_','')}` : `User: ${tgt}`;
                 
@@ -1234,6 +1248,7 @@
         
         let scorePayload = { 
             username: currentUser.fullName || currentUser.username, 
+            hrId: currentUser.hrId || 'Not Set',
             account: currentUser.accountName || '-', 
             quizName: activeQuizName, 
             score: res, 
@@ -1251,7 +1266,7 @@
             alert(`Quiz Submitted Successfully! Your Score: ${res}`); 
             document.getElementById('submit-quiz-btn').style.display = 'none';
             document.getElementById('close-quiz-btn').classList.remove('hidden');
-            if(currentUser.role === 'admin' || currentUser.role === 'quality') {
+            if(currentUser.role === 'admin' || currentUser.role === 'quality' || currentUser.role === 'leader') {
                 loadScoresAdmin();
             }
         })
@@ -1268,7 +1283,8 @@
             renderScoresTable();
         }).catch(err => {
             console.error(err);
-            document.getElementById('admin-scores-list').innerHTML = `<tr><td colspan="7">Error loading data.</td></tr>`;
+            const tbody = document.getElementById('admin-scores-list');
+            if(tbody) tbody.innerHTML = `<tr><td colspan="8">Error loading data.</td></tr>`;
         });
     }
 
@@ -1314,7 +1330,7 @@
         const tbody = document.getElementById('admin-scores-list'); 
         if (!tbody) return;
         tbody.innerHTML = '';
-        if(!globalScoresData) { tbody.innerHTML = '<tr><td colspan="7">No results recorded yet.</td></tr>'; return; }
+        if(!globalScoresData) { tbody.innerHTML = '<tr><td colspan="8">No results recorded yet.</td></tr>'; return; }
         
         const filterSelect = document.getElementById('admin-quiz-filter');
         const filterValue = filterSelect ? filterSelect.value : "all";
@@ -1322,7 +1338,7 @@
 
         Object.keys(globalScoresData).forEach(id => {
             let score = globalScoresData[id];
-            if (!score) return; // Crash protection
+            if (!score) return; 
             
             if(filterValue === "all" || score.quizName === filterValue) {
                 hasData = true;
@@ -1338,6 +1354,7 @@
 
                 tbody.innerHTML += `<tr>
                     <td><b>${score.username || 'Unknown'}</b></td>
+                    <td>${score.hrId || 'Not Set'}</td>
                     <td>${score.account||'-'}</td>
                     <td>${score.quizName || '-'}</td>
                     <td><span class="badge-score">${score.score || '0'}</span></td>
@@ -1354,7 +1371,7 @@
             }
         });
 
-        if(!hasData) { tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#64748b; padding:20px;">No matching records found.</td></tr>`; }
+        if(!hasData) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#64748b; padding:20px;">No matching records found.</td></tr>`; }
     }
 
     function loadAgentScoresArchive() {
@@ -1403,17 +1420,21 @@
     }
 
     function triggerExcelExport() {
-        const filterVal = document.getElementById('admin-quiz-filter').value;
+        const filterSelect = document.getElementById('admin-quiz-filter');
+        const filterVal = filterSelect ? filterSelect.value : "all";
         let dynamicFileName = filterVal === 'all' ? 'HydePark_All_Results' : `HydePark_${filterVal.replace(/\s+/g, '_')}`;
         
         let tableClone = document.getElementById('admin-scores-table').cloneNode(true);
-        let detailCells = tableClone.querySelectorAll('td:nth-child(5)');
+        // Details is the 6th column (nth-child(6))
+        let detailCells = tableClone.querySelectorAll('td:nth-child(6)');
         detailCells.forEach(cell => {
             let exportSpan = cell.querySelector('.excel-details-export');
             if(exportSpan) { cell.innerText = exportSpan.innerText; }
         });
+        
+        // Remove Action column (8th column, index 7)
         tableClone.querySelectorAll('tr').forEach(row => {
-            if(row.children.length > 6) row.removeChild(row.children[6]);
+            if(row.children.length > 7) row.removeChild(row.children[7]);
         });
 
         const wb = XLSX.utils.table_to_book(tableClone, { sheet: "Results" });
