@@ -50,6 +50,7 @@
             font-size: 15px; 
             font-family: inherit; 
         }
+        input[readonly] { background-color: #f1f5f9; color: #64748b; cursor: not-allowed; border-color: #e2e8f0; }
         button { 
             width: 100%; 
             padding: 12px; 
@@ -250,7 +251,7 @@
     </div>
 
     <div id="agent-profile" class="hidden">
-        <h2>👤 Personal Profile (Important)</h2>
+        <h2>👤 Personal Profile</h2>
         <div class="info-card" style="text-align: left; font-size:15px; font-weight:normal;">
             <p><strong>Name:</strong> <span id="prof-name"></span></p>
             <p><strong>Username:</strong> <span id="prof-user"></span></p>
@@ -258,8 +259,8 @@
         </div>
         
         <div style="background: #e0f2fe; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 2px solid #38bdf8;">
-            <h4 style="margin-top: 0; color:#0369a1; text-align: left;">Mandatory Contact Info</h4>
-            <p style="font-size:12px; color:#475569; text-align:left;">You cannot use the platform until this is filled.</p>
+            <h4 style="margin-top: 0; color:#0369a1; text-align: left;">Contact Info</h4>
+            <p id="prof-mandatory-msg" style="font-size:12px; color:#475569; text-align:left;">You cannot use the platform until this is filled.</p>
             <div class="form-group">
                 <label>Phone Number</label>
                 <input type="text" id="prof-phone" placeholder="010XXXXXXXX">
@@ -268,15 +269,28 @@
                 <label>Email Address</label>
                 <input type="email" id="prof-email" placeholder="example@gmail.com">
             </div>
-            <button onclick="saveProfileData()" style="background:var(--success);">Save & Update Data 💾</button>
+            
+            <button id="save-profile-btn" onclick="saveProfileData()" style="background:var(--success);">Save Data 💾</button>
+            <button id="show-change-request-btn" onclick="document.getElementById('change-request-area').classList.toggle('hidden')" class="hidden" style="background:#0284c7;">Request to Change Data 📝</button>
+            
+            <div id="change-request-area" class="hidden" style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #0284c7;">
+                <h5 style="color:#0284c7; text-align:left; margin-bottom:10px;">Request Data Change</h5>
+                <div class="form-group">
+                    <input type="text" id="req-new-phone" placeholder="New Phone Number">
+                </div>
+                <div class="form-group">
+                    <input type="email" id="req-new-email" placeholder="New Email Address">
+                </div>
+                <button onclick="submitDataChangeRequest()" style="background:var(--warning); color:black;">Submit Change Request 🚀</button>
+            </div>
         </div>
 
         <div class="form-group">
-            <label>Request change or send feedback to management:</label>
-            <textarea id="profile-change-request" rows="3" placeholder="Write your request here..."></textarea>
+            <label>Send general feedback or report to management:</label>
+            <textarea id="general-feedback-text" rows="3" placeholder="Write your feedback here..."></textarea>
         </div>
-        <button onclick="submitDataChangeRequest()" style="background:var(--warning);">Send Request 🚀</button>
-        <button onclick="goHome()" style="background:#64748b; margin-top:10px;">Try Returning Home</button>
+        <button onclick="submitGeneralFeedback()" style="background:#64748b;">Send Feedback</button>
+        <button onclick="goHome()" style="background:#94a3b8; margin-top:10px;">Return Home</button>
     </div>
 
     <div id="quiz-dashboard" class="hidden">
@@ -297,7 +311,8 @@
         
         <div class="admin-tabs" id="admin-tabs-container">
             <button class="tab-btn" id="tab-btn-users" onclick="switchAdminTab('tab-users', this); loadUsersAdmin();">👥 Users & Accounts</button>
-            <button class="tab-btn" id="tab-btn-schedules" onclick="switchAdminTab('tab-schedules', this); loadAdminSchedulesAndBreaks();">📅 Excel (Schedules/Breaks)</button>
+            <button class="tab-btn" id="tab-btn-requests" onclick="switchAdminTab('tab-requests', this); loadProfileRequests();">📩 Data Requests</button>
+            <button class="tab-btn" id="tab-btn-schedules" onclick="switchAdminTab('tab-schedules', this); loadAdminSchedulesAndBreaks();">📅 Excel Data</button>
             <button class="tab-btn" id="tab-btn-quizzes" onclick="switchAdminTab('tab-quizzes', this); loadQuizzesAdminSection();">📝 Quizzes Manager</button>
             <button class="tab-btn" id="tab-btn-results" onclick="switchAdminTab('tab-results', this); loadScoresAdmin();">📊 Results & Grades</button>
         </div>
@@ -325,8 +340,8 @@
                 <input type="text" id="filter-account" placeholder="Filter by Account (e.g. Hyde Park)" onkeyup="loadUsersAdmin()" style="flex:1;">
                 <select id="filter-status" onchange="loadUsersAdmin()" style="flex:1;">
                     <option value="all">All Statuses</option>
-                    <option value="pending">Pending Approval</option>
-                    <option value="approved">Approved</option>
+                    <option value="pending">Pending Registration Approval</option>
+                    <option value="approved">Approved Accounts</option>
                 </select>
             </div>
 
@@ -343,6 +358,34 @@
                         </tr>
                     </thead>
                     <tbody id="admin-users-list"><tr><td colspan="6">Fetching users...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab-requests" class="admin-tab-content hidden">
+            <h4>📩 Employee Data Change Requests</h4>
+            <div class="filter-bar">
+                <label style="margin:auto 0;">Filter Requests:</label>
+                <select id="admin-requests-filter" onchange="loadProfileRequests()" style="flex:1;">
+                    <option value="pending">⏳ Pending</option>
+                    <option value="approved">✅ Approved</option>
+                    <option value="rejected">❌ Rejected</option>
+                    <option value="all">🌐 All Requests</option>
+                </select>
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Current Data</th>
+                            <th>Requested Data</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-requests-list"><tr><td colspan="6">Loading requests...</td></tr></tbody>
                 </table>
             </div>
         </div>
@@ -554,8 +597,31 @@
             document.getElementById('prof-name').innerText = currentUser.fullName || '';
             document.getElementById('prof-user').innerText = currentUser.username || '';
             document.getElementById('prof-account').innerText = currentUser.accountName || 'Not Set';
-            document.getElementById('prof-phone').value = currentUser.phone || '';
-            document.getElementById('prof-email').value = currentUser.email || '';
+            
+            const pPhone = document.getElementById('prof-phone');
+            const pEmail = document.getElementById('prof-email');
+            const sBtn = document.getElementById('save-profile-btn');
+            const rBtn = document.getElementById('show-change-request-btn');
+            const rArea = document.getElementById('change-request-area');
+            const msg = document.getElementById('prof-mandatory-msg');
+
+            pPhone.value = currentUser.phone || '';
+            pEmail.value = currentUser.email || '';
+            rArea.classList.add('hidden');
+
+            if(currentUser.phone && currentUser.email) {
+                pPhone.readOnly = true;
+                pEmail.readOnly = true;
+                sBtn.classList.add('hidden');
+                rBtn.classList.remove('hidden');
+                msg.innerText = "Your data is locked. Submit a request to change it.";
+            } else {
+                pPhone.readOnly = false;
+                pEmail.readOnly = false;
+                sBtn.classList.remove('hidden');
+                rBtn.classList.add('hidden');
+                msg.innerText = "You cannot use the platform until this is filled.";
+            }
         }
     }
 
@@ -658,6 +724,40 @@
         });
     }
 
+    function submitDataChangeRequest() {
+        const nPhone = document.getElementById('req-new-phone').value.trim();
+        const nEmail = document.getElementById('req-new-email').value.trim();
+        
+        if(!nPhone || !nEmail) return alert("Please enter both new Phone and Email to request a change!");
+        
+        const reqData = {
+            username: currentUser.username,
+            fullName: currentUser.fullName || currentUser.username,
+            currentPhone: currentUser.phone,
+            currentEmail: currentUser.email,
+            requestedPhone: nPhone,
+            requestedEmail: nEmail,
+            status: "pending",
+            timestamp: new Date().toLocaleString()
+        };
+        
+        fetch(`${firebaseBaseUrl}/profile_requests.json`, { method: 'POST', body: JSON.stringify(reqData) })
+        .then(() => { 
+            alert('Change request sent to management successfully!'); 
+            document.getElementById('change-request-area').classList.add('hidden');
+            document.getElementById('req-new-phone').value = '';
+            document.getElementById('req-new-email').value = '';
+        });
+    }
+
+    function submitGeneralFeedback() {
+        const text = document.getElementById('general-feedback-text').value.trim();
+        if(!text) return;
+        fetch(`${firebaseBaseUrl}/requests.json`, {
+            method: 'POST', body: JSON.stringify({ username: currentUser.username, account: currentUser.accountName||'-', text: text, timestamp: new Date().toLocaleString() })
+        }).then(() => { alert('Feedback sent to management!'); document.getElementById('general-feedback-text').value = ''; });
+    }
+
     function setupDashboardPermissions() {
         if (!currentUser) return;
         localStorage.setItem('currentUser', JSON.stringify(currentUser));
@@ -674,6 +774,7 @@
 
         if(currentUser.role === 'admin' || currentUser.role === 'leader' || currentUser.role === 'quality') {
             document.getElementById('tab-btn-users').style.display = (currentUser.role === 'admin' || currentUser.role === 'leader') ? 'block' : 'none';
+            document.getElementById('tab-btn-requests').style.display = (currentUser.role === 'admin' || currentUser.role === 'leader') ? 'block' : 'none';
             document.getElementById('tab-btn-schedules').style.display = (currentUser.role === 'admin' || currentUser.role === 'leader') ? 'block' : 'none';
             document.getElementById('tab-btn-quizzes').style.display = (currentUser.role === 'admin' || currentUser.role === 'quality') ? 'block' : 'none';
             document.getElementById('tab-btn-results').style.display = (currentUser.role === 'admin' || currentUser.role === 'leader' || currentUser.role === 'quality') ? 'block' : 'none';
@@ -746,6 +847,78 @@
                     </tr>`;
                 }
             });
+        });
+    }
+
+    // --- Admin Data Change Requests ---
+    function loadProfileRequests() {
+        const filterVal = document.getElementById('admin-requests-filter').value;
+        const tbody = document.getElementById('admin-requests-list');
+        tbody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
+        
+        fetch(`${firebaseBaseUrl}/profile_requests.json`).then(res => res.json()).then(reqs => {
+            tbody.innerHTML = '';
+            if(!reqs) { tbody.innerHTML = '<tr><td colspan="6">No requests found.</td></tr>'; return; }
+            
+            let hasData = false;
+            Object.keys(reqs).forEach(id => {
+                let r = reqs[id];
+                if(!r) return;
+                if(filterVal === 'all' || r.status === filterVal) {
+                    hasData = true;
+                    
+                    let statusHtml = '';
+                    if(r.status === 'pending') statusHtml = '<span style="color:#f59e0b; font-weight:bold;">Pending ⏳</span>';
+                    else if(r.status === 'approved') statusHtml = '<span style="color:#10b981; font-weight:bold;">Approved ✅</span>';
+                    else if(r.status === 'rejected') statusHtml = '<span style="color:#ef4444; font-weight:bold;">Rejected ❌</span>';
+                    
+                    let actionBtns = '';
+                    if(r.status === 'pending') {
+                        actionBtns = `
+                            <div class="action-inline">
+                                <button class="view-btn" style="background:var(--success);" onclick="handleProfileRequest('${id}', 'approve')">Approve</button>
+                                <button class="view-btn" style="background:var(--danger);" onclick="handleProfileRequest('${id}', 'reject')">Reject</button>
+                            </div>
+                        `;
+                    } else {
+                        actionBtns = `<span style="color:#94a3b8; font-size:11px;">Closed</span>`;
+                    }
+
+                    tbody.innerHTML += `<tr>
+                        <td><b>${r.fullName || r.username}</b><br><code>${r.username}</code></td>
+                        <td style="font-size:12px; color:#475569;">📞 ${r.currentPhone}<br>✉️ ${r.currentEmail}</td>
+                        <td style="font-size:12px; color:var(--primary); font-weight:bold;">📞 ${r.requestedPhone}<br>✉️ ${r.requestedEmail}</td>
+                        <td><small>${r.timestamp}</small></td>
+                        <td>${statusHtml}</td>
+                        <td>${actionBtns}</td>
+                    </tr>`;
+                }
+            });
+            if(!hasData) tbody.innerHTML = '<tr><td colspan="6">No matching requests found.</td></tr>';
+        });
+    }
+
+    function handleProfileRequest(reqId, action) {
+        fetch(`${firebaseBaseUrl}/profile_requests/${reqId}.json`).then(res => res.json()).then(req => {
+            if(!req) return;
+            
+            if(action === 'approve') {
+                const updates = { phone: req.requestedPhone, email: req.requestedEmail };
+                fetch(`${firebaseBaseUrl}/users/${req.username}.json`, {
+                    method: 'PATCH', body: JSON.stringify(updates)
+                }).then(() => {
+                    return fetch(`${firebaseBaseUrl}/profile_requests/${reqId}/status.json`, { method: 'PUT', body: JSON.stringify('approved') });
+                }).then(() => {
+                    alert('Request approved! User profile updated.');
+                    loadProfileRequests();
+                });
+            } else {
+                fetch(`${firebaseBaseUrl}/profile_requests/${reqId}/status.json`, { method: 'PUT', body: JSON.stringify('rejected') })
+                .then(() => {
+                    alert('Request rejected.');
+                    loadProfileRequests();
+                });
+            }
         });
     }
 
@@ -940,7 +1113,6 @@
         });
     }
 
-    // --- Breaks Manager ---
     function loadAdminBreaks() {
         fetch(`${firebaseBaseUrl}/global_breaks.json`).then(res => res.json()).then(breaks => {
             const tbody = document.getElementById('admin-breaks-list'); tbody.innerHTML = '';
@@ -1140,13 +1312,10 @@
         if(confirm('Delete this question permanently?')) fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions/${qKey}.json`, { method: 'DELETE' }).then(() => openQuestionsEditor(quizName));
     }
 
-    // ⭐ تم تحديث هذه الدالة لتقوم بالحذف الشامل (الكويز + كل الدرجات المرتبطة به)
     function deleteQuizCompletely(name) {
-        if(confirm(`تحذير هام ⚠️\nهل أنت متأكد من حذف الكويز [ ${name} ] نهائياً؟\nسيتم مسحه من عند جميع الموظفين وحذف جميع نتائجه من النظام بالكامل.`)) {
-            // 1. مسح الكويز من قائمة الكويزات
+        if(confirm(`⚠️ WARNING ⚠️\nAre you sure you want to completely delete quiz [ ${name} ]?\nThis will remove it from all users and delete ALL associated scores permanently.`)) {
             fetch(`${firebaseBaseUrl}/quizzes/${name}.json`, { method: 'DELETE' })
             .then(() => {
-                // 2. البحث عن درجات هذا الكويز ومسحها بالكامل
                 return fetch(`${firebaseBaseUrl}/scores.json`).then(res => res.json()).then(scores => {
                     if (scores) {
                         let deletePromises = [];
@@ -1160,15 +1329,13 @@
                 });
             })
             .then(() => {
-                alert('تم حذف الكويز وجميع درجاته بالكامل من النظام! 🗑️✅');
+                alert('Quiz and all associated scores deleted permanently! 🗑️✅');
                 loadQuizzesAdminSection();
                 if (document.getElementById('tab-results') && !document.getElementById('tab-results').classList.contains('hidden')) {
                     loadScoresAdmin();
                 }
             })
-            .catch(err => {
-                alert('حدث خطأ أثناء عملية الحذف: ' + err);
-            });
+            .catch(err => { alert('Error during deletion: ' + err); });
         }
     }
 
@@ -1299,7 +1466,7 @@
             }
         })
         .catch(err => {
-            alert("Error sending score to database! Please contact Mohamed Nasser. Details: " + err);
+            alert("Error sending score to database! Details: " + err);
         });
     }
 
@@ -1316,7 +1483,6 @@
         });
     }
 
-    // ⭐ تم تحديث هذه الدالة لضمان عمل فلتر الكل بدون أخطاء
     function updateQuizFilterDropdown(scores) {
         const filterSelect = document.getElementById('admin-quiz-filter');
         if (!filterSelect) return;
@@ -1328,10 +1494,9 @@
             Object.values(scores).forEach(s => { if(s && s.quizName) uniqueQuizzes.add(s.quizName); });
         }
         
-        // استخدام ALL_QUIZZES كقيمة برمجية فريدة لضمان عدم تعارضها مع أي اسم كويز
         let opts = `<option value="ALL_QUIZZES">All Quizzes</option>`;
         uniqueQuizzes.forEach(q => { 
-            let safeQ = q.replace(/"/g, '&quot;'); // حماية الأسماء المكتوبة بعلامات تنصيص
+            let safeQ = q.replace(/"/g, '&quot;'); 
             opts += `<option value="${safeQ}">${q}</option>`; 
         });
         filterSelect.innerHTML = opts;
@@ -1362,7 +1527,6 @@
         }
     }
 
-    // ⭐ تم تحديث الدالة لقراءة ALL_QUIZZES بشكل صحيح
     function renderScoresTable() {
         const tbody = document.getElementById('admin-scores-list'); 
         if (!tbody) return;
@@ -1382,7 +1546,6 @@
             let score = globalScoresData[id];
             if (!score) return; 
             
-            // تحقق إذا كان الفلتر هو الكل أو يطابق اسم الكويز
             if(filterValue === "ALL_QUIZZES" || score.quizName === filterValue) {
                 hasData = true;
                 
@@ -1454,14 +1617,6 @@
         fetch(`${firebaseBaseUrl}/global_breaks/${cleanKey}.json`).then(res => res.json()).then(b => {
             document.getElementById('info-content-area').innerHTML = b ? `<div class="info-card" style="color:var(--success)"><i class="fa-solid fa-mug-hot"></i> <b>Break Time:</b> ${b}</div>` : '<div class="info-card">No break time assigned for your name yet.</div>';
         });
-    }
-
-    function submitDataChangeRequest() {
-        const text = document.getElementById('profile-change-request').value.trim();
-        if(!text) return;
-        fetch(`${firebaseBaseUrl}/requests.json`, {
-            method: 'POST', body: JSON.stringify({ username: currentUser.username, account: currentUser.accountName||'-', text: text, timestamp: new Date().toLocaleString() })
-        }).then(() => { alert('Request sent to management!'); document.getElementById('profile-change-request').value = ''; });
     }
 
     function triggerExcelExport() {
