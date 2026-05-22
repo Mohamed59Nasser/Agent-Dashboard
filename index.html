@@ -9,198 +9,111 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { 
-            --primary: #2563eb; 
-            --success: #10b981; 
-            --danger: #ef4444; 
-            --warning: #f59e0b; 
-            --bg: #f8fafc; 
-            --text: #0f172a;
+            --primary: #2563eb; --success: #10b981; --danger: #ef4444; 
+            --warning: #f59e0b; --bg: #f8fafc; --text: #0f172a;
         }
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--bg); 
-            color: var(--text); 
-            margin: 0; 
-            padding: 10px; 
-            min-height: 100vh; 
-            box-sizing: border-box; 
-            display: flex; 
-            flex-direction: column;
+            background: var(--bg); color: var(--text); margin: 0; padding: 10px; 
+            min-height: 100vh; box-sizing: border-box; display: flex; flex-direction: column;
         }
         .container { 
-            background: #ffffff;
-            padding: 25px; 
-            border-radius: 16px; 
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); 
-            width: 100%; 
-            max-width: 1150px; 
-            box-sizing: border-box;
-            margin: 80px auto 20px auto; 
-            flex: 1; 
+            background: #ffffff; padding: 25px; border-radius: 16px; 
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); width: 100%; max-width: 1150px; 
+            box-sizing: border-box; margin: 80px auto 20px auto; flex: 1; 
         }
         h2, h3, h4, h5 { text-align: center; color: var(--primary); margin-top: 0; }
         .form-group { margin-bottom: 16px; text-align: left; }
         label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; }
         input, select, textarea { 
-            width: 100%;
-            padding: 12px; 
-            border: 1px solid #cbd5e1; 
-            border-radius: 8px; 
-            box-sizing: border-box; 
-            font-size: 15px; 
-            font-family: inherit;
+            width: 100%; padding: 12px; border: 1px solid #cbd5e1; 
+            border-radius: 8px; box-sizing: border-box; font-size: 15px; font-family: inherit;
         }
         input[readonly] { background-color: #f1f5f9; color: #64748b; cursor: not-allowed; border-color: #e2e8f0; }
         button { 
-            width: 100%;
-            padding: 12px; 
-            background: var(--primary); 
-            color: white; 
-            border: none; 
-            border-radius: 8px; 
-            font-size: 16px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            margin-top: 10px;
-            transition: all 0.2s; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 8px;
+            width: 100%; padding: 12px; background: var(--primary); color: white; 
+            border: none; border-radius: 8px; font-size: 16px; cursor: pointer; 
+            font-weight: bold; margin-top: 10px; transition: all 0.2s; 
+            display: flex; align-items: center; justify-content: center; gap: 8px;
         }
         button:hover { opacity: 0.9; transform: translateY(-1px); }
         button:disabled { background: #94a3b8 !important; cursor: not-allowed; opacity: 0.7; }
         .hidden { display: none !important; }
         
         .navbar { 
-            position: fixed;
-            top: 0; left: 0; right: 0; height: 60px; 
+            position: fixed; top: 0; left: 0; right: 0; height: 60px; 
             background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
-            display: flex; justify-content: space-between;
-            align-items: center; 
+            display: flex; justify-content: space-between; align-items: center; 
             padding: 0 20px; z-index: 1000; box-sizing: border-box; 
         }
         .nav-btn { 
-            background: #f1f5f9;
-            color: var(--text); padding: 8px 14px; 
+            background: #f1f5f9; color: var(--text); padding: 8px 14px; 
             border-radius: 6px; font-size: 14px; border: 1px solid #cbd5e1; 
-            font-weight: 600; cursor: pointer; width: auto;
-            margin: 0; 
+            font-weight: 600; cursor: pointer; width: auto; margin: 0; 
         }
         .logout-btn { background: var(--danger); color: white; border: none; }
 
         .menu-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 20px; }
         @media(min-width: 500px) { .menu-grid { grid-template-columns: 1fr 1fr; } }
         .menu-btn { 
-            padding: 20px;
-            font-size: 16px; border-radius: 12px; 
-            border: 2px solid var(--primary); background: #fff; 
-            color: var(--primary); cursor: pointer; font-weight: bold; 
-            text-align: center; flex-direction: column;
-            display: flex; 
-            align-items: center; justify-content: center; gap: 10px; 
+            padding: 20px; font-size: 16px; border-radius: 12px; 
+            border: 2px solid var(--primary); background: #fff; color: var(--primary); 
+            cursor: pointer; font-weight: bold; text-align: center; flex-direction: column;
+            display: flex; align-items: center; justify-content: center; gap: 10px; 
         }
         
         .admin-tabs { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
         .tab-btn { 
             background: #e2e8f0; color: var(--text); padding: 8px 12px; 
-            border-radius: 6px; border: none; font-weight: bold; 
-            cursor: pointer; font-size: 13px; white-space: nowrap; 
-            width: auto; margin: 0; 
+            border-radius: 6px; border: none; font-weight: bold; cursor: pointer; 
+            font-size: 13px; white-space: nowrap; width: auto; margin: 0; 
         }
         .tab-btn.active { background: var(--primary); color: white; }
         
         .data-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; text-align: left; }
         .data-table th, .data-table td { border: 1px solid #cbd5e1; padding: 10px; text-align: center; vertical-align: middle; }
-        .data-table th { background: #f1f5f9; color: var(--text); font-weight: bold; }
+        .data-table th { background: #1e293b; color: white; font-weight: bold; } 
         
-        .info-card { 
-            background: #f1f5f9; padding: 20px; border-radius: 12px; 
-            border: 1px solid #cbd5e1; text-align: center; font-size: 18px; 
-            font-weight: bold; margin-bottom: 15px;
-        }
-        
-        .badge { 
-            padding: 4px 8px; border-radius: 4px; font-size: 12px; 
-            color: white; font-weight: bold; display: inline-block;
-        }
+        .info-card { background: #f1f5f9; padding: 20px; border-radius: 12px; border: 1px solid #cbd5e1; text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 15px; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; color: white; font-weight: bold; display: inline-block; }
         .badge-admin { background: #7c3aed; } 
         .badge-leader { background: #2563eb; } 
         .badge-quality { background: #db2777; } 
         .badge-pending { background: var(--warning); color: #000; }
         .badge-score { background: #1e293b; color: #f8fafc; padding: 6px 12px; font-size: 14px; border-radius: 8px; letter-spacing: 1px; }
         
-        .option-label { 
-            display: block; padding: 10px; margin: 6px 0; 
-            border: 1px solid #cbd5e1; border-radius: 6px; font-weight: normal; 
-            cursor: pointer; transition: all 0.3s; text-align: left;
-        }
+        .option-label { display: block; padding: 10px; margin: 6px 0; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: normal; cursor: pointer; transition: all 0.3s; text-align: left; }
         .correct-ans { background: #d1fae5 !important; border-color: #10b981 !important; color: #065f46 !important; font-weight: bold; }
         .wrong-ans { background: #fee2e2 !important; border-color: #ef4444 !important; color: #991b1b !important; font-weight: bold; }
 
         .footer-credits { text-align: center; font-size: 12px; color: #64748b; padding: 15px 0; font-family: 'Courier New', Courier, monospace; font-weight: bold;}
-        
-        .view-btn { 
-            background: #4f46e5; color: white; padding: 6px 12px; 
-            border-radius: 4px; font-size: 12px; cursor: pointer; 
-            border: none; font-weight: bold; width: auto; margin: 0;
-        }
+        .view-btn { background: #4f46e5; color: white; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; border: none; font-weight: bold; width: auto; margin: 0; }
         .off-day { background: #fee2e2; color: #ef4444; font-weight: bold; }
         .work-day { background: #e0f2fe; color: #0369a1; font-weight: bold; }
-        .current-day-highlight { 
-            background-color: #fef08a !important; color: #854d0e !important; 
-            font-weight: 900; border: 3px solid #eab308 !important; 
-            box-shadow: inset 0 0 10px rgba(234, 179, 8, 0.5);
-        }
-        
+        .current-day-highlight { background-color: #fef08a !important; color: #854d0e !important; font-weight: 900; border: 3px solid #eab308 !important; box-shadow: inset 0 0 10px rgba(234, 179, 8, 0.5); }
         .action-inline { display: flex; gap: 4px; justify-content: center; align-items: center; flex-wrap: wrap; }
         .input-mini { padding: 6px; font-size: 13px; width: 100%; box-sizing: border-box; border-radius: 4px; border: 1px solid #cbd5e1; }
         
-        .questions-editor-box { background: #f0fdf4; border: 2px solid #16a34a; padding: 15px; border-radius: 12px; margin-top: 20px; text-align: left; }
-        .question-edit-row { background: white; padding: 12px; border: 1px solid #bbf7d0; border-radius: 8px; margin-bottom: 10px; }
-        .add-fast-question-box { background: #e0f2fe; border: 1px dashed #0284c7; padding: 12px; border-radius: 8px; margin-top: 15px; }
-        
-        .admin-add-user-box { 
-            background: #f1f5f9; padding: 15px; border-radius: 8px; 
-            margin-bottom: 15px; border: 1px solid #cbd5e1; 
-            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;
-        }
+        .admin-add-user-box { background: #f1f5f9; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #cbd5e1; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
         .admin-add-user-box h5 { grid-column: 1 / -1; margin: 0 0 10px 0; color: var(--text); }
         .filter-bar { display: flex; gap: 10px; background: #e2e8f0; padding: 10px; border-radius: 8px; margin-bottom: 10px; flex-wrap: wrap;}
         
         .viewer-box { background: #fdf4ff; border: 1px solid #e879f9; padding: 15px; border-radius: 8px; margin-top: 15px; }
         .viewer-q { background: white; padding: 10px; border-left: 4px solid #d946ef; margin-bottom: 10px; border-radius: 4px; text-align: left; }
 
-        .excel-split-container { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; }
-        .excel-box { flex: 1; min-width: 300px; background: #f8fafc; padding: 20px; border-radius: 10px; border: 2px dashed #94a3b8; text-align: center; }
-        .excel-box h5 { color: #334155; font-size: 16px; margin-bottom: 15px; }
+        .questions-editor-box { background: #f0fdf4; border: 2px solid #16a34a; padding: 15px; border-radius: 12px; margin-top: 20px; text-align: left; }
+        .question-edit-row { background: white; padding: 12px; border: 1px solid #bbf7d0; border-radius: 8px; margin-bottom: 10px; }
+        .add-fast-question-box { background: #e0f2fe; border: 1px dashed #0284c7; padding: 12px; border-radius: 8px; margin-top: 15px; }
 
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
-            background: rgba(0,0,0,0.5); display: flex; justify-content: center; 
-            align-items: center; z-index: 2000;
-        }
-        .modal-content {
-            background: white; padding: 25px; border-radius: 12px; 
-            width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto;
-        }
-
-        .details-container {
-            margin-top: 10px; text-align: left; background: #f8fafc; 
-            padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 12px;
-        }
-        .details-row { margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid #e2e8f0; }
-        .details-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 2000; }
+        .modal-content { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+        .details-container { margin-top: 10px; text-align: left; background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 12px; }
 
         /* Chat Styles */
         .chat-bubble { padding: 8px 12px; border-radius: 8px; margin-bottom: 8px; max-width: 80%; word-wrap: break-word; font-size: 14px; }
         .chat-bubble.agent { background: #e0f2fe; color: #0369a1; margin-left: auto; text-align: right; border-bottom-right-radius: 0; }
         .chat-bubble.management { background: #f1f5f9; color: #334155; margin-right: auto; text-align: left; border-bottom-left-radius: 0; border: 1px solid #cbd5e1; }
         .chat-meta { font-size: 10px; color: #64748b; margin-top: 4px; }
-
-        @media(max-width: 768px) {
-            .admin-add-user-box { grid-template-columns: 1fr 1fr; }
-        }
     </style>
 </head>
 <body>
@@ -296,11 +209,10 @@
                 </select>
             </div>
             
-            <div id="agent-chat-history" style="height: 200px; overflow-y: auto; background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; margin-bottom: 10px; display: flex; flex-direction: column;">
-                </div>
+            <div id="agent-chat-history" style="height: 200px; overflow-y: auto; background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; margin-bottom: 10px; display: flex; flex-direction: column;"></div>
 
             <div style="display: flex; gap: 5px;">
-                <input type="text" id="agent-chat-msg" placeholder="Type your message..." style="flex: 1;">
+                <input type="text" id="agent-chat-msg" placeholder="Type your message..." style="flex: 1;" onkeydown="if(event.key === 'Enter') sendAgentChat()">
                 <button onclick="sendAgentChat()" style="width: auto; margin: 0; padding: 0 20px;"><i class="fa-solid fa-paper-plane"></i> Send</button>
             </div>
         </div>
@@ -327,7 +239,7 @@
         <div class="admin-tabs" id="admin-tabs-container">
             <button class="tab-btn" id="tab-btn-users" onclick="switchAdminTab('tab-users', this); loadUsersAdmin();">👥 Users & Accounts</button>
             <button class="tab-btn" id="tab-btn-chats" onclick="switchAdminTab('tab-chats', this); loadAdminChats();">💬 Communications & Chats</button>
-            <button class="tab-btn" id="tab-btn-schedules" onclick="switchAdminTab('tab-schedules', this); loadAdminSchedulesAndBreaks();">📅 Excel Data</button>
+            <button class="tab-btn" id="tab-btn-schedules" onclick="switchAdminTab('tab-schedules', this); loadSheetSettings();">📅 Live Google Sheet Link</button>
             <button class="tab-btn" id="tab-btn-quizzes" onclick="switchAdminTab('tab-quizzes', this); loadQuizzesAdminSection();">📝 Quizzes Manager</button>
             <button class="tab-btn" id="tab-btn-results" onclick="switchAdminTab('tab-results', this); loadScoresAdmin();">📊 Results & Grades</button>
             <button class="tab-btn" id="tab-btn-gemini" onclick="switchAdminTab('tab-gemini', this);">🤖 Gemini AI</button>
@@ -335,7 +247,6 @@
 
         <div id="tab-users" class="admin-tab-content hidden">
             <h4>👥 System Users Management</h4>
-            
             <div id="admin-only-add-user" class="admin-add-user-box hidden">
                 <h5>Add Employee Directly (Instantly Approved)</h5>
                 <input type="text" id="dir-name" placeholder="Full Name" class="input-mini">
@@ -351,7 +262,6 @@
                 </select>
                 <button class="view-btn" style="background:var(--success); width:100%; grid-column: 1 / -1; padding:10px; font-size:14px;" onclick="addConfirmedUser()">Add & Activate Instantly ⚡</button>
             </div>
-
             <div class="filter-bar">
                 <input type="text" id="filter-account" placeholder="Filter by Account (e.g. Hyde Park)" onkeyup="loadUsersAdmin()" style="flex:1;">
                 <select id="filter-status" onchange="loadUsersAdmin()" style="flex:1;">
@@ -360,19 +270,9 @@
                     <option value="approved">Approved Accounts</option>
                 </select>
             </div>
-
             <div style="overflow-x:auto;">
                 <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Name & Contact</th>
-                            <th>Username</th>
-                            <th>Account</th>
-                            <th>Role</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Name & Contact</th><th>Username</th><th>Account</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
                     <tbody id="admin-users-list"><tr><td colspan="6">Fetching users...</td></tr></tbody>
                 </table>
             </div>
@@ -381,20 +281,15 @@
         <div id="tab-chats" class="admin-tab-content hidden">
             <h4>💬 Communications & Edit Requests</h4>
             <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-                
                 <div style="flex: 1; min-width: 300px; background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 15px;">
                     <h5>Active Agent Chats</h5>
-                    <div id="admin-chat-list" style="display: flex; flex-direction: column; gap: 10px; max-height: 400px; overflow-y: auto;">
-                        Loading chats...
-                    </div>
+                    <div id="admin-chat-list" style="display: flex; flex-direction: column; gap: 10px; max-height: 400px; overflow-y: auto;">Loading chats...</div>
                 </div>
-
                 <div style="flex: 2; min-width: 300px; background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 15px;">
                     <h5 id="admin-chat-header">Select a chat to view</h5>
-                    <div id="admin-chat-messages" style="height: 300px; overflow-y: auto; background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; margin-bottom: 10px; display: flex; flex-direction: column;">
-                        </div>
+                    <div id="admin-chat-messages" style="height: 300px; overflow-y: auto; background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; margin-bottom: 10px; display: flex; flex-direction: column;"></div>
                     <div style="display: flex; gap: 5px;">
-                        <input type="text" id="admin-chat-input" placeholder="Type your reply..." style="flex: 1;" disabled>
+                        <input type="text" id="admin-chat-input" placeholder="Type your reply..." style="flex: 1;" onkeydown="if(event.key === 'Enter') sendAdminReply()" disabled>
                         <button id="admin-chat-send-btn" onclick="sendAdminReply()" style="width: auto; margin: 0; padding: 0 20px;" disabled>Reply</button>
                         <button id="admin-chat-delete-btn" onclick="deleteActiveChat()" style="width: auto; margin: 0; padding: 0 20px; background: var(--danger);" disabled><i class="fa-solid fa-trash"></i> Delete Chat</button>
                     </div>
@@ -403,28 +298,28 @@
         </div>
 
         <div id="tab-schedules" class="admin-tab-content hidden">
-            <h4>📅 Upload Master Excel Data (Schedules & Breaks)</h4>
-            
-            <div class="excel-box" style="margin-bottom: 20px;">
-                <h5><i class="fa-solid fa-file-excel"></i> Upload Master Excel File</h5>
-                <p style="font-size: 13px; color: #64748b;">The system will read <b>Sheet 1</b> for Schedules and <b>Sheet 2</b> for Breaks.</p>
-                <input type="file" id="excel-master-input" accept=".xlsx, .xls" style="background:white; padding:8px; margin-bottom:10px; width:100%;" />
-                <button onclick="uploadMasterExcel()" style="background:var(--success); margin-bottom: 10px;"><i class="fa-solid fa-upload"></i> Process Both Sheets</button>
+            <h4>📅 Live Data Synchronization (Google Sheets)</h4>
+            <div style="background: #e0f2fe; border: 1px solid #38bdf8; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <h5 style="margin-top:0; color:#0369a1;"><i class="fa-solid fa-link"></i> Master Google Sheet Link</h5>
+                <p style="font-size:13px; color:#475569; margin-bottom: 15px;">
+                    Paste the link to your Google Sheet. The system will automatically read <b>Sheet 1</b> for Schedules and <b>Sheet 2</b> for Breaks in real-time.<br>
+                    <b style="color:var(--danger)">Note:</b> Ensure the Sheet is shared as <b>"Anyone with the link can view"</b>.
+                </p>
                 <div style="display: flex; gap: 10px;">
-                    <button onclick="clearAllSchedules()" style="background:var(--danger); flex: 1;"><i class="fa-solid fa-trash"></i> Delete All Schedules</button>
-                    <button onclick="clearAllBreaks()" style="background:var(--danger); flex: 1;"><i class="fa-solid fa-trash"></i> Delete All Breaks</button>
+                    <input type="text" id="master-sheet-url" placeholder="https://docs.google.com/spreadsheets/d/........" style="flex: 1;">
+                    <button onclick="saveAndSyncSheetUrl()" style="width: auto; margin: 0; padding: 0 20px; background: var(--success);"><i class="fa-solid fa-rotate"></i> Save & Sync Now</button>
                 </div>
             </div>
             
-            <h5>👀 Schedules Overview (Sheet 1):</h5>
+            <h5>👀 Live Preview: Schedules (Sheet 1)</h5>
             <div style="overflow-x:auto;">
-                <table class="data-table" id="admin-schedule-preview">
+                <table class="data-table">
                     <thead><tr><th>Employee</th><th>Sunday</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th><th>Saturday</th></tr></thead>
                     <tbody id="admin-schedule-list"></tbody>
                 </table>
             </div>
 
-            <h5 style="margin-top: 30px;">☕ Breaks Overview (Sheet 2):</h5>
+            <h5 style="margin-top: 30px;">☕ Live Preview: Breaks (Sheet 2)</h5>
             <div style="overflow-x:auto;">
                 <table class="data-table">
                     <thead><tr><th>Employee</th><th>Break Time</th></tr></thead>
@@ -438,10 +333,7 @@
             <div class="form-group"><label>New Quiz Name:</label><input type="text" id="q-quizname" placeholder="e.g. Quality Test - May"></div>
             <div class="form-group">
                 <label>Target Audience:</label>
-                <select id="q-target-select">
-                    <option value="draft">Hidden Draft ❌</option>
-                    <option value="all">All Employees</option>
-                </select>
+                <select id="q-target-select"><option value="draft">Hidden Draft ❌</option><option value="all">All Employees</option></select>
             </div>
             <div style="background:#f8fafc; padding:15px; border-radius:10px; border:1px solid #cbd5e1; margin-top:15px;">
                 <div class="form-group"><label>Question Text:</label><input type="text" id="q-text"></div>
@@ -505,18 +397,13 @@
 
         <div id="tab-results" class="admin-tab-content hidden">
             <h4>📊 Employee Results & Grades</h4>
-            
             <div style="display: flex; gap: 15px; margin-bottom: 15px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
                 <div class="filter-container">
                     <label style="margin:0; font-size:14px; color:var(--primary); font-weight:bold;"><i class="fa-solid fa-filter"></i> Filter by Quiz:</label>
-                    <select id="admin-quiz-filter" onchange="filterScoresTable()" style="padding: 6px; border-radius: 6px; border: 1px solid #cbd5e1; min-width: 180px;">
-                        <option value="ALL_QUIZZES">All Quizzes</option>
-                    </select>
+                    <select id="admin-quiz-filter" onchange="filterScoresTable()" style="padding: 6px; border-radius: 6px; border: 1px solid #cbd5e1; min-width: 180px;"><option value="ALL_QUIZZES">All Quizzes</option></select>
                 </div>
-                
                 <button onclick="triggerExcelExport()" style="background:var(--success); width: auto; margin: 0;"><i class="fa-solid fa-file-excel"></i> Export Filtered to Excel</button>
             </div>
-            
             <div style="overflow-x:auto;">
                 <table class="data-table" id="admin-scores-table">
                     <thead><tr><th>Employee</th><th>HR ID</th><th>Account</th><th>Quiz Name</th><th>Score</th><th>Details</th><th>Date & Time</th><th>Action</th></tr></thead>
@@ -532,7 +419,7 @@
                 <div class="chat-bubble management">أهلاً بك! أنا جيميناي. كيف يمكنني مساعدتك في إدارة النظام اليوم؟</div>
             </div>
             <div style="display: flex; gap: 5px;">
-                <input type="text" id="gemini-input" placeholder="Type your question for Gemini AI..." style="flex: 1;">
+                <input type="text" id="gemini-input" placeholder="Type your question for Gemini AI..." style="flex: 1;" onkeydown="if(event.key === 'Enter') askGemini()">
                 <button onclick="askGemini()" style="width: auto; margin: 0; padding: 0 20px;"><i class="fa-solid fa-brain"></i> Ask AI</button>
             </div>
         </div>
@@ -543,41 +430,19 @@
     <div class="modal-content">
         <h3 style="margin-top:0; color:var(--primary); text-align:left;">Edit User Profile</h3>
         <input type="hidden" id="edit-orig-username">
-        
-        <div class="form-group">
-            <label>Full Name</label>
-            <input type="text" id="edit-fullname">
-        </div>
-        <div class="form-group">
-            <label>HR ID (Admin/Leader only)</label>
-            <input type="text" id="edit-hrid" placeholder="e.g. 12345">
-        </div>
-        <div class="form-group">
-            <label>Account</label>
-            <input type="text" id="edit-account">
-        </div>
+        <div class="form-group"><label>Full Name</label><input type="text" id="edit-fullname"></div>
+        <div class="form-group"><label>HR ID (Admin/Leader only)</label><input type="text" id="edit-hrid"></div>
+        <div class="form-group"><label>Account</label><input type="text" id="edit-account"></div>
         <div class="form-group">
             <label>Role</label>
-            <select id="edit-role">
-                <option value="agent">Agent</option>
-                <option value="leader">Leader</option>
-                <option value="quality">Quality</option>
-                <option value="admin">Admin</option>
-            </select>
+            <select id="edit-role"><option value="agent">Agent</option><option value="leader">Leader</option><option value="quality">Quality</option><option value="admin">Admin</option></select>
         </div>
-        <div class="form-group">
-            <label>Phone</label>
-            <input type="text" id="edit-phone">
-        </div>
-        <div class="form-group">
-            <label>Email</label>
-            <input type="text" id="edit-email">
-        </div>
+        <div class="form-group"><label>Phone</label><input type="text" id="edit-phone"></div>
+        <div class="form-group"><label>Email</label><input type="text" id="edit-email"></div>
         <div class="form-group" style="border-top: 1px solid #ccc; padding-top:10px; margin-top:10px;">
             <label style="color:var(--primary); font-weight: bold;">User Password</label>
-            <input type="text" id="edit-password" placeholder="Password will appear here">
+            <input type="text" id="edit-password">
         </div>
-        
         <div style="display:flex; gap:10px; margin-top:20px;">
             <button onclick="saveUserEdit()" style="background:var(--success); margin:0;">Save Changes</button>
             <button onclick="closeEditUserModal()" style="background:#64748b; margin:0;">Cancel</button>
@@ -588,21 +453,28 @@
 <div class="footer-credits">Developed By Mohamed Nasser | Powered by Gemini AI</div>
 
 <script>
+    // ⚠️ رابط الفايربيز الأساسي للسيستم كله (ما عدا الجداول والبريكات اللي هتيجي من اللينك المباشر)
     const firebaseBaseUrl = "https://agent-system-01-default-rtdb.firebaseio.com";
+    
+    // متغيرات حفظ الشيتات لايف
+    let liveSchedules = {};
+    let liveBreaks = {};
+    
     let isSignUpMode = false; 
     let currentUser = null; 
     let activeQuizQuestions = []; 
     let activeQuizName = ""; 
     let currentEditingQuizName = "";
     let globalScoresData = null; 
+    let globalUsersList = {};
     const daysMap = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 
-    // Chat Variables
     let activeAdminChatUser = null;
     let agentChatInterval = null;
     let adminChatInterval = null;
 
     window.addEventListener('DOMContentLoaded', () => {
+        initLiveSheetSync();
         const savedUser = localStorage.getItem('currentUser');
         if (savedUser) {
             currentUser = JSON.parse(savedUser);
@@ -610,10 +482,123 @@
         }
     });
 
+    // -----------------------------------------------------------------------------
+    // LIVE GOOGLE SHEET SYNC (سحب البريك وجدول الشفتات أونلاين على طول)
+    // -----------------------------------------------------------------------------
+    function initLiveSheetSync(forceUpdatePreview = false) {
+        fetch(`${firebaseBaseUrl}/settings/sheetUrl.json`).then(res => res.json()).then(url => {
+            if(url) {
+                if(document.getElementById('master-sheet-url')) document.getElementById('master-sheet-url').value = url;
+                fetchLiveExcelData(url, forceUpdatePreview);
+            }
+        });
+    }
+
+    function saveAndSyncSheetUrl() {
+        const url = document.getElementById('master-sheet-url').value.trim();
+        if(!url) return alert("Please enter a valid Google Sheet URL.");
+        fetch(`${firebaseBaseUrl}/settings/sheetUrl.json`, { method: 'PUT', body: JSON.stringify(url) })
+        .then(() => {
+            alert("URL Saved! Syncing live data...");
+            fetchLiveExcelData(url, true);
+        });
+    }
+
+    function fetchLiveExcelData(url, updateAdminPreview = false) {
+        const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+        if(!match) return;
+        const sheetId = match[1];
+        const exportUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=xlsx`;
+
+        fetch(exportUrl)
+        .then(res => {
+            if(!res.ok) throw new Error("Make sure the Google Sheet is shared as 'Anyone with the link can view'.");
+            return res.arrayBuffer();
+        })
+        .then(data => {
+            const workbook = XLSX.read(data, {type: 'array'});
+            
+            liveSchedules = {};
+            if(workbook.SheetNames.length > 0) {
+                const wsSched = workbook.Sheets[workbook.SheetNames[0]];
+                const rowsSched = XLSX.utils.sheet_to_json(wsSched);
+                rowsSched.forEach(row => {
+                    const keys = Object.keys(row);
+                    const empKey = keys.find(k => k.toLowerCase().includes('emp') || k.toLowerCase().includes('name')) || keys[0];
+                    let name = row[empKey];
+                    if(!name) return;
+                    name = name.toString().toLowerCase().trim();
+                    liveSchedules[name] = {
+                        sunday: row['Sunday'] || row['sunday'] || row['الأحد'] || "OFF",
+                        monday: row['Monday'] || row['monday'] || row['الإثنين'] || "OFF",
+                        tuesday: row['Tuesday'] || row['tuesday'] || row['الثلاثاء'] || "OFF",
+                        wednesday: row['Wednesday'] || row['wednesday'] || row['الأربعاء'] || "OFF",
+                        thursday: row['Thursday'] || row['thursday'] || row['الخميس'] || "OFF",
+                        friday: row['Friday'] || row['friday'] || row['الجمعة'] || "OFF",
+                        saturday: row['Saturday'] || row['saturday'] || row['السبت'] || "OFF"
+                    };
+                });
+            }
+
+            liveBreaks = {};
+            if(workbook.SheetNames.length > 1) {
+                const wsBreaks = workbook.Sheets[workbook.SheetNames[1]];
+                const rowsBreaks = XLSX.utils.sheet_to_json(wsBreaks);
+                rowsBreaks.forEach(row => {
+                    const keys = Object.keys(row);
+                    const empKey = keys.find(k => k.toLowerCase().includes('emp') || k.toLowerCase().includes('name')) || keys[0];
+                    const breakKey = keys.find(k => k.toLowerCase().includes('break') || k.toLowerCase().includes('بريك') || k.toLowerCase().includes('time')) || keys[1];
+                    let name = row[empKey];
+                    if(!name) return;
+                    liveBreaks[name.toString().toLowerCase().trim()] = row[breakKey];
+                });
+            }
+
+            if(updateAdminPreview) renderLiveAdminPreviews();
+        })
+        .catch(err => { console.error("Live Sheet Sync Error:", err); });
+    }
+
+    function renderLiveAdminPreviews() {
+        const schedBody = document.getElementById('admin-schedule-list');
+        const breakBody = document.getElementById('admin-breaks-list');
+        schedBody.innerHTML = ''; breakBody.innerHTML = '';
+
+        if(Object.keys(liveSchedules).length === 0) {
+            schedBody.innerHTML = '<tr><td colspan="8">No valid schedule data found in Sheet 1.</td></tr>';
+        } else {
+            Object.keys(liveSchedules).forEach(name => {
+                let s = liveSchedules[name];
+                schedBody.innerHTML += `<tr>
+                    <td><b>${name.toUpperCase()}</b></td>
+                    <td class="${s.sunday.toLowerCase().includes('off')?'off-day':''}">${s.sunday}</td>
+                    <td class="${s.monday.toLowerCase().includes('off')?'off-day':''}">${s.monday}</td>
+                    <td class="${s.tuesday.toLowerCase().includes('off')?'off-day':''}">${s.tuesday}</td>
+                    <td class="${s.wednesday.toLowerCase().includes('off')?'off-day':''}">${s.wednesday}</td>
+                    <td class="${s.thursday.toLowerCase().includes('off')?'off-day':''}">${s.thursday}</td>
+                    <td class="${s.friday.toLowerCase().includes('off')?'off-day':''}">${s.friday}</td>
+                    <td class="${s.saturday.toLowerCase().includes('off')?'off-day':''}">${s.saturday}</td>
+                </tr>`;
+            });
+        }
+
+        if(Object.keys(liveBreaks).length === 0) {
+            breakBody.innerHTML = '<tr><td colspan="2">No valid break data found in Sheet 2.</td></tr>';
+        } else {
+            Object.keys(liveBreaks).forEach(name => {
+                breakBody.innerHTML += `<tr><td><b>${name.toUpperCase()}</b></td><td>${liveBreaks[name]}</td></tr>`;
+            });
+        }
+    }
+
+    function loadSheetSettings() { renderLiveAdminPreviews(); }
+
+    // -----------------------------------------------------------------------------
+    // NAVIGATION & AUTH
+    // -----------------------------------------------------------------------------
     function switchView(viewId) {
         ['auth-box', 'agent-hub', 'info-display-box', 'quiz-dashboard', 'admin-dashboard', 'agent-profile'].forEach(id => {
-            const el = document.getElementById(id);
-            if(el) el.classList.add('hidden');
+            const el = document.getElementById(id); if(el) el.classList.add('hidden');
         });
         document.getElementById(viewId).classList.remove('hidden');
         document.getElementById('top-navbar').style.display = (viewId === 'auth-box') ? 'none' : 'flex';
@@ -639,9 +624,7 @@
                 document.getElementById('save-profile-btn').classList.remove('hidden');
                 document.getElementById('prof-mandatory-msg').classList.remove('hidden');
             }
-            
-            loadAgentChat();
-            agentChatInterval = setInterval(loadAgentChat, 5000);
+            loadAgentChat(); agentChatInterval = setInterval(loadAgentChat, 5000);
         }
     }
 
@@ -660,8 +643,7 @@
     }
 
     function logout() { 
-        localStorage.removeItem('currentUser');
-        currentUser = null; 
+        localStorage.removeItem('currentUser'); currentUser = null; 
         if(agentChatInterval) clearInterval(agentChatInterval);
         if(adminChatInterval) clearInterval(adminChatInterval);
         switchView('auth-box'); 
@@ -672,7 +654,6 @@
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
         document.getElementById(tabId).classList.remove('hidden');
         if(btn) btn.classList.add('active');
-        
         if(adminChatInterval) clearInterval(adminChatInterval);
     }
 
@@ -689,18 +670,8 @@
         const pass = document.getElementById('auth-password').value.trim();
         
         if (user === "mohamed nasser" && pass === "592005") {
-            currentUser = { 
-                username: "mohamed nasser", 
-                fullName: "Mohamed Nasser", 
-                role: "admin", 
-                status: "approved", 
-                accountName: "Hyde Park", 
-                phone: "01000000000", 
-                email: "admin@hydepark.com",
-                hrId: "ADMIN-01"
-            };
-            setupDashboardPermissions(); 
-            return;
+            currentUser = { username: "mohamed nasser", fullName: "Mohamed Nasser", role: "admin", status: "approved", accountName: "Hyde Park", phone: "01000000000", email: "admin@hydepark.com", hrId: "ADMIN-01" };
+            setupDashboardPermissions(); return;
         }
 
         if (isSignUpMode) {
@@ -708,23 +679,14 @@
             const acc = document.getElementById('auth-account').value.trim();
             if(!name || !acc) return alert('Please complete Name and Account fields');
             
-            let newUserData = { 
-                fullName: name, username: user, password: pass, role: "agent", 
-                accountName: acc, status: "pending", phone: "", email: "", hrId: ""
-            };
+            let newUserData = { fullName: name, username: user, password: pass, role: "agent", accountName: acc, status: "pending", phone: "", email: "", hrId: "" };
             fetch(`${firebaseBaseUrl}/users/${user}.json`, { method: 'PUT', body: JSON.stringify(newUserData) })
-            .then(() => { 
-                alert('Request registered successfully! Please wait for admin approval.'); 
-                toggleAuthMode(); 
-            });
+            .then(() => { alert('Request registered successfully! Please wait for admin approval.'); toggleAuthMode(); });
         } else {
             fetch(`${firebaseBaseUrl}/users/${user}.json`).then(res => res.json()).then(userData => {
                 if(userData && userData.password === pass) {
-                    if(userData.status === 'pending') {
-                        return alert('Sorry, your account is still pending approval from management.');
-                    }
-                    currentUser = userData; 
-                    setupDashboardPermissions();
+                    if(userData.status === 'pending') return alert('Sorry, your account is still pending approval from management.');
+                    currentUser = userData; setupDashboardPermissions();
                 } else { alert("Incorrect username or password!"); }
             });
         }
@@ -735,102 +697,65 @@
         const email = document.getElementById('prof-email').value.trim();
         if(!phone || !email) return alert('Phone and Email are mandatory!');
         
-        currentUser.phone = phone; 
-        currentUser.email = email;
-        
+        currentUser.phone = phone; currentUser.email = email;
         fetch(`${firebaseBaseUrl}/users/${currentUser.username}/phone.json`, { method: 'PUT', body: JSON.stringify(phone) });
         fetch(`${firebaseBaseUrl}/users/${currentUser.username}/email.json`, { method: 'PUT', body: JSON.stringify(email) })
-        .then(() => {
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            alert('Data saved successfully!'); 
-            goHome();
-        });
+        .then(() => { localStorage.setItem('currentUser', JSON.stringify(currentUser)); alert('Data saved successfully!'); goHome(); });
     }
 
-    // --- CHAT SYSTEM (AGENT) ---
+    // -----------------------------------------------------------------------------
+    // CHAT SYSTEM
+    // -----------------------------------------------------------------------------
     function sendAgentChat() {
         const msg = document.getElementById('agent-chat-msg').value.trim();
         const to = document.getElementById('chat-recipient').value;
         if(!msg) return;
 
         const chatData = {
-            sender: currentUser.username,
-            senderName: currentUser.fullName,
-            role: currentUser.role,
-            recipient: to,
-            text: msg,
-            timestamp: new Date().toLocaleString()
+            sender: currentUser.username, senderName: currentUser.fullName,
+            role: currentUser.role, recipient: to, text: msg, timestamp: new Date().toLocaleString()
         };
 
-        fetch(`${firebaseBaseUrl}/chats/${currentUser.username}.json`, {
-            method: 'POST',
-            body: JSON.stringify(chatData)
-        }).then(() => {
-            document.getElementById('agent-chat-msg').value = '';
-            loadAgentChat();
-        });
+        fetch(`${firebaseBaseUrl}/chats/${currentUser.username}.json`, { method: 'POST', body: JSON.stringify(chatData) })
+        .then(() => { document.getElementById('agent-chat-msg').value = ''; loadAgentChat(); });
     }
 
     function loadAgentChat() {
         fetch(`${firebaseBaseUrl}/chats/${currentUser.username}.json`).then(res => res.json()).then(data => {
-            const container = document.getElementById('agent-chat-history');
-            container.innerHTML = '';
-            if(!data) {
-                container.innerHTML = '<p style="text-align:center; color:#64748b; font-size:12px; margin-top:20px;">No messages yet. Send a message to management.</p>';
-                return;
-            }
+            const container = document.getElementById('agent-chat-history'); container.innerHTML = '';
+            if(!data) { container.innerHTML = '<p style="text-align:center; color:#64748b; font-size:12px; margin-top:20px;">No messages yet.</p>'; return; }
             Object.values(data).forEach(msg => {
                 const isMe = msg.sender === currentUser.username;
                 const bubbleClass = isMe ? 'agent' : 'management';
                 const roleBadge = msg.role !== 'agent' ? ` [${msg.role.toUpperCase()}]` : '';
                 const toText = isMe ? `<br><span style="font-size:10px; color:#94a3b8;">Sent to: ${msg.recipient.toUpperCase()}</span>` : '';
-                
-                container.innerHTML += `
-                    <div class="chat-bubble ${bubbleClass}">
-                        <strong>${msg.senderName}${roleBadge}</strong><br>
-                        ${msg.text}
-                        ${toText}
-                        <div class="chat-meta">${msg.timestamp}</div>
-                    </div>
-                `;
+                container.innerHTML += `<div class="chat-bubble ${bubbleClass}"><strong>${msg.senderName}${roleBadge}</strong><br>${msg.text}${toText}<div class="chat-meta">${msg.timestamp}</div></div>`;
             });
             container.scrollTop = container.scrollHeight;
         });
     }
 
-    // --- CHAT SYSTEM (ADMIN/LEADER) ---
     function loadAdminChats() {
         fetch(`${firebaseBaseUrl}/chats.json`).then(res => res.json()).then(data => {
-            const list = document.getElementById('admin-chat-list');
-            list.innerHTML = '';
+            const list = document.getElementById('admin-chat-list'); list.innerHTML = '';
             if(!data) { list.innerHTML = '<p>No active chats.</p>'; return; }
 
             Object.keys(data).forEach(user => {
                 const msgs = Object.values(data[user]);
                 if(msgs.length === 0) return;
                 
-                // Permission Check
-                // Admin sees all. Leader sees 'all' or 'leader'. Quality sees 'all' or 'quality'.
                 let canSee = false;
                 if (currentUser.role === 'admin') canSee = true;
-                else {
-                    msgs.forEach(m => {
-                        if (m.recipient === 'all' || m.recipient === currentUser.role) canSee = true;
-                        if (m.sender !== user) canSee = true; // They can see replies
-                    });
-                }
+                else { msgs.forEach(m => { if (m.recipient === 'all' || m.recipient === currentUser.role || m.sender !== user) canSee = true; }); }
 
                 if(!canSee) return;
 
                 const lastMsg = msgs[msgs.length - 1];
                 list.innerHTML += `
-                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; cursor: pointer;" onclick="openAdminChat('${user}')">
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; margin-bottom:5px; cursor: pointer;" onclick="openAdminChat('${user}')">
                         <strong style="color:var(--primary);">@${user}</strong>
-                        <div style="font-size: 12px; color: #64748b; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                            ${lastMsg.senderName}: ${lastMsg.text}
-                        </div>
-                    </div>
-                `;
+                        <div style="font-size: 12px; color: #64748b; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${lastMsg.senderName}: ${lastMsg.text}</div>
+                    </div>`;
             });
         });
     }
@@ -841,36 +766,25 @@
         document.getElementById('admin-chat-input').disabled = false;
         document.getElementById('admin-chat-send-btn').disabled = false;
         document.getElementById('admin-chat-delete-btn').disabled = false;
-        
         if(adminChatInterval) clearInterval(adminChatInterval);
         
         const fetchChat = () => {
             if(!activeAdminChatUser) return;
             fetch(`${firebaseBaseUrl}/chats/${activeAdminChatUser}.json`).then(res => res.json()).then(data => {
-                const container = document.getElementById('admin-chat-messages');
-                container.innerHTML = '';
+                const container = document.getElementById('admin-chat-messages'); container.innerHTML = '';
                 if(!data) return;
                 
                 Object.values(data).forEach(msg => {
                     const isAgent = msg.sender === activeAdminChatUser;
-                    const bubbleClass = isAgent ? 'management' : 'agent'; // reverse colors for admin view
+                    const bubbleClass = isAgent ? 'management' : 'agent'; 
                     const roleBadge = msg.role !== 'agent' ? ` [${msg.role.toUpperCase()}]` : '';
                     const toText = isAgent ? `<br><span style="font-size:10px; color:#94a3b8;">Sent to: ${msg.recipient.toUpperCase()}</span>` : '';
-                    
-                    container.innerHTML += `
-                        <div class="chat-bubble ${bubbleClass}" style="text-align: ${isAgent ? 'left' : 'right'}; margin-${isAgent ? 'right' : 'left'}: auto;">
-                            <strong>${msg.senderName}${roleBadge}</strong><br>
-                            ${msg.text}
-                            ${toText}
-                            <div class="chat-meta">${msg.timestamp}</div>
-                        </div>
-                    `;
+                    container.innerHTML += `<div class="chat-bubble ${bubbleClass}" style="text-align: ${isAgent ? 'left' : 'right'}; margin-${isAgent ? 'right' : 'left'}: auto;"><strong>${msg.senderName}${roleBadge}</strong><br>${msg.text}${toText}<div class="chat-meta">${msg.timestamp}</div></div>`;
                 });
                 container.scrollTop = container.scrollHeight;
             });
         };
-        fetchChat();
-        adminChatInterval = setInterval(fetchChat, 5000);
+        fetchChat(); adminChatInterval = setInterval(fetchChat, 5000);
     }
 
     function sendAdminReply() {
@@ -879,31 +793,20 @@
         if(!msg) return;
 
         const chatData = {
-            sender: currentUser.username,
-            senderName: currentUser.fullName,
-            role: currentUser.role,
-            recipient: activeAdminChatUser,
-            text: msg,
-            timestamp: new Date().toLocaleString()
+            sender: currentUser.username, senderName: currentUser.fullName, role: currentUser.role,
+            recipient: activeAdminChatUser, text: msg, timestamp: new Date().toLocaleString()
         };
 
-        fetch(`${firebaseBaseUrl}/chats/${activeAdminChatUser}.json`, {
-            method: 'POST',
-            body: JSON.stringify(chatData)
-        }).then(() => {
-            document.getElementById('admin-chat-input').value = '';
-        });
+        fetch(`${firebaseBaseUrl}/chats/${activeAdminChatUser}.json`, { method: 'POST', body: JSON.stringify(chatData) })
+        .then(() => { document.getElementById('admin-chat-input').value = ''; });
     }
 
     function deleteActiveChat() {
         if(!activeAdminChatUser) return;
         if(confirm(`Are you sure you want to permanently delete all chat history with @${activeAdminChatUser}?`)) {
             fetch(`${firebaseBaseUrl}/chats/${activeAdminChatUser}.json`, { method: 'DELETE' }).then(() => {
-                document.getElementById('admin-chat-messages').innerHTML = '';
-                document.getElementById('admin-chat-header').innerText = 'Select a chat to view';
-                document.getElementById('admin-chat-input').disabled = true;
-                document.getElementById('admin-chat-send-btn').disabled = true;
-                document.getElementById('admin-chat-delete-btn').disabled = true;
+                document.getElementById('admin-chat-messages').innerHTML = ''; document.getElementById('admin-chat-header').innerText = 'Select a chat to view';
+                document.getElementById('admin-chat-input').disabled = true; document.getElementById('admin-chat-send-btn').disabled = true; document.getElementById('admin-chat-delete-btn').disabled = true;
                 activeAdminChatUser = null;
                 if(adminChatInterval) clearInterval(adminChatInterval);
                 loadAdminChats();
@@ -911,7 +814,9 @@
         }
     }
 
-    // --- GEMINI AI INTEGRATION ---
+    // -----------------------------------------------------------------------------
+    // GEMINI AI
+    // -----------------------------------------------------------------------------
     function askGemini() {
         const input = document.getElementById('gemini-input');
         const query = input.value.trim();
@@ -919,27 +824,21 @@
 
         const box = document.getElementById('gemini-chat-box');
         box.innerHTML += `<div class="chat-bubble agent"><strong>You:</strong><br>${query}</div>`;
-        input.value = '';
-        box.scrollTop = box.scrollHeight;
+        input.value = ''; box.scrollTop = box.scrollHeight;
 
-        // Placeholder for Gemini API (Since I am Gemini, I will provide the fetch structure)
-        // To make this fully functional, replace YOUR_GEMINI_API_KEY with your actual key.
-        const apiKey = "YOUR_GEMINI_API_KEY"; 
-        
+        const apiKey = "YOUR_GEMINI_API_KEY"; // حط مفتاح الـ API الحقيقي بتاعك هنا لو معاك
         if (apiKey === "YOUR_GEMINI_API_KEY") {
             setTimeout(() => {
-                box.innerHTML += `<div class="chat-bubble management"><strong>🤖 Gemini:</strong><br>أهلاً بك! لكي يعمل هذا الذكاء الاصطناعي بشكل حقيقي، يجب عليك إضافة مفتاح <b>Gemini API Key</b> الخاص بك داخل كود <code>askGemini()</code> في السطر 480 تقريباً. يمكنك الحصول عليه من Google AI Studio.<br>سؤالك كان: "${query}"</div>`;
+                box.innerHTML += `<div class="chat-bubble management"><strong>🤖 Gemini:</strong><br>لكي يعمل الذكاء الاصطناعي بشكل حقيقي، يرجى استبدال <code>YOUR_GEMINI_API_KEY</code> في الكود بمفتاحك الحقيقي.</div>`;
                 box.scrollTop = box.scrollHeight;
             }, 1000);
             return;
         }
 
         const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-        
         fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ parts: [{ text: `أنت مساعد ذكاء اصطناعي لمديري نظام شركة Hyde Park Operations. أجب بمهنية واختصار على هذا السؤال: ${query}` }] }] })
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: [{ parts: [{ text: `أنت مساعد ذكاء اصطناعي لمديري نظام Hyde Park Operations. أجب بمهنية واختصار على: ${query}` }] }] })
         })
         .then(res => res.json())
         .then(data => {
@@ -947,12 +846,12 @@
             box.innerHTML += `<div class="chat-bubble management"><strong>🤖 Gemini:</strong><br>${reply.replace(/\n/g, '<br>')}</div>`;
             box.scrollTop = box.scrollHeight;
         })
-        .catch(err => {
-            box.innerHTML += `<div class="chat-bubble management" style="color:red;"><strong>🤖 Gemini Error:</strong><br>حدث خطأ في الاتصال بالذكاء الاصطناعي. تأكد من صحة مفتاح الـ API.</div>`;
-            box.scrollTop = box.scrollHeight;
-        });
+        .catch(err => { box.innerHTML += `<div class="chat-bubble management" style="color:red;"><strong>🤖 Error:</strong><br>فشل الاتصال بـ Gemini.</div>`; box.scrollTop = box.scrollHeight; });
     }
 
+    // -----------------------------------------------------------------------------
+    // ADMIN DASHBOARD (USERS, QUIZZES, RESULTS)
+    // -----------------------------------------------------------------------------
     function setupDashboardPermissions() {
         if (!currentUser) return;
         localStorage.setItem('currentUser', JSON.stringify(currentUser));
@@ -962,10 +861,7 @@
         
         loadDropdownTargets();
         
-        if(!currentUser.phone || !currentUser.email) {
-            switchView('agent-profile'); 
-            return;
-        }
+        if(!currentUser.phone || !currentUser.email) { switchView('agent-profile'); return; }
 
         if(currentUser.role === 'admin' || currentUser.role === 'leader' || currentUser.role === 'quality') {
             document.getElementById('tab-btn-users').style.display = (currentUser.role === 'admin' || currentUser.role === 'leader') ? 'block' : 'none';
@@ -977,18 +873,9 @@
 
             document.getElementById('admin-only-add-user').classList.toggle('hidden', currentUser.role !== 'admin');
             
-            if(currentUser.role === 'admin') { 
-                badge.innerText = "Admin"; badge.classList.add('badge-admin'); 
-                switchAdminTab('tab-users', document.getElementById('tab-btn-users')); loadUsersAdmin(); 
-            }
-            else if(currentUser.role === 'leader') { 
-                badge.innerText = "Leader"; badge.classList.add('badge-leader'); 
-                switchAdminTab('tab-users', document.getElementById('tab-btn-users')); loadUsersAdmin(); 
-            }
-            else if(currentUser.role === 'quality') { 
-                badge.innerText = "Quality"; badge.classList.add('badge-quality'); 
-                switchAdminTab('tab-quizzes', document.getElementById('tab-btn-quizzes')); loadQuizzesAdminSection(); 
-            }
+            if(currentUser.role === 'admin') { badge.innerText = "Admin"; badge.classList.add('badge-admin'); switchAdminTab('tab-users', document.getElementById('tab-btn-users')); loadUsersAdmin(); }
+            else if(currentUser.role === 'leader') { badge.innerText = "Leader"; badge.classList.add('badge-leader'); switchAdminTab('tab-users', document.getElementById('tab-btn-users')); loadUsersAdmin(); }
+            else if(currentUser.role === 'quality') { badge.innerText = "Quality"; badge.classList.add('badge-quality'); switchAdminTab('tab-quizzes', document.getElementById('tab-btn-quizzes')); loadQuizzesAdminSection(); }
             switchView('admin-dashboard');
         } else {
             badge.innerText = "Agent"; badge.style.background = "var(--success)";
@@ -998,8 +885,6 @@
         }
     }
 
-    // --- Admin User Management ---
-    let globalUsersList = {};
     function loadUsersAdmin() {
         if(currentUser.role !== 'admin' && currentUser.role !== 'leader') return;
         const filterAcc = document.getElementById('filter-account').value.trim().toLowerCase();
@@ -1024,23 +909,10 @@
                         actionsHtml += `<button class="view-btn" style="background:var(--success); margin-bottom:5px;" onclick="approveUser('${u.username}')">Approve ✔️</button>`;
                         if(currentUser.role === 'admin') actionsHtml += `<button class="view-btn" style="background:var(--danger);" onclick="deleteUser('${u.username}')">Reject & Delete ❌</button>`;
                     } else if(currentUser.role === 'admin') {
-                        actionsHtml += `
-                            <div class="action-inline">
-                                <button class="view-btn" style="background:var(--primary)" onclick="openEditUserModal('${u.username}')">Edit <i class="fa-solid fa-pen"></i></button>
-                                <button class="view-btn" style="background:var(--danger)" onclick="deleteUser('${u.username}')">Delete <i class="fa-solid fa-trash"></i></button>
-                            </div>`;
-                    } else {
-                        actionsHtml += `<span style="color:#94a3b8; font-size:11px;">Admin Only</span>`;
-                    }
+                        actionsHtml += `<div class="action-inline"><button class="view-btn" style="background:var(--primary)" onclick="openEditUserModal('${u.username}')">Edit <i class="fa-solid fa-pen"></i></button><button class="view-btn" style="background:var(--danger)" onclick="deleteUser('${u.username}')">Delete <i class="fa-solid fa-trash"></i></button></div>`;
+                    } else { actionsHtml += `<span style="color:#94a3b8; font-size:11px;">Admin Only</span>`; }
 
-                    tbody.innerHTML += `<tr>
-                        <td><b>${u.fullName || 'No Name'}</b><br><small style="color:#64748b;">HR ID: ${u.hrId || 'Not Set'} | ${u.phone||'No Phone'} | ${u.email||'No Email'}</small></td>
-                        <td><code>${u.username}</code></td>
-                        <td>${u.accountName || '-'}</td>
-                        <td><span class="badge" style="background:#64748b; text-transform:capitalize;">${u.role}</span></td>
-                        <td>${statusHtml}</td>
-                        <td>${actionsHtml}</td>
-                    </tr>`;
+                    tbody.innerHTML += `<tr><td><b>${u.fullName || 'No Name'}</b><br><small style="color:#64748b;">HR ID: ${u.hrId || 'Not Set'} | ${u.phone||'No Phone'} | ${u.email||'No Email'}</small></td><td><code>${u.username}</code></td><td>${u.accountName || '-'}</td><td><span class="badge" style="background:#64748b; text-transform:capitalize;">${u.role}</span></td><td>${statusHtml}</td><td>${actionsHtml}</td></tr>`;
                 }
             });
         });
@@ -1054,232 +926,38 @@
         const role = document.getElementById('dir-role').value;
         const hrid = document.getElementById('dir-hrid').value.trim();
         if(!name || !user || !pass || !acc) return alert('Please complete all basic fields!');
-        let newUserData = { 
-            fullName: name, username: user, password: pass, 
-            role: role, accountName: acc, status: "approved", 
-            phone: "", email: "", hrId: hrid 
-        };
+        let newUserData = { fullName: name, username: user, password: pass, role: role, accountName: acc, status: "approved", phone: "", email: "", hrId: hrid };
         fetch(`${firebaseBaseUrl}/users/${user}.json`, { method: 'PUT', body: JSON.stringify(newUserData) })
         .then(() => { 
             alert('User added and activated successfully!'); 
-            document.getElementById('dir-name').value = ''; document.getElementById('dir-user').value = ''; 
-            document.getElementById('dir-pass').value = ''; document.getElementById('dir-acc').value = '';
-            document.getElementById('dir-hrid').value = '';
+            document.getElementById('dir-name').value = ''; document.getElementById('dir-user').value = ''; document.getElementById('dir-pass').value = ''; document.getElementById('dir-acc').value = ''; document.getElementById('dir-hrid').value = '';
             loadUsersAdmin(); loadDropdownTargets();
         });
     }
 
-    function approveUser(username) {
-        fetch(`${firebaseBaseUrl}/users/${username}/status.json`, { method: 'PUT', body: JSON.stringify("approved") })
-        .then(() => { alert('Account approved successfully!'); loadUsersAdmin(); loadDropdownTargets(); });
-    }
-
-    function deleteUser(username) {
-        if(confirm(`Are you sure you want to permanently delete user [ ${username} ]?`)) {
-            fetch(`${firebaseBaseUrl}/users/${username}.json`, { method: 'DELETE' })
-            .then(() => { alert('Account deleted!'); loadUsersAdmin(); loadDropdownTargets(); });
-        }
-    }
+    function approveUser(username) { fetch(`${firebaseBaseUrl}/users/${username}/status.json`, { method: 'PUT', body: JSON.stringify("approved") }).then(() => { alert('Account approved successfully!'); loadUsersAdmin(); loadDropdownTargets(); }); }
+    function deleteUser(username) { if(confirm(`Are you sure you want to permanently delete user [ ${username} ]?`)) { fetch(`${firebaseBaseUrl}/users/${username}.json`, { method: 'DELETE' }).then(() => { alert('Account deleted!'); loadUsersAdmin(); loadDropdownTargets(); }); } }
 
     function openEditUserModal(username) {
-        const u = globalUsersList[username];
-        if(!u) return;
-        document.getElementById('edit-orig-username').value = username;
-        document.getElementById('edit-fullname').value = u.fullName || '';
-        document.getElementById('edit-hrid').value = u.hrId || '';
-        document.getElementById('edit-account').value = u.accountName || '';
-        document.getElementById('edit-role').value = u.role || 'agent';
-        document.getElementById('edit-phone').value = u.phone || '';
-        document.getElementById('edit-email').value = u.email || '';
-        document.getElementById('edit-password').value = u.password || '';
-        document.getElementById('edit-user-modal').classList.remove('hidden');
+        const u = globalUsersList[username]; if(!u) return;
+        document.getElementById('edit-orig-username').value = username; document.getElementById('edit-fullname').value = u.fullName || ''; document.getElementById('edit-hrid').value = u.hrId || ''; document.getElementById('edit-account').value = u.accountName || ''; document.getElementById('edit-role').value = u.role || 'agent'; document.getElementById('edit-phone').value = u.phone || ''; document.getElementById('edit-email').value = u.email || ''; document.getElementById('edit-password').value = u.password || ''; document.getElementById('edit-user-modal').classList.remove('hidden');
     }
-
-    function closeEditUserModal() {
-        document.getElementById('edit-user-modal').classList.add('hidden');
-    }
+    function closeEditUserModal() { document.getElementById('edit-user-modal').classList.add('hidden'); }
 
     function saveUserEdit() {
         const username = document.getElementById('edit-orig-username').value;
         const u = globalUsersList[username];
         const passVal = document.getElementById('edit-password').value.trim();
-        
         if(!passVal) return alert('Password field cannot be empty!');
-        let updatedData = {
-            ...u,
-            fullName: document.getElementById('edit-fullname').value.trim(),
-            hrId: document.getElementById('edit-hrid').value.trim(),
-            accountName: document.getElementById('edit-account').value.trim(),
-            role: document.getElementById('edit-role').value,
-            phone: document.getElementById('edit-phone').value.trim(),
-            email: document.getElementById('edit-email').value.trim(),
-            password: passVal
-        };
-        fetch(`${firebaseBaseUrl}/users/${username}.json`, { method: 'PUT', body: JSON.stringify(updatedData) })
-        .then(() => { 
-            alert('User profile updated successfully!'); 
-            closeEditUserModal();
-            loadUsersAdmin(); 
-        });
+        let updatedData = { ...u, fullName: document.getElementById('edit-fullname').value.trim(), hrId: document.getElementById('edit-hrid').value.trim(), accountName: document.getElementById('edit-account').value.trim(), role: document.getElementById('edit-role').value, phone: document.getElementById('edit-phone').value.trim(), email: document.getElementById('edit-email').value.trim(), password: passVal };
+        fetch(`${firebaseBaseUrl}/users/${username}.json`, { method: 'PUT', body: JSON.stringify(updatedData) }).then(() => { alert('User profile updated successfully!'); closeEditUserModal(); loadUsersAdmin(); });
     }
 
-    // --- MASTER EXCEL UPLOAD (SCHEDULES + BREAKS) ---
-    function loadAdminSchedulesAndBreaks() {
-        loadAdminSchedules();
-        loadAdminBreaks();
-    }
-
-    function uploadMasterExcel() {
-        const fileInput = document.getElementById('excel-master-input');
-        if(!fileInput.files.length) return alert("Please select the Master Excel file first!");
-        const file = fileInput.files[0];
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, {type: 'array'});
-            
-            // 1. Process Schedules (Sheet 1)
-            let schedUpdates = {};
-            if(workbook.SheetNames.length > 0) {
-                const wsSchedules = workbook.Sheets[workbook.SheetNames[0]];
-                const rowsSched = XLSX.utils.sheet_to_json(wsSchedules, {header: 1});
-                for(let i = 2; i < rowsSched.length; i++) {
-                    let row = rowsSched[i];
-                    let agentName = row[0];
-                    if(!agentName || agentName.trim() === "" || agentName.includes("Agent Name")) continue;
-                    let scheduleData = {
-                        sunday: row[4] || "OFF", monday: row[5] || "OFF", tuesday: row[6] || "OFF",
-                        wednesday: row[7] || "OFF", thursday: row[8] || "OFF", friday: row[9] || "OFF", saturday: row[10] || "OFF"
-                    };
-                    let cleanKey = encodeURIComponent(agentName.trim().toLowerCase());
-                    schedUpdates[`global_schedules/${cleanKey}`] = scheduleData;
-                }
-            }
-
-            // 2. Process Breaks (Sheet 2)
-            let breaksUpdates = {};
-            if(workbook.SheetNames.length > 1) {
-                const wsBreaks = workbook.Sheets[workbook.SheetNames[1]];
-                const rowsBreaks = XLSX.utils.sheet_to_json(wsBreaks, {header: 1});
-                for(let i = 1; i < rowsBreaks.length; i++) {
-                    let row = rowsBreaks[i];
-                    let agentName = row[0]; let breakTime = row[1];
-                    if(!agentName || agentName.trim() === "" || typeof breakTime === "undefined") continue;
-                    let cleanKey = encodeURIComponent(agentName.trim().toLowerCase());
-                    breaksUpdates[`global_breaks/${cleanKey}`] = String(breakTime);
-                }
-            } else {
-                alert("⚠️ Note: The Excel file only has 1 sheet. Breaks were not updated.");
-            }
-
-            const masterPayload = { ...schedUpdates, ...breaksUpdates };
-            
-            if (Object.keys(masterPayload).length === 0) return alert("No valid data found in the Excel file!");
-
-            fetch(`${firebaseBaseUrl}/.json`, { method: 'PATCH', body: JSON.stringify(masterPayload) }).then(()=>{
-                alert(`🔥 Schedules and Breaks updated successfully!`); 
-                loadAdminSchedulesAndBreaks();
-            });
-        };
-        reader.readAsArrayBuffer(file);
-    }
-
-    function clearAllSchedules() {
-        if(confirm("Warning: Delete ALL employee schedules?")) {
-            fetch(`${firebaseBaseUrl}/global_schedules.json`, { method: 'DELETE' }).then(() => {
-                alert("All schedules deleted successfully!"); 
-                loadAdminSchedules();
-            });
-        }
-    }
-
-    function clearAllBreaks() {
-        if(confirm("Warning: Delete ALL employee break times?")) {
-            fetch(`${firebaseBaseUrl}/global_breaks.json`, { method: 'DELETE' }).then(() => {
-                alert("All breaks deleted successfully!"); 
-                loadAdminBreaks();
-            });
-        }
-    }
-
-    function loadAdminSchedules() {
-        fetch(`${firebaseBaseUrl}/global_schedules.json`).then(res => res.json()).then(scheds => {
-            const tbody = document.getElementById('admin-schedule-list'); tbody.innerHTML = '';
-            if(!scheds) { tbody.innerHTML = '<tr><td colspan="8">No schedules uploaded currently.</td></tr>'; return; }
-            Object.keys(scheds).forEach(k => {
-                let s = scheds[k];
-                if (!s) return; 
-                let name = decodeURIComponent(k); 
-                tbody.innerHTML += `<tr>
-                    <td><b>${name}</b></td>
-                    <td class="${s.sunday==='OFF'?'off-day':''}">${s.sunday || 'OFF'}</td>
-                    <td class="${s.monday==='OFF'?'off-day':''}">${s.monday || 'OFF'}</td>
-                    <td class="${s.tuesday==='OFF'?'off-day':''}">${s.tuesday || 'OFF'}</td>
-                    <td class="${s.wednesday==='OFF'?'off-day':''}">${s.wednesday || 'OFF'}</td>
-                    <td class="${s.thursday==='OFF'?'off-day':''}">${s.thursday || 'OFF'}</td>
-                    <td class="${s.friday==='OFF'?'off-day':''}">${s.friday || 'OFF'}</td>
-                    <td class="${s.saturday==='OFF'?'off-day':''}">${s.saturday || 'OFF'}</td>
-                </tr>`;
-            });
-        });
-    }
-
-    function loadAdminBreaks() {
-        fetch(`${firebaseBaseUrl}/global_breaks.json`).then(res => res.json()).then(breaks => {
-            const tbody = document.getElementById('admin-breaks-list'); tbody.innerHTML = '';
-            if(!breaks) { tbody.innerHTML = '<tr><td colspan="2">No breaks uploaded currently.</td></tr>'; return; }
-            Object.keys(breaks).forEach(k => {
-                let b = breaks[k];
-                if (!b) return; 
-                let name = decodeURIComponent(k); 
-                tbody.innerHTML += `<tr><td><b>${name}</b></td><td>${b}</td></tr>`;
-            });
-        });
-    }
-
-    function viewAgentSchedule() {
-        switchView('info-display-box');
-        document.getElementById('info-box-title').innerText = "🗓️ Your Weekly Schedule";
-        let cleanKey = encodeURIComponent(currentUser.fullName.trim().toLowerCase());
-        fetch(`${firebaseBaseUrl}/global_schedules/${cleanKey}.json`).then(res => res.json()).then(schedule => {
-            if(!schedule) {
-                document.getElementById('info-content-area').innerHTML = `<div class="info-card" style="color:var(--danger)">No schedule found for your name [ ${currentUser.fullName} ]. Make sure your name matches the Excel sheet exactly.</div>`;
-                return;
-            }
-            const todayStr = daysMap[new Date().getDay()]; 
-            document.getElementById('info-content-area').innerHTML = `
-                <table class="data-table" style="width:100%">
-                    <thead><tr><th>Sunday</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th><th>Saturday</th></tr></thead>
-                    <tbody><tr>
-                        <td class="${schedule.sunday==='OFF'?'off-day':'work-day'} ${todayStr==='sunday'?'current-day-highlight':''}">${schedule.sunday}</td>
-                        <td class="${schedule.monday==='OFF'?'off-day':'work-day'} ${todayStr==='monday'?'current-day-highlight':''}">${schedule.monday}</td>
-                        <td class="${schedule.tuesday==='OFF'?'off-day':'work-day'} ${todayStr==='tuesday'?'current-day-highlight':''}">${schedule.tuesday}</td>
-                        <td class="${schedule.wednesday==='OFF'?'off-day':'work-day'} ${todayStr==='wednesday'?'current-day-highlight':''}">${schedule.wednesday}</td>
-                        <td class="${schedule.thursday==='OFF'?'off-day':'work-day'} ${todayStr==='thursday'?'current-day-highlight':''}">${schedule.thursday}</td>
-                        <td class="${schedule.friday==='OFF'?'off-day':'work-day'} ${todayStr==='friday'?'current-day-highlight':''}">${schedule.friday}</td>
-                        <td class="${schedule.saturday==='OFF'?'off-day':'work-day'} ${todayStr==='saturday'?'current-day-highlight':''}">${schedule.saturday}</td>
-                    </tr></tbody>
-                </table>
-                <p style="text-align:center; margin-top:10px; font-size:12px; color:#854d0e;">(Current day is highlighted in yellow 🌟)</p>`;
-        });
-    }
-
-    function viewAgentBreaks() {
-        switchView('info-display-box'); 
-        document.getElementById('info-box-title').innerText = "Your Scheduled Break Time";
-        let cleanKey = encodeURIComponent(currentUser.fullName.trim().toLowerCase());
-        fetch(`${firebaseBaseUrl}/global_breaks/${cleanKey}.json`).then(res => res.json()).then(b => {
-            document.getElementById('info-content-area').innerHTML = b ? `<div class="info-card" style="color:var(--success)"><i class="fa-solid fa-mug-hot"></i> <b>Break Time:</b> ${b}</div>` : '<div class="info-card">No break time assigned for your name yet.</div>';
-        });
-    }
-
-    // --- Quizzes Management ---
     function loadDropdownTargets() {
         fetch(`${firebaseBaseUrl}/users.json`).then(res => res.json()).then(users => {
             const selectMain = document.getElementById('q-target-select');
             const selectFast = document.getElementById('fast-change-target-select');
             let optionsHtml = '<option value="draft">Hidden Draft ❌</option><option value="all">All Employees</option>';
-            
             let accounts = new Set();
             if(users) {
                 Object.values(users).forEach(u => { if(u && u.accountName) accounts.add(u.accountName); });
@@ -1288,173 +966,10 @@
                     accounts.forEach(acc => optionsHtml += `<option value="ACC_${acc}">Campaign: ${acc}</option>`);
                     optionsHtml += `</optgroup>`;
                 }
-                optionsHtml += `<optgroup label="By Specific Employee">`;
-                Object.keys(users).forEach(k => {
-                    let u = users[k];
-                    if(u && u.role === 'agent') optionsHtml += `<option value="${u.username}">${u.fullName}</option>`;
-                });
-                optionsHtml += `</optgroup>`;
             }
             if(selectMain) selectMain.innerHTML = optionsHtml;
             if(selectFast) selectFast.innerHTML = optionsHtml;
         });
-    }
-
-    function loadQuizzesAdminSection() {
-        fetch(`${firebaseBaseUrl}/quizzes.json`).then(res => res.json()).then(quizzes => {
-            const tbody = document.getElementById('admin-quizzes-control-list'); tbody.innerHTML = '';
-            if(!quizzes) { tbody.innerHTML = '<tr><td colspan="3">No quizzes created yet.</td></tr>'; return; }
-            
-            Object.keys(quizzes).forEach(name => {
-                 let q = quizzes[name];
-                if (!q) return; 
-                let tgt = q.target || 'draft';
-                let tgtDisplay = tgt === 'draft' ? 'Draft ❌' : tgt === 'all' ? 'All' : tgt.startsWith('ACC_') ? `Camp: ${tgt.replace('ACC_','')}` : `User: ${tgt}`;
-                
-                tbody.innerHTML += `<tr>
-                    <td><b>${name}</b></td>
-                    <td><span class="badge" style="background:var(--primary)">${tgtDisplay}</span></td>
-                    <td>
-                        <div class="action-inline">
-                            <button class="view-btn" style="background:#d946ef" onclick="viewQuizQuestions('${name}')"><i class="fa-solid fa-eye"></i> View</button>
-                            <button class="view-btn" style="background:#16a34a" onclick="openQuestionsEditor('${name}')"><i class="fa-solid fa-pen"></i> Edit</button>
-                            <button class="view-btn" style="background:var(--danger)" onclick="deleteQuizCompletely('${name}')">Delete</button>
-                        </div>
-                    </td>
-                </tr>`;
-            });
-        });
-    }
-
-    function viewQuizQuestions(quizName) {
-        document.getElementById('view-quiz-title').innerText = quizName;
-        const container = document.getElementById('viewer-questions-list');
-        container.innerHTML = '<p>Loading...</p>';
-        document.getElementById('quiz-viewer-container').classList.remove('hidden');
-        document.getElementById('questions-editor-container').classList.add('hidden');
-
-        fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions.json`).then(res => res.json()).then(qs => {
-            container.innerHTML = '';
-            if(!qs) { container.innerHTML = '<p>No questions found.</p>'; return; }
-            
-            Object.values(qs).forEach((q, idx) => {
-                if (!q) return;
-                let optsHtml = '';
-                if(q.opts) {
-                    q.opts.forEach((o, i) => {
-                        let isCorrect = (i+1) == q.correct;
-                        optsHtml += `<div style="padding:6px; margin:4px 0; border-radius:4px; font-size:14px; ${isCorrect ? 'background:#d1fae5; color:#065f46; font-weight:bold; border:1px solid #10b981;' : 'background:#f1f5f9; color:#64748b;'}">${i+1}. ${o} ${isCorrect ? '✔️ Correct' : ''}</div>`;
-                    });
-                }
-                container.innerHTML += `<div class="viewer-q"><p style="margin:0 0 10px 0; color:var(--text); font-weight:bold; font-size:16px;">Q${idx+1}: ${q.question}</p>${optsHtml}</div>`;
-            });
-        });
-    }
-
-    function openQuestionsEditor(quizName) {
-        currentEditingQuizName = quizName;
-        document.getElementById('current-editing-quiz-title').innerText = quizName;
-        const container = document.getElementById('individual-questions-list');
-        container.innerHTML = '<p>Loading...</p>';
-        document.getElementById('questions-editor-container').classList.remove('hidden');
-        document.getElementById('quiz-viewer-container').classList.add('hidden');
-
-        fetch(`${firebaseBaseUrl}/quizzes/${quizName}/target.json`).then(res => res.json()).then(target => {
-            if(target) document.getElementById('fast-change-target-select').value = target;
-        });
-
-        fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions.json`).then(res => res.json()).then(questions => {
-            container.innerHTML = '';
-            if(!questions) { container.innerHTML = '<p style="color:var(--danger);">⚠️ No questions here.</p>'; return; }
-            Object.keys(questions).forEach(qKey => {
-                let q = questions[qKey];
-                if (!q) return;
-                container.innerHTML += `
-                    <div class="question-edit-row">
-                        <label style="font-size:12px; color:var(--primary)">Question Text:</label>
-                        <input type="text" id="edit_txt_${qKey}" value="${q.question}" style="margin-bottom:5px;">
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:5px;">
-                            <input type="text" id="edit_opt1_${qKey}" value="${q.opts ? (q.opts[0] || '') : ''}">
-                            <input type="text" id="edit_opt2_${qKey}" value="${q.opts ? (q.opts[1] || '') : ''}">
-                            <input type="text" id="edit_opt3_${qKey}" value="${q.opts ? (q.opts[2] || '') : ''}">
-                            <input type="text" id="edit_opt4_${qKey}" value="${q.opts ? (q.opts[3] || '') : ''}">
-                        </div>
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <div><label style="display:inline; font-size:12px;">Correct (1-4): </label><input type="number" id="edit_corr_${qKey}" value="${q.correct || 1}" min="1" max="4" style="width:50px; padding:4px; display:inline;"></div>
-                            <div>
-                                <button class="view-btn" style="background:var(--success);" onclick="saveSingleQuestionChanges('${quizName}', '${qKey}')">Save</button>
-                                <button class="view-btn" style="background:var(--danger);" onclick="deleteSingleQuestion('${quizName}', '${qKey}')">Delete</button>
-                            </div>
-                        </div>
-                    </div>`;
-            });
-        });
-    }
-
-    function updateQuizTargetFromEditor() {
-        const newTarget = document.getElementById('fast-change-target-select').value;
-        fetch(`${firebaseBaseUrl}/quizzes/${currentEditingQuizName}/target.json`, { method: 'PUT', body: JSON.stringify(newTarget) })
-        .then(() => { alert('🟢 Target updated successfully!'); loadQuizzesAdminSection(); });
-    }
-
-    function addSingleQuestionFast() {
-        const txt = document.getElementById('fast-q-text').value.trim();
-        const o1 = document.getElementById('fast-q-opt1').value.trim();
-        const o2 = document.getElementById('fast-q-opt2').value.trim();
-        const o3 = document.getElementById('fast-q-opt3').value.trim();
-        const o4 = document.getElementById('fast-q-opt4').value.trim();
-        const corr = document.getElementById('fast-q-correct').value.trim();
-        
-        if(!txt || !o1 || !o2 || !corr) return alert('Please complete basic question info!');
-        
-        let newQ = { question: txt, opts: [o1, o2, o3, o4], correct: parseInt(corr) };
-        fetch(`${firebaseBaseUrl}/quizzes/${currentEditingQuizName}/questions.json`, { method: 'POST', body: JSON.stringify(newQ) })
-        .then(() => {
-            alert('⚡ Question inserted successfully!');
-            ['fast-q-text','fast-q-opt1','fast-q-opt2','fast-q-opt3','fast-q-opt4','fast-q-correct'].forEach(id => document.getElementById(id).value = '');
-            openQuestionsEditor(currentEditingQuizName);
-        });
-    }
-
-    function saveSingleQuestionChanges(quizName, qKey) {
-        let updatedQ = {
-            question: document.getElementById(`edit_txt_${qKey}`).value.trim(),
-            opts: [ document.getElementById(`edit_opt1_${qKey}`).value.trim(), document.getElementById(`edit_opt2_${qKey}`).value.trim(), document.getElementById(`edit_opt3_${qKey}`).value.trim(), document.getElementById(`edit_opt4_${qKey}`).value.trim() ],
-            correct: parseInt(document.getElementById(`edit_corr_${qKey}`).value.trim())
-        };
-        fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions/${qKey}.json`, { method: 'PUT', body: JSON.stringify(updatedQ) })
-        .then(() => { alert('🟢 Saved!'); openQuestionsEditor(quizName); });
-    }
-
-    function deleteSingleQuestion(quizName, qKey) {
-        if(confirm('Delete this question permanently?')) fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions/${qKey}.json`, { method: 'DELETE' }).then(() => openQuestionsEditor(quizName));
-    }
-
-    function deleteQuizCompletely(name) {
-        if(confirm(`⚠️ WARNING ⚠️\nAre you sure you want to completely delete quiz [ ${name} ]?\nThis will remove it from all users and delete ALL associated scores permanently.`)) {
-            fetch(`${firebaseBaseUrl}/quizzes/${name}.json`, { method: 'DELETE' })
-            .then(() => {
-                return fetch(`${firebaseBaseUrl}/scores.json`).then(res => res.json()).then(scores => {
-                    if (scores) {
-                        let deletePromises = [];
-                        Object.keys(scores).forEach(id => {
-                            if (scores[id] && scores[id].quizName === name) {
-                                deletePromises.push(fetch(`${firebaseBaseUrl}/scores/${id}.json`, { method: 'DELETE' }));
-                            }
-                        });
-                        return Promise.all(deletePromises);
-                    }
-                });
-            })
-            .then(() => {
-                alert('Quiz and all associated scores deleted permanently! 🗑️✅');
-                loadQuizzesAdminSection();
-                if (document.getElementById('tab-results') && !document.getElementById('tab-results').classList.contains('hidden')) {
-                    loadScoresAdmin();
-                }
-            })
-            .catch(err => { alert('Error during deletion: ' + err); });
-        }
     }
 
     function addQuizQuestionAdmin() {
@@ -1466,36 +981,116 @@
         const o3 = document.getElementById('q-opt3').value.trim();
         const o4 = document.getElementById('q-opt4').value.trim();
         const corr = document.getElementById('q-correct').value.trim();
-
         if(!quizName || !txt || !o1 || !o2 || !corr) return alert('Please enter Quiz name and first question details completely!');
-        
         let data = { question: txt, opts: [o1, o2, o3, o4], correct: parseInt(corr) };
         fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions.json`, { method: 'POST', body: JSON.stringify(data) })
         .then(() => fetch(`${firebaseBaseUrl}/quizzes/${quizName}/target.json`, { method: 'PUT', body: JSON.stringify(target) }))
-        .then(() => {
-            alert('Quiz and initial question saved successfully!');
-            ['q-text','q-opt1','q-opt2','q-opt3','q-opt4','q-correct'].forEach(id => document.getElementById(id).value = '');
-            loadQuizzesAdminSection();
+        .then(() => { alert('Quiz saved!'); ['q-text','q-opt1','q-opt2','q-opt3','q-opt4','q-correct'].forEach(id => document.getElementById(id).value = ''); loadQuizzesAdminSection(); });
+    }
+
+    function loadQuizzesAdminSection() {
+        fetch(`${firebaseBaseUrl}/quizzes.json`).then(res => res.json()).then(quizzes => {
+            const tbody = document.getElementById('admin-quizzes-control-list'); tbody.innerHTML = '';
+            if(!quizzes) { tbody.innerHTML = '<tr><td colspan="3">No quizzes created yet.</td></tr>'; return; }
+            Object.keys(quizzes).forEach(name => {
+                let q = quizzes[name]; if (!q) return; 
+                let tgtDisplay = q.target === 'draft' ? 'Draft ❌' : q.target === 'all' ? 'All' : q.target.startsWith('ACC_') ? `Camp: ${q.target.replace('ACC_','')}` : `User: ${q.target}`;
+                tbody.innerHTML += `<tr><td><b>${name}</b></td><td><span class="badge" style="background:var(--primary)">${tgtDisplay}</span></td><td><div class="action-inline"><button class="view-btn" style="background:#d946ef" onclick="viewQuizQuestions('${name}')"><i class="fa-solid fa-eye"></i> View</button><button class="view-btn" style="background:#16a34a" onclick="openQuestionsEditor('${name}')"><i class="fa-solid fa-pen"></i> Edit</button><button class="view-btn" style="background:var(--danger)" onclick="deleteQuizCompletely('${name}')">Delete</button></div></td></tr>`;
+            });
         });
     }
 
-    function loadQuizzesForAgent() {
-        switchView('quiz-dashboard'); 
-        document.getElementById('active-quiz-area').classList.add('hidden');
+    function viewQuizQuestions(quizName) {
+        document.getElementById('view-quiz-title').innerText = quizName;
+        const container = document.getElementById('viewer-questions-list'); container.innerHTML = '<p>Loading...</p>';
+        document.getElementById('quiz-viewer-container').classList.remove('hidden'); document.getElementById('questions-editor-container').classList.add('hidden');
+        fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions.json`).then(res => res.json()).then(qs => {
+            container.innerHTML = ''; if(!qs) { container.innerHTML = '<p>No questions found.</p>'; return; }
+            Object.values(qs).forEach((q, idx) => {
+                if (!q) return; let optsHtml = '';
+                if(q.opts) { q.opts.forEach((o, i) => { let isCorrect = (i+1) == q.correct; optsHtml += `<div style="padding:6px; margin:4px 0; border-radius:4px; font-size:14px; ${isCorrect ? 'background:#d1fae5; color:#065f46; font-weight:bold; border:1px solid #10b981;' : 'background:#f1f5f9; color:#64748b;'}">${i+1}. ${o} ${isCorrect ? '✔️ Correct' : ''}</div>`; }); }
+                container.innerHTML += `<div class="viewer-q"><p style="margin:0 0 10px 0; color:var(--text); font-weight:bold; font-size:16px;">Q${idx+1}: ${q.question}</p>${optsHtml}</div>`;
+            });
+        });
+    }
+
+    function openQuestionsEditor(quizName) {
+        currentEditingQuizName = quizName; document.getElementById('current-editing-quiz-title').innerText = quizName;
+        const container = document.getElementById('individual-questions-list'); container.innerHTML = '<p>Loading...</p>';
+        document.getElementById('questions-editor-container').classList.remove('hidden'); document.getElementById('quiz-viewer-container').classList.add('hidden');
+        fetch(`${firebaseBaseUrl}/quizzes/${quizName}/target.json`).then(res => res.json()).then(target => { if(target) document.getElementById('fast-change-target-select').value = target; });
+        fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions.json`).then(res => res.json()).then(questions => {
+            container.innerHTML = ''; if(!questions) return;
+            Object.keys(questions).forEach(qKey => {
+                let q = questions[qKey]; if (!q) return;
+                container.innerHTML += `<div class="question-edit-row"><label style="font-size:12px; color:var(--primary)">Question Text:</label><input type="text" id="edit_txt_${qKey}" value="${q.question}" style="margin-bottom:5px;"><div style="display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:5px;"><input type="text" id="edit_opt1_${qKey}" value="${q.opts ? (q.opts[0] || '') : ''}"><input type="text" id="edit_opt2_${qKey}" value="${q.opts ? (q.opts[1] || '') : ''}"><input type="text" id="edit_opt3_${qKey}" value="${q.opts ? (q.opts[2] || '') : ''}"><input type="text" id="edit_opt4_${qKey}" value="${q.opts ? (q.opts[3] || '') : ''}"></div><div style="display:flex; justify-content:space-between; align-items:center;"><div><label style="display:inline; font-size:12px;">Correct (1-4): </label><input type="number" id="edit_corr_${qKey}" value="${q.correct || 1}" min="1" max="4" style="width:50px; padding:4px; display:inline;"></div><div><button class="view-btn" style="background:var(--success);" onclick="saveSingleQuestionChanges('${quizName}', '${qKey}')">Save</button> <button class="view-btn" style="background:var(--danger);" onclick="deleteSingleQuestion('${quizName}', '${qKey}')">Delete</button></div></div></div>`;
+            });
+        });
+    }
+
+    function updateQuizTargetFromEditor() {
+        const newTarget = document.getElementById('fast-change-target-select').value;
+        fetch(`${firebaseBaseUrl}/quizzes/${currentEditingQuizName}/target.json`, { method: 'PUT', body: JSON.stringify(newTarget) }).then(() => { alert('🟢 Target updated successfully!'); loadQuizzesAdminSection(); });
+    }
+
+    function addSingleQuestionFast() {
+        const txt = document.getElementById('fast-q-text').value.trim(); const o1 = document.getElementById('fast-q-opt1').value.trim(); const o2 = document.getElementById('fast-q-opt2').value.trim(); const o3 = document.getElementById('fast-q-opt3').value.trim(); const o4 = document.getElementById('fast-q-opt4').value.trim(); const corr = document.getElementById('fast-q-correct').value.trim();
+        if(!txt || !o1 || !o2 || !corr) return alert('Please complete basic question info!');
+        let newQ = { question: txt, opts: [o1, o2, o3, o4], correct: parseInt(corr) };
+        fetch(`${firebaseBaseUrl}/quizzes/${currentEditingQuizName}/questions.json`, { method: 'POST', body: JSON.stringify(newQ) }).then(() => { alert('⚡ Question inserted successfully!'); ['fast-q-text','fast-q-opt1','fast-q-opt2','fast-q-opt3','fast-q-opt4','fast-q-correct'].forEach(id => document.getElementById(id).value = ''); openQuestionsEditor(currentEditingQuizName); });
+    }
+
+    function saveSingleQuestionChanges(quizName, qKey) {
+        let updatedQ = { question: document.getElementById(`edit_txt_${qKey}`).value.trim(), opts: [ document.getElementById(`edit_opt1_${qKey}`).value.trim(), document.getElementById(`edit_opt2_${qKey}`).value.trim(), document.getElementById(`edit_opt3_${qKey}`).value.trim(), document.getElementById(`edit_opt4_${qKey}`).value.trim() ], correct: parseInt(document.getElementById(`edit_corr_${qKey}`).value.trim()) };
+        fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions/${qKey}.json`, { method: 'PUT', body: JSON.stringify(updatedQ) }).then(() => { alert('🟢 Saved!'); openQuestionsEditor(quizName); });
+    }
+
+    function deleteSingleQuestion(quizName, qKey) { if(confirm('Delete this question permanently?')) fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions/${qKey}.json`, { method: 'DELETE' }).then(() => openQuestionsEditor(quizName)); }
+
+    function deleteQuizCompletely(name) {
+        if(confirm(`⚠️ Delete quiz [ ${name} ] entirely?`)) { fetch(`${firebaseBaseUrl}/quizzes/${name}.json`, { method: 'DELETE' }).then(() => loadQuizzesAdminSection()); }
+    }
+
+    // -----------------------------------------------------------------------------
+    // AGENT HUB: SCHEDULE/BREAK (LIVE) & QUIZZES
+    // -----------------------------------------------------------------------------
+    function viewAgentSchedule() {
+        switchView('info-display-box'); document.getElementById('info-box-title').innerText = "🗓️ Your Weekly Schedule (Live from Sheet)";
+        let nameKey = currentUser.fullName.trim().toLowerCase();
+        if(!liveSchedules[nameKey]) { document.getElementById('info-content-area').innerHTML = `<div class="info-card" style="color:var(--danger)">No schedule found for [ ${currentUser.fullName} ] in the live Google Sheet. Or the sheet is not linked yet.</div>`; return; }
         
+        let s = liveSchedules[nameKey]; const todayStr = daysMap[new Date().getDay()]; 
+        document.getElementById('info-content-area').innerHTML = `
+            <table class="data-table" style="width:100%">
+                <thead><tr><th>Sunday</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th><th>Saturday</th></tr></thead>
+                <tbody><tr>
+                    <td class="${s.sunday.toLowerCase().includes('off')?'off-day':'work-day'} ${todayStr==='sunday'?'current-day-highlight':''}">${s.sunday}</td>
+                    <td class="${s.monday.toLowerCase().includes('off')?'off-day':'work-day'} ${todayStr==='monday'?'current-day-highlight':''}">${s.monday}</td>
+                    <td class="${s.tuesday.toLowerCase().includes('off')?'off-day':'work-day'} ${todayStr==='tuesday'?'current-day-highlight':''}">${s.tuesday}</td>
+                    <td class="${s.wednesday.toLowerCase().includes('off')?'off-day':'work-day'} ${todayStr==='wednesday'?'current-day-highlight':''}">${s.wednesday}</td>
+                    <td class="${s.thursday.toLowerCase().includes('off')?'off-day':'work-day'} ${todayStr==='thursday'?'current-day-highlight':''}">${s.thursday}</td>
+                    <td class="${s.friday.toLowerCase().includes('off')?'off-day':'work-day'} ${todayStr==='friday'?'current-day-highlight':''}">${s.friday}</td>
+                    <td class="${s.saturday.toLowerCase().includes('off')?'off-day':'work-day'} ${todayStr==='saturday'?'current-day-highlight':''}">${s.saturday}</td>
+                </tr></tbody>
+            </table><p style="text-align:center; margin-top:10px; font-size:12px; color:#854d0e;">(Current day is highlighted in yellow 🌟)</p>`;
+    }
+
+    function viewAgentBreaks() {
+        switchView('info-display-box'); document.getElementById('info-box-title').innerText = "Your Scheduled Break Time (Live)";
+        let nameKey = currentUser.fullName.trim().toLowerCase(); let b = liveBreaks[nameKey];
+        document.getElementById('info-content-area').innerHTML = b ? `<div class="info-card" style="color:var(--success)"><i class="fa-solid fa-mug-hot"></i> <b>Break Time:</b> ${b}</div>` : '<div class="info-card">No break time assigned for your name in Sheet 2 yet.</div>';
+    }
+
+    function loadQuizzesForAgent() {
+        switchView('quiz-dashboard'); document.getElementById('active-quiz-area').classList.add('hidden');
         fetch(`${firebaseBaseUrl}/quizzes.json`).then(res => res.json()).then(quizzes => {
             const list = document.getElementById('available-quizzes-list'); list.innerHTML = '';
             if(!quizzes) { list.innerHTML = 'No quizzes available for you currently.'; return; }
-            
             Object.keys(quizzes).forEach(name => {
-                let q = quizzes[name];
-                if (!q) return;
+                let q = quizzes[name]; if (!q) return;
                 let tgt = q.target;
                 if(tgt === 'all' || tgt === currentUser.username || tgt === `ACC_${currentUser.accountName}`) {
-                    list.innerHTML += `<div class="info-card" style="margin-bottom:10px; text-align:left; display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-weight:bold; color:var(--primary);"><i class="fa-solid fa-file-pen"></i> ${name}</span>
-                        <button onclick="startQuizForAgent('${name}')" style="width:auto; margin:0; padding:8px 15px;">Start Quiz 🚀</button>
-                    </div>`;
+                    list.innerHTML += `<div class="info-card" style="margin-bottom:10px; text-align:left; display:flex; justify-content:space-between; align-items:center;"><span style="font-weight:bold; color:var(--primary);"><i class="fa-solid fa-file-pen"></i> ${name}</span><button onclick="startQuizForAgent('${name}')" style="width:auto; margin:0; padding:8px 15px;">Start Quiz 🚀</button></div>`;
                 }
             });
         });
@@ -1504,22 +1099,16 @@
     function startQuizForAgent(name) {
         activeQuizName = name;
         fetch(`${firebaseBaseUrl}/quizzes/${name}/questions.json`).then(res => res.json()).then(qs => {
-            if(!qs) return alert('This quiz is currently empty!');
+            if(!qs) return alert('This quiz is empty!');
             activeQuizQuestions = Object.values(qs);
             document.getElementById('active-quiz-title').innerText = name;
             const container = document.getElementById('quiz-questions-container'); container.innerHTML = '';
-            
-            document.getElementById('submit-quiz-btn').style.display = 'block';
-            document.getElementById('close-quiz-btn').classList.add('hidden');
+            document.getElementById('submit-quiz-btn').style.display = 'block'; document.getElementById('close-quiz-btn').classList.add('hidden');
 
             activeQuizQuestions.forEach((q, i) => {
                 if (!q) return;
                 let h = `<div style="background:white; padding:15px; margin-bottom:15px; border-radius:8px; border:2px solid #e2e8f0;"><p style="margin-top:0; font-size:16px; color:var(--text); font-weight:bold;">Q${i+1}: ${q.question}</p>`;
-                if(q.opts) {
-                    q.opts.forEach((o, oi) => { 
-                        if(o) h += `<label class="option-label" id="label_${i}_${oi+1}"><input type="radio" name="q_${i}" value="${oi+1}"> ${o}</label>`; 
-                    });
-                }
+                if(q.opts) { q.opts.forEach((o, oi) => { if(o) h += `<label class="option-label" id="label_${i}_${oi+1}"><input type="radio" name="q_${i}" value="${oi+1}"> ${o}</label>`; }); }
                 container.innerHTML += h + `</div>`;
             });
             document.getElementById('active-quiz-area').classList.remove('hidden');
@@ -1527,177 +1116,59 @@
     }
 
     function submitQuizAnswers() {
-        let score = 0;
-        let detailsArr = [];
-        
+        let score = 0; let detailsArr = [];
         activeQuizQuestions.forEach((q, i) => {
             if (!q) return;
             const sel = document.querySelector(`input[name="q_${i}"]:checked`);
-            let userAns = sel ? sel.value : null;
-            
-            const correctLbl = document.getElementById(`label_${i}_${q.correct}`); 
-            if(correctLbl) correctLbl.classList.add('correct-ans');
-            
-            let safeQuestionText = q.question.replace(/\|/g, '-').replace(/\./g, ' '); 
-            
-            if(sel && sel.value == q.correct) {
-                score++;
-                detailsArr.push(`${safeQuestionText} : Correct ✅`);
-            } else {
-                if(sel && sel.value != q.correct) { 
-                    const errLbl = document.getElementById(`label_${i}_${sel.value}`); 
-                    if(errLbl) errLbl.classList.add('wrong-ans'); 
-                    detailsArr.push(`${safeQuestionText} : Wrong ❌`);
-                } else {
-                    detailsArr.push(`${safeQuestionText} : Not Answered ⚠️`);
-                }
-            }
+            let safeText = q.question.replace(/\|/g, '-').replace(/\./g, ' '); 
+            if(sel && sel.value == q.correct) { score++; detailsArr.push(`${safeText} : Correct ✅`); } 
+            else { detailsArr.push(`${safeText} : ${sel ? 'Wrong ❌' : 'Not Answered ⚠️'}`); }
             document.querySelectorAll(`input[name="q_${i}"]`).forEach(el => el.disabled = true);
         });
         
         let res = `${score} / ${activeQuizQuestions.length}`;
-        let detailsString = detailsArr.join(" | "); 
-        
-        let scorePayload = { 
-            username: currentUser.fullName || currentUser.username, 
-            hrId: currentUser.hrId || 'Not Set',
-            account: currentUser.accountName || '-', 
-            quizName: activeQuizName, 
-            score: res, 
-            details: detailsString,
-            timestamp: new Date().toLocaleString() 
-        };
+        let scorePayload = { username: currentUser.fullName || currentUser.username, hrId: currentUser.hrId || 'Not Set', account: currentUser.accountName || '-', quizName: activeQuizName, score: res, details: detailsArr.join(" | "), timestamp: new Date().toLocaleString() };
 
-        fetch(`${firebaseBaseUrl}/scores.json`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(scorePayload)
-        })
-        .then(response => {
-            if(!response.ok) throw new Error('Network error writing score');
-            alert(`Quiz Submitted Successfully! Your Score: ${res}`); 
-            document.getElementById('submit-quiz-btn').style.display = 'none';
-            document.getElementById('close-quiz-btn').classList.remove('hidden');
-            if(currentUser.role === 'admin' || currentUser.role === 'quality' || currentUser.role === 'leader') {
-                loadScoresAdmin();
-            }
-        })
-        .catch(err => {
-            alert("Error sending score to database! Details: " + err);
-        });
+        fetch(`${firebaseBaseUrl}/scores.json`, { method: 'POST', body: JSON.stringify(scorePayload) })
+        .then(() => { alert(`Quiz Submitted! Score: ${res}`); document.getElementById('submit-quiz-btn').style.display = 'none'; document.getElementById('close-quiz-btn').classList.remove('hidden'); });
     }
 
-    // --- Results Archive ---
+    // -----------------------------------------------------------------------------
+    // RESULTS & EXPORT
+    // -----------------------------------------------------------------------------
     function loadScoresAdmin() {
         fetch(`${firebaseBaseUrl}/scores.json`).then(res => res.json()).then(scores => {
-            globalScoresData = scores; 
-            updateQuizFilterDropdown(scores);
-            renderScoresTable();
-        }).catch(err => {
-            console.error(err);
-            const tbody = document.getElementById('admin-scores-list');
-            if(tbody) tbody.innerHTML = `<tr><td colspan="8">Error loading data.</td></tr>`;
+            globalScoresData = scores;
+            const filterSelect = document.getElementById('admin-quiz-filter');
+            if (filterSelect) {
+                let uniqueQuizzes = new Set();
+                if(scores) { Object.values(scores).forEach(s => { if(s && s.quizName) uniqueQuizzes.add(s.quizName); }); }
+                let opts = `<option value="ALL_QUIZZES">All Quizzes</option>`;
+                uniqueQuizzes.forEach(q => { opts += `<option value="${q.replace(/"/g, '&quot;')}">${q}</option>`; });
+                filterSelect.innerHTML = opts;
+            }
+            filterScoresTable();
         });
-    }
-
-    function updateQuizFilterDropdown(scores) {
-        const filterSelect = document.getElementById('admin-quiz-filter');
-        if (!filterSelect) return;
-        
-        const currentVal = filterSelect.value || "ALL_QUIZZES";
-        let uniqueQuizzes = new Set();
-        
-        if(scores) {
-            Object.values(scores).forEach(s => { if(s && s.quizName) uniqueQuizzes.add(s.quizName); });
-        }
-        
-        let opts = `<option value="ALL_QUIZZES">All Quizzes</option>`;
-        uniqueQuizzes.forEach(q => { 
-            let safeQ = q.replace(/"/g, '&quot;'); 
-            opts += `<option value="${safeQ}">${q}</option>`; 
-        });
-        filterSelect.innerHTML = opts;
-        
-        if (uniqueQuizzes.has(currentVal) || currentVal === "ALL_QUIZZES") {
-            filterSelect.value = currentVal;
-        } else {
-            filterSelect.value = "ALL_QUIZZES";
-        }
     }
 
     function filterScoresTable() {
-        renderScoresTable();
-    }
-
-    function toggleDetails(elementId) {
-        const el = document.getElementById(elementId);
-        if(el) el.classList.toggle('hidden');
-    }
-
-    function deleteScoreFromSystem(scoreId) {
-        if(confirm('Are you sure you want to delete this score record?')) {
-            fetch(`${firebaseBaseUrl}/scores/${scoreId}.json`, { method: 'DELETE' })
-            .then(() => {
-                alert('Score deleted successfully!');
-                loadScoresAdmin();
-            });
-        }
-    }
-
-    function renderScoresTable() {
-        const tbody = document.getElementById('admin-scores-list'); 
-        if (!tbody) return;
-        tbody.innerHTML = '';
-        if(!globalScoresData || Object.keys(globalScoresData).length === 0) { 
-            tbody.innerHTML = '<tr><td colspan="8">No results recorded yet.</td></tr>'; 
-            return; 
-        }
+        const tbody = document.getElementById('admin-scores-list'); tbody.innerHTML = '';
+        if(!globalScoresData) { tbody.innerHTML = '<tr><td colspan="8">No results recorded yet.</td></tr>'; return; }
         
-        const filterSelect = document.getElementById('admin-quiz-filter');
-        let filterValue = filterSelect ? filterSelect.value : "ALL_QUIZZES";
-        if (!filterValue) filterValue = "ALL_QUIZZES";
-
+        const filterVal = document.getElementById('admin-quiz-filter').value || "ALL_QUIZZES";
         let hasData = false;
-
         Object.keys(globalScoresData).forEach(id => {
-            let score = globalScoresData[id];
-            if (!score) return; 
-            
-            if(filterValue === "ALL_QUIZZES" || score.quizName === filterValue) {
+            let score = globalScoresData[id]; if (!score) return; 
+            if(filterVal === "ALL_QUIZZES" || score.quizName === filterVal) {
                 hasData = true;
-                
-                let rawDetails = score.details || 'No Details';
-                let detailsHtml = '';
-                if(rawDetails !== 'No Details') {
-                    let parts = rawDetails.split(' | ');
-                    parts.forEach(p => { detailsHtml += `<div class="details-row">${p}</div>`; });
-                } else {
-                    detailsHtml = 'No detailed breakdown available.';
-                }
-
-                tbody.innerHTML += `<tr>
-                    <td><b>${score.username || 'Unknown'}</b></td>
-                    <td>${score.hrId || 'Not Set'}</td>
-                    <td>${score.account||'-'}</td>
-                    <td>${score.quizName || '-'}</td>
-                    <td><span class="badge-score">${score.score || '0'}</span></td>
-                    <td>
-                        <button class="view-btn" onclick="toggleDetails('det_${id}')" style="background:#0ea5e9; font-size:10px; padding:4px 8px;">View Details</button>
-                        <div id="det_${id}" class="details-container hidden">${detailsHtml}</div>
-                        <span style="display:none;" class="excel-details-export">${rawDetails}</span>
-                    </td>
-                    <td><small>${score.timestamp || '-'}</small></td>
-                    <td>
-                        ${currentUser && currentUser.role === 'admin' ? `<button class="view-btn" style="background:var(--danger); font-size:10px; padding:4px 8px;" onclick="deleteScoreFromSystem('${id}')">Delete</button>` : '<span style="font-size:10px; color:#94a3b8">N/A</span>'}
-                    </td>
-                </tr>`;
+                let detailsHtml = score.details ? score.details.split(' | ').map(p => `<div class="details-row">${p}</div>`).join('') : 'No details';
+                tbody.innerHTML += `<tr><td><b>${score.username}</b></td><td>${score.hrId}</td><td>${score.account}</td><td>${score.quizName}</td><td><span class="badge-score">${score.score}</span></td><td><button class="view-btn" onclick="document.getElementById('det_${id}').classList.toggle('hidden')">View Details</button><div id="det_${id}" class="details-container hidden">${detailsHtml}</div><span style="display:none;" class="excel-details-export">${score.details||''}</span></td><td><small>${score.timestamp}</small></td><td><button class="view-btn" style="background:var(--danger);" onclick="deleteScoreFromSystem('${id}')">Delete</button></td></tr>`;
             }
         });
-
-        if(!hasData) { 
-            tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#64748b; padding:20px;">No matching records found.</td></tr>`; 
-        }
+        if(!hasData) tbody.innerHTML = `<tr><td colspan="8">No matching records found.</td></tr>`; 
     }
+
+    function deleteScoreFromSystem(id) { if(confirm('Delete this score?')) fetch(`${firebaseBaseUrl}/scores/${id}.json`, { method: 'DELETE' }).then(() => loadScoresAdmin()); }
 
     function loadAgentScoresArchive() {
         switchView('quiz-dashboard'); document.getElementById('active-quiz-area').classList.add('hidden');
@@ -1705,47 +1176,24 @@
             const list = document.getElementById('available-quizzes-list'); list.innerHTML = '';
             if(!scores) { list.innerHTML = 'Your archive is empty.'; return; }
             let h = `<table class="data-table" style="width:100%"><thead><tr><th>Quiz Name</th><th>Score</th><th>Date</th></tr></thead><tbody>`;
-            
-            let currentEmployeeName = currentUser.fullName || currentUser.username;
             let hasArchive = false;
-            
             Object.keys(scores).forEach(id => {
                 let s = scores[id];
-                if (!s) return;
-                if(s.username === currentEmployeeName || s.username === currentUser.username) {
-                    hasArchive = true;
-                    h += `<tr><td>${s.quizName || '-'}</td><td><span class="badge-score">${s.score || '0'}</span></td><td>${s.timestamp || '-'}</td></tr>`;
+                if (s && (s.username === currentUser.fullName || s.username === currentUser.username)) {
+                    hasArchive = true; h += `<tr><td>${s.quizName}</td><td><span class="badge-score">${s.score}</span></td><td>${s.timestamp}</td></tr>`;
                 }
             });
-            
-            if(hasArchive) {
-                list.innerHTML = h + `</tbody></table>`;
-            } else {
-                list.innerHTML = 'No completed quiz history found for your account.';
-            }
+            list.innerHTML = hasArchive ? h + `</tbody></table>` : 'No completed quiz history found.';
         });
     }
 
     function triggerExcelExport() {
-        const filterSelect = document.getElementById('admin-quiz-filter');
-        const filterVal = filterSelect ? filterSelect.value : "ALL_QUIZZES";
-        let dynamicFileName = filterVal === 'ALL_QUIZZES' ? 'HydePark_All_Results' : `HydePark_${filterVal.replace(/\s+/g, '_')}`;
-        
         let tableClone = document.getElementById('admin-scores-table').cloneNode(true);
-        // Details is the 6th column (nth-child(6))
         let detailCells = tableClone.querySelectorAll('td:nth-child(6)');
-        detailCells.forEach(cell => {
-            let exportSpan = cell.querySelector('.excel-details-export');
-            if(exportSpan) { cell.innerText = exportSpan.innerText; }
-        });
-        
-        // Remove Action column (8th column, index 7)
-        tableClone.querySelectorAll('tr').forEach(row => {
-            if(row.children.length > 7) row.removeChild(row.children[7]);
-        });
-
+        detailCells.forEach(cell => { let exportSpan = cell.querySelector('.excel-details-export'); if(exportSpan) cell.innerText = exportSpan.innerText; });
+        tableClone.querySelectorAll('tr').forEach(row => { if(row.children.length > 7) row.removeChild(row.children[7]); });
         const wb = XLSX.utils.table_to_book(tableClone, { sheet: "Results" });
-        XLSX.writeFile(wb, dynamicFileName + ".xlsx");
+        XLSX.writeFile(wb, "HydePark_Results.xlsx");
     }
 </script>
 </body>
