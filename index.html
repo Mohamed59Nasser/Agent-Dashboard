@@ -249,8 +249,8 @@
         <div class="admin-tabs" id="admin-tabs-container">
             <button class="tab-btn" id="tab-btn-users" onclick="switchAdminTab('tab-users', this); loadUsersAdmin();">👥 Users & Accounts</button>
             <button class="tab-btn" id="tab-btn-chats" onclick="switchAdminTab('tab-chats', this); loadAdminChats();">💬 Communications</button>
-            <button class="tab-btn" id="tab-btn-schedules" onclick="switchAdminTab('tab-schedules', this); loadSheetSettings();">📅 Live Google Sheet</button>
-            <button class="tab-btn" id="tab-btn-kpi" onclick="switchAdminTab('tab-kpi', this);">📈 KPI Data</button>
+            <button class="tab-btn" id="tab-btn-schedules" onclick="switchAdminTab('tab-schedules', this); loadSheetSettings();">📅 Schedules & Breaks Link</button>
+            <button class="tab-btn" id="tab-btn-kpi" onclick="switchAdminTab('tab-kpi', this);">📈 KPI Scorecard Link</button>
             <button class="tab-btn" id="tab-btn-quizzes" onclick="switchAdminTab('tab-quizzes', this); loadQuizzesAdminSection();">📝 Quizzes</button>
             <button class="tab-btn" id="tab-btn-results" onclick="switchAdminTab('tab-results', this); loadScoresAdmin();">📊 Results</button>
             <button class="tab-btn" id="tab-btn-gemini" onclick="switchAdminTab('tab-gemini', this);">🤖 Gemini AI</button>
@@ -340,14 +340,17 @@
         </div>
 
         <div id="tab-kpi" class="admin-tab-content hidden">
+            <h4>📈 Live KPI Scorecard Link</h4>
             <div class="admin-kpi-section">
-                <h3 style="color: var(--primary); margin-top:0;"><i class="fa-solid fa-chart-line"></i> Upload KPI Data (Admin/Leader)</h3>
+                <h3 style="color: var(--primary); margin-top:0;"><i class="fa-solid fa-link"></i> Set Live KPI Google Sheet Link</h3>
                 <p style="font-size: 14px; margin-bottom: 15px; color: #475569;">
-                    Upload an Excel file containing exactly these 3 sheet names: <b>Quality</b>, <b>Mistakes</b>, <b>Performance</b>.<br>
-                    The system will match the <b>Agent Name</b> and merge their data.
+                    Paste the link to the KPI Google Sheet. The sheet must contain exactly these 3 sheet names: <b>Quality</b>, <b>Mistakes</b>, <b>Performance</b>.<br>
+                    <b style="color:var(--danger)">Note:</b> Ensure the Sheet is shared as <b>"Anyone with the link can view"</b>.
                 </p>
-                <input type="file" id="kpi-file-upload" accept=".xlsx, .xls, .csv" style="margin-bottom: 10px; background: white; padding: 8px; width: 100%; border-radius: 6px;" />
-                <button onclick="processKPIExcel()" style="background: var(--success);"><i class="fa-solid fa-cloud-arrow-up"></i> Sync KPI Data to Database</button>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="kpi-sheet-url" placeholder="https://docs.google.com/spreadsheets/d/........" style="flex: 1; padding: 8px;">
+                    <button onclick="saveAndSyncKPIUrl()" style="width: auto; margin: 0; padding: 0 20px; background: var(--success);"><i class="fa-solid fa-rotate"></i> Save & Sync KPI</button>
+                </div>
             </div>
         </div>
 
@@ -476,17 +479,19 @@
 <div class="footer-credits">Developed By Mohamed Nasser | Powered by Gemini AI</div>
 
 <script>
-    // ⚠️ رابط قاعدة البيانات الأساسي (Firebase) للنظام ككل
+    // ⚠️ رابط قاعدة البيانات الأساسي (Firebase) للنظام
     const firebaseBaseUrl = "https://agent-system-01-default-rtdb.firebaseio.com";
     
-    // متغيرات الجوجل شيت لايف
+    // متغيرات حفظ الشيتات لايف
     let liveSchedules = {};
     let liveBreaks = {};
+    let liveKPIData = {}; // متغير جديد لشيت الـ KPI
     
     let isSignUpMode = false; 
     let currentUser = null; 
     let activeQuizQuestions = []; 
     let activeQuizName = ""; 
+    let currentEditingQuizName = "";
     let globalScoresData = null; 
     let globalUsersList = {};
     const daysMap = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
@@ -505,13 +510,21 @@
     });
 
     // -----------------------------------------------------------------------------
-    // LIVE GOOGLE SHEET SYNC (البريك والجدول يسحبوا أونلاين دايركت)
+    // LIVE GOOGLE SHEET SYNC (البريكات والجدول والـ KPI أونلاين على طول)
     // -----------------------------------------------------------------------------
     function initLiveSheetSync(forceUpdatePreview = false) {
+        // سحب لينك البريكات والجدول
         fetch(`${firebaseBaseUrl}/settings/sheetUrl.json`).then(res => res.json()).then(url => {
             if(url) {
                 if(document.getElementById('master-sheet-url')) document.getElementById('master-sheet-url').value = url;
                 fetchLiveExcelData(url, forceUpdatePreview);
+            }
+        });
+        // سحب لينك الـ KPI
+        fetch(`${firebaseBaseUrl}/settings/kpiSheetUrl.json`).then(res => res.json()).then(url => {
+            if(url) {
+                if(document.getElementById('kpi-sheet-url')) document.getElementById('kpi-sheet-url').value = url;
+                fetchLiveKPIExcelData(url, false);
             }
         });
     }
@@ -521,7 +534,7 @@
         if(!url) return alert("Please enter a valid Google Sheet URL.");
         fetch(`${firebaseBaseUrl}/settings/sheetUrl.json`, { method: 'PUT', body: JSON.stringify(url) })
         .then(() => {
-            alert("URL Saved! Syncing live data...");
+            alert("URL Saved! Syncing live Schedule and Break data...");
             fetchLiveExcelData(url, true);
         });
     }
@@ -616,32 +629,42 @@
     function loadSheetSettings() { renderLiveAdminPreviews(); }
 
     // -----------------------------------------------------------------------------
-    // KPI SCORECARD (NEW)
+    // LIVE KPI SCORECARD LOGIC
     // -----------------------------------------------------------------------------
     function cleanKPIName(name) {
         return name ? name.toString().trim().toLowerCase().replace(/\s+/g, '_').replace(/[.#$[\]]/g, '') : '';
     }
 
-    function processKPIExcel() {
-        const fileInput = document.getElementById('kpi-file-upload');
-        if (!fileInput.files.length) return alert('Please select the Excel file first!');
-        const file = fileInput.files[0];
-        const reader = new FileReader();
+    function saveAndSyncKPIUrl() {
+        const url = document.getElementById('kpi-sheet-url').value.trim();
+        if(!url) return alert("Please enter a valid KPI Google Sheet URL.");
+        fetch(`${firebaseBaseUrl}/settings/kpiSheetUrl.json`, { method: 'PUT', body: JSON.stringify(url) })
+        .then(() => {
+            alert("KPI URL Saved! Syncing live KPI data...");
+            fetchLiveKPIExcelData(url, true);
+        });
+    }
 
-        reader.onload = function(e) {
-            const data = new Uint8Array(e.target.result);
+    function fetchLiveKPIExcelData(url, showAlert = false) {
+        const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+        if(!match) return;
+        const sheetId = match[1];
+        const exportUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=xlsx`;
+
+        fetch(exportUrl)
+        .then(res => res.arrayBuffer())
+        .then(data => {
             const workbook = XLSX.read(data, {type: 'array'});
-            let kpiData = {};
+            liveKPIData = {};
 
-            // 1. Quality Sheet
             if (workbook.Sheets["Quality"]) {
                 const qRows = XLSX.utils.sheet_to_json(workbook.Sheets["Quality"]);
                 qRows.forEach(row => {
                     let agentName = row["Agent Name"] || row["Agent"];
                     if(agentName) {
                         let key = cleanKPIName(agentName);
-                        if(!kpiData[key]) kpiData[key] = {};
-                        kpiData[key].Quality = {
+                        if(!liveKPIData[key]) liveKPIData[key] = {};
+                        liveKPIData[key].Quality = {
                             compliance: row["Compliance Critical "] || row["Compliance Critical"],
                             endUser: row["End User critical"],
                             business: row["Business critical"],
@@ -649,118 +672,104 @@
                         };
                     }
                 });
-            } else { alert("Warning: 'Quality' sheet not found in the uploaded file."); }
+            }
 
-            // 2. Mistakes Sheet
             if (workbook.Sheets["Mistakes"]) {
                 const mRows = XLSX.utils.sheet_to_json(workbook.Sheets["Mistakes"]);
                 mRows.forEach(row => {
                     let agentName = row["Agent "] || row["Agent Name"] || row["Agent"];
                     if(agentName) {
                         let key = cleanKPIName(agentName);
-                        if(!kpiData[key]) kpiData[key] = {};
-                        kpiData[key].Mistakes = row["Number of Mistakes"];
+                        if(!liveKPIData[key]) liveKPIData[key] = {};
+                        liveKPIData[key].Mistakes = row["Number of Mistakes"];
                     }
                 });
-            } else { alert("Warning: 'Mistakes' sheet not found in the uploaded file."); }
+            }
 
-            // 3. Performance Sheet
             if (workbook.Sheets["Performance"]) {
                 const pRows = XLSX.utils.sheet_to_json(workbook.Sheets["Performance"]);
                 pRows.forEach(row => {
                     let agentName = row["Agent Name"] || row["Agent"];
                     if(agentName) {
                         let key = cleanKPIName(agentName);
-                        if(!kpiData[key]) kpiData[key] = {};
-                        kpiData[key].Performance = row["Utilization "] || row["Utilization"];
+                        if(!liveKPIData[key]) liveKPIData[key] = {};
+                        liveKPIData[key].Performance = row["Utilization "] || row["Utilization"];
                     }
                 });
-            } else { alert("Warning: 'Performance' sheet not found in the uploaded file."); }
-
-            // Upload to Firebase
-            if(Object.keys(kpiData).length > 0) {
-                fetch(`${firebaseBaseUrl}/kpi_data.json`, { method: 'PUT', body: JSON.stringify(kpiData) })
-                .then(() => alert('✅ KPI Data Uploaded Successfully!'))
-                .catch(err => alert('Error uploading KPI: ' + err));
-            } else {
-                alert("No valid data found to upload. Please check sheet names and column headers.");
             }
-        };
-        reader.readAsArrayBuffer(file);
+
+            if(showAlert) alert("✅ Live KPI Data Synced Successfully!");
+        })
+        .catch(err => { 
+            if(showAlert) alert("Error syncing KPI: " + err); 
+        });
     }
 
     function viewKPIScorecard() {
         switchView('info-display-box'); 
-        document.getElementById('info-box-title').innerText = "📊 KPI Scorecard";
+        document.getElementById('info-box-title').innerText = "📊 KPI Scorecard (Live)";
         let container = document.getElementById('info-content-area');
-        container.innerHTML = '<div class="info-card">Loading your KPI Data...</div>';
-
-        let cleanKey = cleanKPIName(currentUser.fullName);
         
-        fetch(`${firebaseBaseUrl}/kpi_data/${cleanKey}.json`)
-        .then(res => res.json())
-        .then(data => {
-            if (!data) {
-                container.innerHTML = `<div class="info-card" style="color:var(--warning)"><i class="fa-solid fa-circle-exclamation"></i> No KPI Scorecard found for your name [ ${currentUser.fullName} ].</div>`;
-                return;
-            }
+        let cleanKey = cleanKPIName(currentUser.fullName);
+        let data = liveKPIData[cleanKey];
 
-            let comp = parseFloat(data.Quality?.compliance ?? 1);
-            let endUser = parseFloat(data.Quality?.endUser ?? 1);
-            let bus = parseFloat(data.Quality?.business ?? 1);
-            let soft = parseFloat(data.Quality?.softSkills ?? 1);
-            let mistakes = parseInt(data.Mistakes ?? 0);
-            let util = parseFloat(data.Performance ?? 1);
+        if (!data) {
+            container.innerHTML = `<div class="info-card" style="color:var(--warning)"><i class="fa-solid fa-circle-exclamation"></i> No KPI Scorecard found for your name [ ${currentUser.fullName} ] in the live sheet. Or the KPI link is not set yet.</div>`;
+            return;
+        }
 
-            const formatQ = (val) => {
-                if (isNaN(val)) return '-';
-                let pct = (val * 100).toFixed(2) + '%';
-                return val < 1 ? `<span class="text-danger">${pct}</span>` : `<span class="text-success">${pct}</span>`;
-            };
+        let comp = parseFloat(data.Quality?.compliance ?? 1);
+        let endUser = parseFloat(data.Quality?.endUser ?? 1);
+        let bus = parseFloat(data.Quality?.business ?? 1);
+        let soft = parseFloat(data.Quality?.softSkills ?? 1);
+        let mistakes = parseInt(data.Mistakes ?? 0);
+        let util = parseFloat(data.Performance ?? 1);
 
-            const formatM = (val) => {
-                if (isNaN(val)) return '0';
-                return val > 0 ? `<span class="text-danger">${val}</span>` : `<span class="text-success">${val}</span>`;
-            };
+        const formatQ = (val) => {
+            if (isNaN(val)) return '-';
+            let pct = (val * 100).toFixed(2) + '%';
+            return val < 1 ? `<span class="text-danger">${pct}</span>` : `<span class="text-success">${pct}</span>`;
+        };
 
-            const formatP = (val) => {
-                if (isNaN(val)) return '-';
-                let pct = (val * 100).toFixed(2) + '%';
-                return val < 0.85 ? `<span class="text-danger">${pct}</span>` : `<span class="text-success">${pct}</span>`;
-            };
+        const formatM = (val) => {
+            if (isNaN(val)) return '0';
+            return val > 0 ? `<span class="text-danger">${val}</span>` : `<span class="text-success">${val}</span>`;
+        };
 
-            container.innerHTML = `
-            <div class="kpi-card">
-                <h3 style="margin-top:0; color: var(--primary); text-align:center;"><i class="fa-solid fa-chart-line"></i> Monthly KPI Metrics</h3>
-                <table class="kpi-table">
-                    <thead>
-                        <tr>
-                            <th>Compliance Critical</th>
-                            <th>End User Critical</th>
-                            <th>Business Critical</th>
-                            <th>Soft Skills</th>
-                            <th>Total Mistakes</th>
-                            <th>Utilization</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>${formatQ(comp)}</td>
-                            <td>${formatQ(endUser)}</td>
-                            <td>${formatQ(bus)}</td>
-                            <td>${formatQ(soft)}</td>
-                            <td>${formatM(mistakes)}</td>
-                            <td>${formatP(util)}</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <p style="text-align:center; font-size:12px; color:#64748b; margin-top:15px;">Metrics below target thresholds are highlighted in red.</p>
-            </div>`;
-        }).catch(err => {
-            container.innerHTML = `<div class="info-card" style="color:var(--danger)">Error loading KPI: ${err}</div>`;
-        });
+        const formatP = (val) => {
+            if (isNaN(val)) return '-';
+            let pct = (val * 100).toFixed(2) + '%';
+            return val < 0.85 ? `<span class="text-danger">${pct}</span>` : `<span class="text-success">${pct}</span>`;
+        };
+
+        container.innerHTML = `
+        <div class="kpi-card">
+            <h3 style="margin-top:0; color: var(--primary); text-align:center;"><i class="fa-solid fa-chart-line"></i> Monthly KPI Metrics</h3>
+            <table class="kpi-table">
+                <thead>
+                    <tr>
+                        <th>Compliance Critical</th>
+                        <th>End User Critical</th>
+                        <th>Business Critical</th>
+                        <th>Soft Skills</th>
+                        <th>Total Mistakes</th>
+                        <th>Utilization</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>${formatQ(comp)}</td>
+                        <td>${formatQ(endUser)}</td>
+                        <td>${formatQ(bus)}</td>
+                        <td>${formatQ(soft)}</td>
+                        <td>${formatM(mistakes)}</td>
+                        <td>${formatP(util)}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p style="text-align:center; font-size:12px; color:#64748b; margin-top:15px;">Metrics below target thresholds are highlighted in red.</p>
+        </div>`;
     }
-
 
     // -----------------------------------------------------------------------------
     // NAVIGATION & AUTH
@@ -1222,7 +1231,7 @@
     }
 
     // -----------------------------------------------------------------------------
-    // AGENT HUB: SCHEDULE/BREAK (LIVE) & QUIZZES
+    // AGENT HUB: SCHEDULE/BREAK/KPI (LIVE) & QUIZZES
     // -----------------------------------------------------------------------------
     function viewAgentSchedule() {
         switchView('info-display-box'); document.getElementById('info-box-title').innerText = "🗓️ Your Weekly Schedule (Live from Sheet)";
