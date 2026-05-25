@@ -74,7 +74,7 @@
         .data-table th, .data-table td { border: 1px solid #cbd5e1; padding: 10px; text-align: center; vertical-align: middle; }
         .data-table th { background: #1e293b; color: white; font-weight: bold; } 
         
-        .info-card { background: #f1f5f9; padding: 20px; border-radius: 12px; border: 1px solid #cbd5e1; text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 15px; }
+        .info-card { background: #f1f5f9; padding: 20px; border-radius: 12px; border: 1px solid #cbd5e1; text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 15px; border-left: 4px solid var(--primary); }
         .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; color: white; font-weight: bold; display: inline-block; }
         .badge-admin { background: #7c3aed; } 
         .badge-leader { background: #2563eb; } 
@@ -114,6 +114,15 @@
         .chat-bubble.agent { background: #e0f2fe; color: #0369a1; margin-left: auto; text-align: right; border-bottom-right-radius: 0; }
         .chat-bubble.management { background: #f1f5f9; color: #334155; margin-right: auto; text-align: left; border-bottom-left-radius: 0; border: 1px solid #cbd5e1; }
         .chat-meta { font-size: 10px; color: #64748b; margin-top: 4px; }
+
+        /* KPI Styles */
+        .kpi-card { background: var(--bg); padding: 15px; border-radius: 8px; border: 1px solid #cbd5e1; margin-top: 15px; overflow-x: auto; }
+        .kpi-table { width: 100%; border-collapse: collapse; text-align: center; margin-top: 10px; font-size: 14px; background: white;}
+        .kpi-table th { background: var(--primary); color: white; padding: 10px; white-space: nowrap; border: 1px solid #e2e8f0;}
+        .kpi-table td { padding: 10px; border: 1px solid #e2e8f0; font-weight: bold;}
+        .text-danger { color: var(--danger); font-weight: bold; }
+        .text-success { color: var(--success); font-weight: bold; }
+        .admin-kpi-section { background: #e0f2fe; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px dashed var(--primary); }
     </style>
 </head>
 <body>
@@ -161,6 +170,7 @@
     <div id="agent-hub" class="hidden">
         <h2>Welcome 👋 <br><span id="agent-welcome-name" style="color:var(--primary)"></span></h2>
         <div class="menu-grid">
+            <button class="menu-btn" onclick="viewKPIScorecard()"><i class="fa-solid fa-chart-simple fa-2x"></i> KPI Scorecard 📊</button>
             <button class="menu-btn" onclick="loadQuizzesForAgent()"><i class="fa-solid fa-trophy fa-2x"></i> Available Quizzes 🚀</button>
             <button class="menu-btn" onclick="loadAgentScoresArchive()"><i class="fa-solid fa-box-archive fa-2x"></i> Results Archive 📊</button>
             <button class="menu-btn" onclick="viewAgentSchedule()"><i class="fa-solid fa-calendar-days fa-2x"></i> Weekly Schedule 📅</button>
@@ -197,7 +207,7 @@
         </div>
 
         <div style="background: #fff; border: 1px solid #cbd5e1; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-            <h4 style="margin-top: 0; color:var(--primary);"><i class="fa-solid fa-comments"></i> Support Chat / Edit Requests</h4>
+            <h4 style="margin-top: 0; color:var(--primary);"><i class="fa-solid fa-comments"></i> Support Chat / Requests</h4>
             <p style="font-size: 12px; color: #64748b; margin-top: 0;">Need to edit your data or ask a question? Chat with management here.</p>
             
             <div class="form-group">
@@ -238,10 +248,11 @@
         
         <div class="admin-tabs" id="admin-tabs-container">
             <button class="tab-btn" id="tab-btn-users" onclick="switchAdminTab('tab-users', this); loadUsersAdmin();">👥 Users & Accounts</button>
-            <button class="tab-btn" id="tab-btn-chats" onclick="switchAdminTab('tab-chats', this); loadAdminChats();">💬 Communications & Chats</button>
-            <button class="tab-btn" id="tab-btn-schedules" onclick="switchAdminTab('tab-schedules', this); loadSheetSettings();">📅 Live Google Sheet Link</button>
-            <button class="tab-btn" id="tab-btn-quizzes" onclick="switchAdminTab('tab-quizzes', this); loadQuizzesAdminSection();">📝 Quizzes Manager</button>
-            <button class="tab-btn" id="tab-btn-results" onclick="switchAdminTab('tab-results', this); loadScoresAdmin();">📊 Results & Grades</button>
+            <button class="tab-btn" id="tab-btn-chats" onclick="switchAdminTab('tab-chats', this); loadAdminChats();">💬 Communications</button>
+            <button class="tab-btn" id="tab-btn-schedules" onclick="switchAdminTab('tab-schedules', this); loadSheetSettings();">📅 Live Google Sheet</button>
+            <button class="tab-btn" id="tab-btn-kpi" onclick="switchAdminTab('tab-kpi', this);">📈 KPI Data</button>
+            <button class="tab-btn" id="tab-btn-quizzes" onclick="switchAdminTab('tab-quizzes', this); loadQuizzesAdminSection();">📝 Quizzes</button>
+            <button class="tab-btn" id="tab-btn-results" onclick="switchAdminTab('tab-results', this); loadScoresAdmin();">📊 Results</button>
             <button class="tab-btn" id="tab-btn-gemini" onclick="switchAdminTab('tab-gemini', this);">🤖 Gemini AI</button>
         </div>
 
@@ -325,6 +336,18 @@
                     <thead><tr><th>Employee</th><th>Break Time</th></tr></thead>
                     <tbody id="admin-breaks-list"></tbody>
                 </table>
+            </div>
+        </div>
+
+        <div id="tab-kpi" class="admin-tab-content hidden">
+            <div class="admin-kpi-section">
+                <h3 style="color: var(--primary); margin-top:0;"><i class="fa-solid fa-chart-line"></i> Upload KPI Data (Admin/Leader)</h3>
+                <p style="font-size: 14px; margin-bottom: 15px; color: #475569;">
+                    Upload an Excel file containing exactly these 3 sheet names: <b>Quality</b>, <b>Mistakes</b>, <b>Performance</b>.<br>
+                    The system will match the <b>Agent Name</b> and merge their data.
+                </p>
+                <input type="file" id="kpi-file-upload" accept=".xlsx, .xls, .csv" style="margin-bottom: 10px; background: white; padding: 8px; width: 100%; border-radius: 6px;" />
+                <button onclick="processKPIExcel()" style="background: var(--success);"><i class="fa-solid fa-cloud-arrow-up"></i> Sync KPI Data to Database</button>
             </div>
         </div>
 
@@ -450,13 +473,13 @@
     </div>
 </div>
 
-<div class="footer-credits">Developed By Mohamed Nasser</div>
+<div class="footer-credits">Developed By Mohamed Nasser | Powered by Gemini AI</div>
 
 <script>
-    // ⚠️ رابط الفايربيز الأساسي للسيستم كله (ما عدا الجداول والبريكات اللي هتيجي من اللينك المباشر)
+    // ⚠️ رابط قاعدة البيانات الأساسي (Firebase) للنظام ككل
     const firebaseBaseUrl = "https://agent-system-01-default-rtdb.firebaseio.com";
     
-    // متغيرات حفظ الشيتات لايف
+    // متغيرات الجوجل شيت لايف
     let liveSchedules = {};
     let liveBreaks = {};
     
@@ -464,7 +487,6 @@
     let currentUser = null; 
     let activeQuizQuestions = []; 
     let activeQuizName = ""; 
-    let currentEditingQuizName = "";
     let globalScoresData = null; 
     let globalUsersList = {};
     const daysMap = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
@@ -483,7 +505,7 @@
     });
 
     // -----------------------------------------------------------------------------
-    // LIVE GOOGLE SHEET SYNC (سحب البريك وجدول الشفتات أونلاين على طول)
+    // LIVE GOOGLE SHEET SYNC (البريك والجدول يسحبوا أونلاين دايركت)
     // -----------------------------------------------------------------------------
     function initLiveSheetSync(forceUpdatePreview = false) {
         fetch(`${firebaseBaseUrl}/settings/sheetUrl.json`).then(res => res.json()).then(url => {
@@ -592,6 +614,153 @@
     }
 
     function loadSheetSettings() { renderLiveAdminPreviews(); }
+
+    // -----------------------------------------------------------------------------
+    // KPI SCORECARD (NEW)
+    // -----------------------------------------------------------------------------
+    function cleanKPIName(name) {
+        return name ? name.toString().trim().toLowerCase().replace(/\s+/g, '_').replace(/[.#$[\]]/g, '') : '';
+    }
+
+    function processKPIExcel() {
+        const fileInput = document.getElementById('kpi-file-upload');
+        if (!fileInput.files.length) return alert('Please select the Excel file first!');
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, {type: 'array'});
+            let kpiData = {};
+
+            // 1. Quality Sheet
+            if (workbook.Sheets["Quality"]) {
+                const qRows = XLSX.utils.sheet_to_json(workbook.Sheets["Quality"]);
+                qRows.forEach(row => {
+                    let agentName = row["Agent Name"] || row["Agent"];
+                    if(agentName) {
+                        let key = cleanKPIName(agentName);
+                        if(!kpiData[key]) kpiData[key] = {};
+                        kpiData[key].Quality = {
+                            compliance: row["Compliance Critical "] || row["Compliance Critical"],
+                            endUser: row["End User critical"],
+                            business: row["Business critical"],
+                            softSkills: row["Soft Skills"]
+                        };
+                    }
+                });
+            } else { alert("Warning: 'Quality' sheet not found in the uploaded file."); }
+
+            // 2. Mistakes Sheet
+            if (workbook.Sheets["Mistakes"]) {
+                const mRows = XLSX.utils.sheet_to_json(workbook.Sheets["Mistakes"]);
+                mRows.forEach(row => {
+                    let agentName = row["Agent "] || row["Agent Name"] || row["Agent"];
+                    if(agentName) {
+                        let key = cleanKPIName(agentName);
+                        if(!kpiData[key]) kpiData[key] = {};
+                        kpiData[key].Mistakes = row["Number of Mistakes"];
+                    }
+                });
+            } else { alert("Warning: 'Mistakes' sheet not found in the uploaded file."); }
+
+            // 3. Performance Sheet
+            if (workbook.Sheets["Performance"]) {
+                const pRows = XLSX.utils.sheet_to_json(workbook.Sheets["Performance"]);
+                pRows.forEach(row => {
+                    let agentName = row["Agent Name"] || row["Agent"];
+                    if(agentName) {
+                        let key = cleanKPIName(agentName);
+                        if(!kpiData[key]) kpiData[key] = {};
+                        kpiData[key].Performance = row["Utilization "] || row["Utilization"];
+                    }
+                });
+            } else { alert("Warning: 'Performance' sheet not found in the uploaded file."); }
+
+            // Upload to Firebase
+            if(Object.keys(kpiData).length > 0) {
+                fetch(`${firebaseBaseUrl}/kpi_data.json`, { method: 'PUT', body: JSON.stringify(kpiData) })
+                .then(() => alert('✅ KPI Data Uploaded Successfully!'))
+                .catch(err => alert('Error uploading KPI: ' + err));
+            } else {
+                alert("No valid data found to upload. Please check sheet names and column headers.");
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    function viewKPIScorecard() {
+        switchView('info-display-box'); 
+        document.getElementById('info-box-title').innerText = "📊 KPI Scorecard";
+        let container = document.getElementById('info-content-area');
+        container.innerHTML = '<div class="info-card">Loading your KPI Data...</div>';
+
+        let cleanKey = cleanKPIName(currentUser.fullName);
+        
+        fetch(`${firebaseBaseUrl}/kpi_data/${cleanKey}.json`)
+        .then(res => res.json())
+        .then(data => {
+            if (!data) {
+                container.innerHTML = `<div class="info-card" style="color:var(--warning)"><i class="fa-solid fa-circle-exclamation"></i> No KPI Scorecard found for your name [ ${currentUser.fullName} ].</div>`;
+                return;
+            }
+
+            let comp = parseFloat(data.Quality?.compliance ?? 1);
+            let endUser = parseFloat(data.Quality?.endUser ?? 1);
+            let bus = parseFloat(data.Quality?.business ?? 1);
+            let soft = parseFloat(data.Quality?.softSkills ?? 1);
+            let mistakes = parseInt(data.Mistakes ?? 0);
+            let util = parseFloat(data.Performance ?? 1);
+
+            const formatQ = (val) => {
+                if (isNaN(val)) return '-';
+                let pct = (val * 100).toFixed(2) + '%';
+                return val < 1 ? `<span class="text-danger">${pct}</span>` : `<span class="text-success">${pct}</span>`;
+            };
+
+            const formatM = (val) => {
+                if (isNaN(val)) return '0';
+                return val > 0 ? `<span class="text-danger">${val}</span>` : `<span class="text-success">${val}</span>`;
+            };
+
+            const formatP = (val) => {
+                if (isNaN(val)) return '-';
+                let pct = (val * 100).toFixed(2) + '%';
+                return val < 0.85 ? `<span class="text-danger">${pct}</span>` : `<span class="text-success">${pct}</span>`;
+            };
+
+            container.innerHTML = `
+            <div class="kpi-card">
+                <h3 style="margin-top:0; color: var(--primary); text-align:center;"><i class="fa-solid fa-chart-line"></i> Monthly KPI Metrics</h3>
+                <table class="kpi-table">
+                    <thead>
+                        <tr>
+                            <th>Compliance Critical</th>
+                            <th>End User Critical</th>
+                            <th>Business Critical</th>
+                            <th>Soft Skills</th>
+                            <th>Total Mistakes</th>
+                            <th>Utilization</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>${formatQ(comp)}</td>
+                            <td>${formatQ(endUser)}</td>
+                            <td>${formatQ(bus)}</td>
+                            <td>${formatQ(soft)}</td>
+                            <td>${formatM(mistakes)}</td>
+                            <td>${formatP(util)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p style="text-align:center; font-size:12px; color:#64748b; margin-top:15px;">Metrics below target thresholds are highlighted in red.</p>
+            </div>`;
+        }).catch(err => {
+            container.innerHTML = `<div class="info-card" style="color:var(--danger)">Error loading KPI: ${err}</div>`;
+        });
+    }
+
 
     // -----------------------------------------------------------------------------
     // NAVIGATION & AUTH
@@ -826,7 +995,7 @@
         box.innerHTML += `<div class="chat-bubble agent"><strong>You:</strong><br>${query}</div>`;
         input.value = ''; box.scrollTop = box.scrollHeight;
 
-        const apiKey = "YOUR_GEMINI_API_KEY"; // حط مفتاح الـ API الحقيقي بتاعك هنا لو معاك
+        const apiKey = "YOUR_GEMINI_API_KEY"; 
         if (apiKey === "YOUR_GEMINI_API_KEY") {
             setTimeout(() => {
                 box.innerHTML += `<div class="chat-bubble management"><strong>🤖 Gemini:</strong><br>لكي يعمل الذكاء الاصطناعي بشكل حقيقي، يرجى استبدال <code>YOUR_GEMINI_API_KEY</code> في الكود بمفتاحك الحقيقي.</div>`;
@@ -867,6 +1036,7 @@
             document.getElementById('tab-btn-users').style.display = (currentUser.role === 'admin' || currentUser.role === 'leader') ? 'block' : 'none';
             document.getElementById('tab-btn-chats').style.display = 'block';
             document.getElementById('tab-btn-schedules').style.display = (currentUser.role === 'admin' || currentUser.role === 'leader') ? 'block' : 'none';
+            document.getElementById('tab-btn-kpi').style.display = (currentUser.role === 'admin' || currentUser.role === 'leader') ? 'block' : 'none';
             document.getElementById('tab-btn-quizzes').style.display = (currentUser.role === 'admin' || currentUser.role === 'quality') ? 'block' : 'none';
             document.getElementById('tab-btn-results').style.display = (currentUser.role === 'admin' || currentUser.role === 'leader' || currentUser.role === 'quality') ? 'block' : 'none';
             document.getElementById('tab-btn-gemini').style.display = 'block';
