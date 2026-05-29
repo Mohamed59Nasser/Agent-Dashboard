@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <title>Quatro Operations ⚡</title>
+    <title>Hyde Park Operations ⚡</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -567,7 +567,7 @@
     </div>
 </div>
 
-<div class="footer-credits">Developed By Mohamed Nasser </div>
+<div class="footer-credits">Developed By Mohamed Nasser | Powered by Gemini AI</div>
 
 <script>
     // ⚠️ رابط قاعدة البيانات الأساسي (Firebase) للنظام
@@ -609,7 +609,6 @@
         fetch(`${firebaseBaseUrl}/settings/sheetUrl.json`).then(res => res.json()).then(url => {
             if(url) {
                 if(document.getElementById('master-sheet-url')) document.getElementById('master-sheet-url').value = url;
-          
                 fetchLiveExcelData(url, forceUpdatePreview);
             }
         });
@@ -645,34 +644,24 @@
         .then(data => {
             const workbook = XLSX.read(data, {type: 'array'});
             
-  
             liveSchedules = {};
             if(workbook.SheetNames.length > 0) {
                 const wsSched = workbook.Sheets[workbook.SheetNames[0]];
                 const rowsSched = XLSX.utils.sheet_to_json(wsSched);
                 rowsSched.forEach(row => {
-                 
                     const keys = Object.keys(row);
                     const empKey = keys.find(k => k.toLowerCase().includes('emp') || k.toLowerCase().includes('name')) || keys[0];
                     let name = row[empKey];
                     if(!name) return;
-                    name 
-                        = name.toString().toLowerCase().trim();
+                    name = name.toString().toLowerCase().trim();
                     liveSchedules[name] = {
-                        sunday: row['Sunday'] ||
-                        row['sunday'] || row['الأحد'] || "OFF",
-                        monday: row['Monday'] ||
-                        row['monday'] || row['الإثنين'] || "OFF",
-                        tuesday: row['Tuesday'] ||
-                        row['tuesday'] || row['الثلاثاء'] || "OFF",
-                        wednesday: row['Wednesday'] ||
-                        row['wednesday'] || row['الأربعاء'] || "OFF",
-                        thursday: row['Thursday'] ||
-                        row['thursday'] || row['الخميس'] || "OFF",
-                        friday: row['Friday'] ||
-                        row['friday'] || row['الجمعة'] || "OFF",
-                        saturday: row['Saturday'] ||
-                        row['saturday'] || row['السبت'] || "OFF"
+                        sunday: row['Sunday'] || row['sunday'] || row['الأحد'] || "OFF",
+                        monday: row['Monday'] || row['monday'] || row['الإثنين'] || "OFF",
+                        tuesday: row['Tuesday'] || row['tuesday'] || row['الثلاثاء'] || "OFF",
+                        wednesday: row['Wednesday'] || row['wednesday'] || row['الأربعاء'] || "OFF",
+                        thursday: row['Thursday'] || row['thursday'] || row['الخميس'] || "OFF",
+                        friday: row['Friday'] || row['friday'] || row['الجمعة'] || "OFF",
+                        saturday: row['Saturday'] || row['saturday'] || row['السبت'] || "OFF"
                     };
                 });
             }
@@ -709,13 +698,11 @@
                 schedBody.innerHTML += `<tr>
                     <td><b>${name.toUpperCase()}</b></td>
                     <td class="${s.sunday.toLowerCase().includes('off')?'off-day':''}">${s.sunday}</td>
-      
                     <td class="${s.monday.toLowerCase().includes('off')?'off-day':''}">${s.monday}</td>
                     <td class="${s.tuesday.toLowerCase().includes('off')?'off-day':''}">${s.tuesday}</td>
                     <td class="${s.wednesday.toLowerCase().includes('off')?'off-day':''}">${s.wednesday}</td>
                     <td class="${s.thursday.toLowerCase().includes('off')?'off-day':''}">${s.thursday}</td>
                     <td class="${s.friday.toLowerCase().includes('off')?'off-day':''}">${s.friday}</td>
- 
                     <td class="${s.saturday.toLowerCase().includes('off')?'off-day':''}">${s.saturday}</td>
                 </tr>`;
             });
@@ -737,8 +724,7 @@
     // LIVE KPI SCORECARD LOGIC
     // -----------------------------------------------------------------------------
     function cleanKPIName(name) {
-        return name ?
-            name.toString().trim().toLowerCase().replace(/\s+/g, '_').replace(/[.#$[\]]/g, '') : '';
+        return name ? name.toString().trim().toLowerCase().replace(/\s+/g, '_').replace(/[.#$[\]]/g, '') : '';
     }
 
     function saveAndSyncKPIUrl() {
@@ -762,24 +748,25 @@
             const workbook = XLSX.read(data, {type: 'array'});
             liveKPIData = {};
 
+            // جلب البيانات من اليمين (بحثاً عن الاسم في عمود K واستخراج النسب اللي جنبه)
             if (workbook.Sheets["Quality"]) {
-                const qRows = XLSX.utils.sheet_to_json(workbook.Sheets["Quality"]);
-                
+                const qRows = XLSX.utils.sheet_to_json(workbook.Sheets["Quality"], {header: "A", defval: ""});
                 qRows.forEach(row => {
-                    let agentName = row["Agent Name"] || row["Agent"];
-                    if(agentName) {
-                        let key = cleanKPIName(agentName);
-                        
-                        if(!liveKPIData[key]) liveKPIData[key] = {};
-                        liveKPIData[key].Quality = {
-                            compliance: row["Compliance Critical "] || row["Compliance Critical"],
-                            endUser: row["End User critical"],
-      
-                            business: row["Business critical"],
-                            softSkills: row["Soft Skills"]
-                        };
+                    let agentName = row["K"]; // الاسم في العمود K
+                    if(agentName && typeof agentName === 'string') {
+                        let cName = agentName.trim().toLowerCase();
+                        if (cName !== "" && !cName.includes("agent") && !cName.includes("اسم")) {
+                            let key = cleanKPIName(agentName);
+                            if(!liveKPIData[key]) liveKPIData[key] = {};
+                            liveKPIData[key].Quality = {
+                                compliance: row["L"],     // اللي جنبه L
+                                endUser: row["M"],        // اللي بعده M
+                                business: row["N"],       // اللي بعده N
+                                softSkills: row["O"],     // اللي بعده O
+                                total: row["P"]           // اللي بعده P (لو في توتال جاهز)
+                            };
+                        }
                     }
-  
                 });
             }
 
@@ -789,9 +776,8 @@
                     let agentName = row["Agent "] || row["Agent Name"] || row["Agent"];
                     if(agentName) {
                         let key = cleanKPIName(agentName);
-                     
                         if(!liveKPIData[key]) liveKPIData[key] = {};
-                        liveKPIData[key].Mistakes = row["Number of Mistakes"];
+                        liveKPIData[key].Mistakes = row["Number of Mistakes"] || row["Mistakes"] || 0;
                     }
                 });
             }
@@ -802,9 +788,8 @@
                     let agentName = row["Agent Name"] || row["Agent"];
                     if(agentName) {
                         let key = cleanKPIName(agentName);
-                        
                         if(!liveKPIData[key]) liveKPIData[key] = {};
-                        liveKPIData[key].Performance = row["Utilization "] || row["Utilization"];
+                        liveKPIData[key].Performance = row["Utilization "] || row["Utilization"] || row["Performance"] || 0;
                     }
                 });
             }
@@ -828,40 +813,57 @@
             return;
         }
 
-        let comp = parseFloat(data.Quality?.compliance ?? 1);
-        let endUser = parseFloat(data.Quality?.endUser ?? 1);
-        let bus = parseFloat(data.Quality?.business ?? 1);
-        let soft = parseFloat(data.Quality?.softSkills ?? 1);
-        let mistakes = parseInt(data.Mistakes ?? 0);
-        let util = parseFloat(data.Performance ?? 1);
-
-        // Calculate Total Score (Average of percentages, minus penalty for mistakes)
-        let totalPct = ((comp + endUser + bus + soft + util) / 5) * 100;
-        totalPct -= (mistakes * 5); // 5% deduction per mistake
-        if(totalPct > 100) totalPct = 100;
-        if(totalPct < 0) totalPct = 0;
-
-        const formatQ = (val) => {
-            if (isNaN(val)) return '-';
-            let pct = (val * 100).toFixed(2) + '%';
-            return val < 1 ? `<span class="text-danger">${pct}</span>` : `<span class="text-success">${pct}</span>`;
+        // دالة مخصصة لضمان قراءة الأرقام المئوية صح (بتعالج مشكلة الـ 95 بدل 0.95 اللي بتعدي 100%)
+        const parseVal = (val) => {
+            if (val === undefined || val === null || val === "") return 0;
+            if (typeof val === 'number') return val;
+            let num = parseFloat(val.toString().replace(/%/g, '').trim());
+            if (isNaN(num)) return 0;
+            if (val.toString().includes('%')) return num / 100;
+            return num;
         };
+
+        let comp = parseVal(data.Quality?.compliance);
+        let endUser = parseVal(data.Quality?.endUser);
+        let bus = parseVal(data.Quality?.business);
+        let soft = parseVal(data.Quality?.softSkills);
+        let util = parseVal(data.Performance);
+        let mistakes = parseInt(data.Mistakes ?? 0);
+
+        if (comp > 1 && comp <= 100) comp /= 100;
+        if (endUser > 1 && endUser <= 100) endUser /= 100;
+        if (bus > 1 && bus <= 100) bus /= 100;
+        if (soft > 1 && soft <= 100) soft /= 100;
+        if (util > 1 && util <= 100) util /= 100;
+
+        // دالة الألوان بناءً على التارجت اللي طلبته
+        const getFormat = (val, target) => {
+            let pct = (val * 100).toFixed(1) + '%';
+            if (val >= 1.0) return `<span style="color: #eab308; font-weight: bold;">${pct} 🌟</span>`; // ذهبي
+            if (val >= target) return `<span class="text-success">${pct}</span>`; // أخضر
+            return `<span class="text-danger">${pct}</span>`; // أحمر
+        };
+
         const formatM = (val) => {
             if (isNaN(val)) return '0';
-            return val > 0 ? `<span class="text-danger">${val}</span>` : `<span class="text-success">${val}</span>`;
-        };
-        const formatP = (val) => {
-            if (isNaN(val)) return '-';
-            let pct = (val * 100).toFixed(2) + '%';
-            return val < 0.85 ? `<span class="text-danger">${pct}</span>` : `<span class="text-success">${pct}</span>`;
+            return val > 0 ? `<span class="text-danger">${val}</span>` : `<span style="color: #eab308; font-weight: bold;">0 🌟</span>`;
         };
 
+        let isAllPassed = (comp >= 1.0) && (endUser >= 0.98) && (bus >= 0.95) && (soft >= 0.90) && (util >= 0.86) && (mistakes === 0);
+
+        // التوتال بيقراه لو جاهز، لو لأ بيجمعه ويظبطه بجد
+        let totalQuality = parseVal(data.Quality?.total);
+        if (totalQuality > 1 && totalQuality <= 100) totalQuality /= 100;
+        if (totalQuality === 0) {
+            totalQuality = (comp + endUser + bus + soft) / 4; 
+        }
+
+        let totalPct = (totalQuality * 100).toFixed(1);
         let totalHtml = '';
-        if (totalPct >= 100) {
-            totalHtml = `<span class="text-success" style="font-size:18px;">100% (عاش جداً يا بطل! 🏆🔥)</span>`;
+        if (isAllPassed) {
+            totalHtml = `<span class="text-success" style="font-size:20px; font-weight:bold;">${totalPct}% <br> <span style="font-size: 16px;">(عاش جداً يا بطل! 🏆🔥 كل مؤشراتك ممتازة)</span></span>`;
         } else {
-            let color = totalPct < 85 ? 'var(--danger)' : 'var(--warning)';
-            totalHtml = `<span style="color:${color}; font-size:18px; font-weight:bold;">${totalPct.toFixed(1)}%</span>`;
+            totalHtml = `<span style="color: var(--primary); font-size:22px; font-weight:bold;">${totalPct}%</span>`;
         }
 
         container.innerHTML = `
@@ -870,32 +872,31 @@
             <table class="kpi-table">
                 <thead>
                     <tr>
-                        <th>Compliance Critical</th>
-                        <th>End User Critical</th>
-                        <th>Business Critical</th>
-                        <th>Soft Skills</th>
-                        <th>Total Mistakes</th>
-                        <th>Utilization</th>
+                        <th>Compliance Critical (100%)</th>
+                        <th>End User Critical (98%)</th>
+                        <th>Business Critical (95%)</th>
+                        <th>Soft Skills (90%)</th>
+                        <th>Utilization (>86%)</th>
+                        <th>Total Mistakes (0)</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>${formatQ(comp)}</td>
-                        <td>${formatQ(endUser)}</td>
-                        <td>${formatQ(bus)}</td>
-                        <td>${formatQ(soft)}</td>
+                        <td>${getFormat(comp, 1.0)}</td>
+                        <td>${getFormat(endUser, 0.98)}</td>
+                        <td>${getFormat(bus, 0.95)}</td>
+                        <td>${getFormat(soft, 0.90)}</td>
+                        <td>${getFormat(util, 0.86)}</td>
                         <td>${formatM(mistakes)}</td>
-                        <td>${formatP(util)}</td>
                     </tr>
                 </tbody>
             </table>
             
             <div style="background: #f1f5f9; padding: 15px; margin-top: 15px; border-radius: 8px; text-align: center; border: 2px solid var(--primary);">
-                <h4 style="margin:0 0 10px 0;">Total KPI Score</h4>
+                <h4 style="margin:0 0 10px 0;">Total Quality Score</h4>
                 ${totalHtml}
             </div>
-
-            <p style="text-align:center; font-size:12px; color:#64748b; margin-top:15px;">Metrics below target thresholds are highlighted in red.</p>
+            <p style="text-align:center; font-size:12px; color:#64748b; margin-top:15px;">Metrics below target thresholds are highlighted in red. 100% targets are highlighted in gold 🌟.</p>
         </div>`;
     }
 
