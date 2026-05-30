@@ -828,7 +828,7 @@
         let bus = parseVal(data.Quality?.business);
         let soft = parseVal(data.Quality?.softSkills);
         let util = parseVal(data.Performance);
-        let mistakes = parseInt(data.Mistakes ?? 0);
+        let mistakes = parseInt(data.Mistakes ?? 2);
 
         if (comp > 1 && comp <= 100) comp /= 100;
         if (endUser > 1 && endUser <= 100) endUser /= 100;
@@ -876,8 +876,8 @@
                         <th>End User Critical (98%)</th>
                         <th>Business Critical (95%)</th>
                         <th>Soft Skills (90%)</th>
-                        <th>Utilization (>86%)</th>
-                        <th>Total Mistakes (0)</th>
+                        <th>Utilization (86%)</th>
+                        <th>Total Mistakes (2)</th>
                     </tr>
                 </thead>
                 <tbody>
