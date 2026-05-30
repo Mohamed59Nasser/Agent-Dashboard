@@ -803,7 +803,7 @@
 
     function viewKPIScorecard() {
         switchView('info-display-box');
-        document.getElementById('info-box-title').innerText = "📊 KPI Scorecard (Live)";
+        document.getElementById('info-box-title').innerText = "📊 KPI Scorecard ";
         let container = document.getElementById('info-content-area');
         
         let cleanKey = cleanKPIName(currentUser.fullName);
@@ -1400,7 +1400,7 @@
     // -----------------------------------------------------------------------------
     function viewAgentSchedule() {
         switchView('info-display-box');
-        document.getElementById('info-box-title').innerText = "🗓️ Your Weekly Schedule (Live from Sheet)";
+        document.getElementById('info-box-title').innerText = "🗓️ Your Weekly Schedule ";
         let nameKey = currentUser.fullName.trim().toLowerCase();
         if(!liveSchedules[nameKey]) { document.getElementById('info-content-area').innerHTML = `<div class="info-card" style="color:var(--danger)">No schedule found for [ ${currentUser.fullName} ] in the live Google Sheet.
             Or the sheet is not linked yet.</div>`; return; }
@@ -1426,7 +1426,7 @@
     }
 
     function viewAgentBreaks() {
-        switchView('info-display-box'); document.getElementById('info-box-title').innerText = "Your Scheduled Break Time (Live)";
+        switchView('info-display-box'); document.getElementById('info-box-title').innerText = "Your Scheduled Break Time ";
         let nameKey = currentUser.fullName.trim().toLowerCase(); let b = liveBreaks[nameKey];
         document.getElementById('info-content-area').innerHTML = b ? `<div class="info-card" style="color:var(--success)"><i class="fa-solid fa-mug-hot"></i> <b>Break Time:</b> ${b}</div>` : '<div class="info-card">No break time assigned for your name in Sheet 2 yet.</div>';
     }
