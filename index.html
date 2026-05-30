@@ -4,204 +4,206 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <title>Quatro Operations ⚡</title>
+    <title>Quattro Operations ⚡</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* نظام الألوان الجديد المستوحى من شعار Quattro */
         :root { 
-            --primary: #2563eb;
-            --success: #10b981; --danger: #ef4444; 
-            --warning: #f59e0b; --bg: #f8fafc; --text: #0f172a;
+            --brand-green: #9ccb3b; 
+            --brand-green-hover: #8bb82d;
+            --primary-gradient: linear-gradient(135deg, #a8d940, #8bb82d);
+            --primary: #8bb82d;
+            
+            /* ألوان مساعدة وتباين */
+            --success: #10b981; 
+            --danger: #ef4444; 
+            --warning: #f59e0b; 
+            --bg: #f4f7f6;
+            --card-bg: #ffffff;
+            
+            /* ألوان النصوص */
+            --text-dark: #0f172a; 
+            --text-light: #64748b;
+            --btn-text: #064e3b; 
+            
+            --border: #e2e8f0;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
         }
+
         body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--bg); color: var(--text); margin: 0; padding: 10px; 
-            min-height: 100vh; box-sizing: border-box; display: flex; flex-direction: column;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg); 
+            color: var(--text-dark); 
+            margin: 0; 
+            padding: 20px; 
+            min-height: 100vh; 
+            box-sizing: border-box; 
+            display: flex; 
+            flex-direction: column;
+            gap: 20px;
         }
+
         .container { 
-            background: #ffffff;
-            padding: 25px; border-radius: 16px; 
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); width: 100%; max-width: 1150px; 
+            background: var(--card-bg); 
+            padding: 30px; 
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+            max-width: 1150px;
+            margin: 60px auto 20px auto;
+            width: 100%;
             box-sizing: border-box;
-            margin: 80px auto 20px auto; flex: 1; 
+            flex: 1;
         }
-        h2, h3, h4, h5 { text-align: center;
-            color: var(--primary); margin-top: 0; }
-        .form-group { margin-bottom: 16px; text-align: left;
+
+        h1, h2, h3, h4, h5 {
+            color: var(--text-dark);
+            margin-top: 0;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
-        label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px;
-        }
-        input, select, textarea { 
+
+        .form-group { margin-bottom: 16px; text-align: left; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; }
+
+        /* الأزرار مستوحاة من الهوية البصرية */
+        button, .btn, .view-btn {
+            background: var(--primary-gradient);
+            color: var(--text-dark);
+            border: none;
+            padding: 10px 20px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(156, 203, 59, 0.3);
             width: 100%;
-            padding: 12px; border: 1px solid #cbd5e1; 
-            border-radius: 8px; box-sizing: border-box; font-size: 15px; font-family: inherit;
+            margin-top: 10px;
         }
-        input[readonly] { background-color: #f1f5f9; color: #64748b; cursor: not-allowed; border-color: #e2e8f0;
+
+        button:hover, .btn:hover, .view-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(156, 203, 59, 0.4);
+            filter: brightness(1.05);
         }
-        button { 
-            width: 100%;
-            padding: 12px; background: var(--primary); color: white; 
-            border: none; border-radius: 8px; font-size: 16px; cursor: pointer; 
-            font-weight: bold; margin-top: 10px;
-            transition: all 0.2s; 
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
-        button:hover { opacity: 0.9; transform: translateY(-1px);
-        }
-        button:disabled { background: #94a3b8 !important; cursor: not-allowed; opacity: 0.7;
-        }
-        .hidden { display: none !important;
-        }
+        button:disabled { background: #cbd5e1 !important; color: #64748b !important; cursor: not-allowed; box-shadow: none; transform: none; }
+
+        .view-btn { width: auto; margin: 0; padding: 6px 12px; font-size: 12px; }
+
+        .hidden { display: none !important; }
         
         .navbar { 
-            position: fixed;
-            top: 0; left: 0; right: 0; height: 60px; 
+            position: fixed; top: 0; left: 0; right: 0; height: 60px; 
             background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
-            display: flex; justify-content: space-between;
-            align-items: center; 
+            display: flex; justify-content: space-between; align-items: center; 
             padding: 0 20px; z-index: 1000; box-sizing: border-box; 
         }
         .nav-btn { 
-            background: #f1f5f9;
-            color: var(--text); padding: 8px 14px; 
-            border-radius: 6px; font-size: 14px; border: 1px solid #cbd5e1; 
-            font-weight: 600; cursor: pointer; width: auto;
-            margin: 0; 
+            background: #f1f5f9; color: var(--text-dark); padding: 8px 14px; 
+            border-radius: 6px; font-size: 14px; border: 1px solid var(--border); 
+            font-weight: 700; cursor: pointer; width: auto; margin: 0; box-shadow: none;
         }
-        .logout-btn { background: var(--danger); color: white; border: none;
-        }
+        .logout-btn { background: var(--danger); color: white; border: none; }
 
-        .menu-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 20px;
-        }
-        @media(min-width: 500px) { .menu-grid { grid-template-columns: 1fr 1fr;
-        } }
+        .menu-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 20px; }
+        @media(min-width: 500px) { .menu-grid { grid-template-columns: 1fr 1fr; } }
         .menu-btn { 
-            padding: 20px;
-            font-size: 16px; border-radius: 12px; 
-            border: 2px solid var(--primary); background: #fff; color: var(--primary); 
+            padding: 20px; font-size: 16px; border-radius: 12px; 
+            border: 2px solid var(--brand-green); background: #fff; color: var(--text-dark); 
             cursor: pointer; font-weight: bold; text-align: center; flex-direction: column;
-            display: flex; align-items: center; justify-content: center; gap: 10px; 
+            display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: none;
         }
+        .menu-btn i { color: var(--brand-green); }
+        .menu-btn:hover { background: var(--brand-green); color: var(--text-dark); }
+        .menu-btn:hover i { color: var(--text-dark); }
         
-        .admin-tabs { display: flex;
-            gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
+        .admin-tabs { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
         .tab-btn { 
-            background: #e2e8f0;
-            color: var(--text); padding: 8px 12px; 
+            background: #e2e8f0; color: var(--text-dark); padding: 8px 12px; 
             border-radius: 6px; border: none; font-weight: bold; cursor: pointer; 
-            font-size: 13px; white-space: nowrap; width: auto;
-            margin: 0; 
+            font-size: 13px; white-space: nowrap; width: auto; margin: 0; box-shadow: none;
         }
-        .tab-btn.active { background: var(--primary); color: white;
-        }
+        .tab-btn.active { background: var(--primary-gradient); color: var(--text-dark); }
         
-        .data-table { width: 100%;
-            border-collapse: collapse; margin-top: 15px; font-size: 13px; text-align: left; }
-        .data-table th, .data-table td { border: 1px solid #cbd5e1;
-            padding: 10px; text-align: center; vertical-align: middle; }
-        .data-table th { background: #1e293b;
-            color: white; font-weight: bold; } 
+        /* الجداول الحديثة */
+        .data-table {
+            width: 100%; border-collapse: separate; border-spacing: 0;
+            margin: 20px 0; border-radius: var(--radius-md); overflow: hidden;
+            border: 1px solid var(--border); box-shadow: var(--shadow);
+            text-align: center; font-size: 13px;
+        }
+        .data-table th {
+            background-color: #f8fafc; color: var(--text-dark); font-weight: 700;
+            padding: 14px 10px; border-bottom: 2px solid var(--brand-green); 
+        }
+        .data-table td {
+            padding: 12px 10px; border-bottom: 1px solid var(--border);
+            color: var(--text-dark); background-color: #ffffff; transition: background-color 0.2s ease;
+        }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table tr:hover td { background-color: #f1f5f9; }
         
-        .info-card { background: #f1f5f9;
-            padding: 20px; border-radius: 12px; border: 1px solid #cbd5e1; text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 15px; border-left: 4px solid var(--primary);
-        }
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; color: white;
-            font-weight: bold; display: inline-block; }
-        .badge-admin { background: #7c3aed;
-        } 
-        .badge-leader { background: #2563eb;
-        } 
-        .badge-quality { background: #db2777;
-        } 
-        .badge-pending { background: var(--warning); color: #000;
-        }
-        .badge-score { background: #1e293b; color: #f8fafc; padding: 6px 12px; font-size: 14px;
-            border-radius: 8px; letter-spacing: 1px; }
+        .info-card { background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid var(--border); text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 15px; border-left: 4px solid var(--brand-green); }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; color: white; font-weight: bold; display: inline-block; }
+        .badge-admin { background: #7c3aed; } 
+        .badge-leader { background: #2563eb; } 
+        .badge-quality { background: #db2777; } 
+        .badge-pending { background: var(--warning); color: #000; }
+        .badge-score { background: var(--brand-green); color: var(--text-dark); padding: 6px 12px; font-size: 14px; border-radius: 8px; font-weight: 700; }
         
-        .option-label { display: block;
-            padding: 10px; margin: 6px 0; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: normal; cursor: pointer; transition: all 0.3s; text-align: left;
+        .option-label { display: block; padding: 10px; margin: 6px 0; border: 1px solid var(--border); border-radius: 6px; font-weight: normal; cursor: pointer; transition: all 0.3s; text-align: left; }
+        
+        .footer-credits { text-align: center; font-size: 12px; color: var(--text-light); padding: 15px 0; font-weight: bold; }
+        .off-day { background: #fee2e2; color: #ef4444; font-weight: bold; }
+        .work-day { background: #ecfdf5; color: #047857; font-weight: bold; }
+        .current-day-highlight { background-color: #fef08a !important; color: #854d0e !important; font-weight: 900; border: 2px solid #eab308 !important; }
+        .action-inline { display: flex; gap: 4px; justify-content: center; align-items: center; flex-wrap: wrap; }
+        .input-mini { padding: 8px; font-size: 13px; width: 100%; box-sizing: border-box; border-radius: 6px; border: 1px solid var(--border); }
+        
+        .admin-add-user-box { background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--border); display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+        .admin-add-user-box h5 { grid-column: 1 / -1; margin: 0 0 10px 0; color: var(--text-dark); }
+        .filter-bar { display: flex; gap: 10px; background: #f1f5f9; padding: 10px; border-radius: 8px; margin-bottom: 10px; flex-wrap: wrap;}
+        
+        /* المدخلات */
+        input[type="text"], input[type="password"], input[type="number"], input[type="email"], select, textarea {
+            width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+            background-color: #ffffff; color: var(--text-dark); font-size: 0.95rem; box-sizing: border-box; transition: all 0.2s ease;
         }
-        .correct-ans { background: #d1fae5 !important; border-color: #10b981 !important; color: #065f46 !important;
-            font-weight: bold; }
-        .wrong-ans { background: #fee2e2 !important; border-color: #ef4444 !important;
-            color: #991b1b !important; font-weight: bold; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--brand-green); box-shadow: 0 0 0 3px rgba(156, 203, 59, 0.2); }
+        input[readonly] { background-color: #f1f5f9; color: #64748b; cursor: not-allowed; }
 
-        .footer-credits { text-align: center; font-size: 12px;
-            color: #64748b; padding: 15px 0; font-family: 'Courier New', Courier, monospace;
-            font-weight: bold;}
-        .view-btn { background: #4f46e5; color: white; padding: 6px 12px; border-radius: 4px;
-            font-size: 12px; cursor: pointer; border: none; font-weight: bold; width: auto; margin: 0;
-        }
-        .off-day { background: #fee2e2; color: #ef4444; font-weight: bold;
-        }
-        .work-day { background: #e0f2fe; color: #0369a1; font-weight: bold;
-        }
-        .current-day-highlight { background-color: #fef08a !important; color: #854d0e !important; font-weight: 900;
-            border: 3px solid #eab308 !important; box-shadow: inset 0 0 10px rgba(234, 179, 8, 0.5);
-        }
-        .action-inline { display: flex; gap: 4px; justify-content: center; align-items: center; flex-wrap: wrap;
-        }
-        .input-mini { padding: 6px; font-size: 13px; width: 100%; box-sizing: border-box; border-radius: 4px;
-            border: 1px solid #cbd5e1; }
-        
-        .admin-add-user-box { background: #f1f5f9;
-            padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #cbd5e1; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;
-        }
-        .admin-add-user-box h5 { grid-column: 1 / -1; margin: 0 0 10px 0;
-            color: var(--text); }
-        .filter-bar { display: flex; gap: 10px; background: #e2e8f0; padding: 10px;
-            border-radius: 8px; margin-bottom: 10px; flex-wrap: wrap;}
-        
-        .viewer-box { background: #fdf4ff;
-            border: 1px solid #e879f9; padding: 15px; border-radius: 8px; margin-top: 15px;
-        }
-        .viewer-q { background: white; padding: 10px; border-left: 4px solid #d946ef; margin-bottom: 10px;
-            border-radius: 4px; text-align: left; }
-
-        .questions-editor-box { background: #f0fdf4; border: 2px solid #16a34a;
-            padding: 15px; border-radius: 12px; margin-top: 20px; text-align: left; }
-        .question-edit-row { background: white;
-            padding: 12px; border: 1px solid #bbf7d0; border-radius: 8px; margin-bottom: 10px;
-        }
-        .add-fast-question-box { background: #e0f2fe; border: 1px dashed #0284c7; padding: 12px; border-radius: 8px;
-            margin-top: 15px; }
-
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0;
-            bottom: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 2000;
-        }
-        .modal-content { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 500px;
-            max-height: 90vh; overflow-y: auto; }
-        .details-container { margin-top: 10px; text-align: left; background: #f8fafc;
-            padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 12px;
-        }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 2000; }
+        .modal-content { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+        .details-container { margin-top: 10px; text-align: left; background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid var(--border); font-size: 12px; }
 
         /* Chat Styles */
-        .chat-bubble { padding: 8px 12px;
-            border-radius: 8px; margin-bottom: 8px; max-width: 80%; word-wrap: break-word; font-size: 14px;
-        }
-        .chat-bubble.agent { background: #e0f2fe; color: #0369a1; margin-left: auto; text-align: right; border-bottom-right-radius: 0;
-        }
-        .chat-bubble.management { background: #f1f5f9; color: #334155; margin-right: auto; text-align: left; border-bottom-left-radius: 0;
-            border: 1px solid #cbd5e1; }
-        .chat-meta { font-size: 10px; color: #64748b; margin-top: 4px;
-        }
+        .chat-bubble { padding: 10px 14px; border-radius: 12px; margin-bottom: 8px; max-width: 80%; word-wrap: break-word; font-size: 14px; }
+        .chat-bubble.agent { background: #ecfdf5; color: #064e3b; margin-left: auto; text-align: right; border-bottom-right-radius: 0; }
+        .chat-bubble.management { background: #f1f5f9; color: #334155; margin-right: auto; text-align: left; border-bottom-left-radius: 0; border: 1px solid var(--border); }
+        .chat-meta { font-size: 10px; color: #64748b; margin-top: 4px; }
 
         /* KPI Styles */
-        .kpi-card { background: var(--bg);
-            padding: 15px; border-radius: 8px; border: 1px solid #cbd5e1; margin-top: 15px; overflow-x: auto;
-        }
-        .kpi-table { width: 100%; border-collapse: collapse; text-align: center; margin-top: 10px; font-size: 14px;
-            background: white;}
-        .kpi-table th { background: var(--primary); color: white; padding: 10px; white-space: nowrap;
-            border: 1px solid #e2e8f0;}
-        .kpi-table td { padding: 10px; border: 1px solid #e2e8f0;
-            font-weight: bold;}
-        .text-danger { color: var(--danger); font-weight: bold;
-        }
-        .text-success { color: var(--success); font-weight: bold;
-        }
-        .admin-kpi-section { background: #e0f2fe; padding: 15px; border-radius: 8px; margin-bottom: 20px;
-            border: 1px dashed var(--primary); }
+        .kpi-card { background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-top: 15px; overflow-x: auto; box-shadow: var(--shadow); }
+        .kpi-table { width: 100%; border-collapse: collapse; text-align: center; margin-top: 10px; font-size: 14px; background: white;}
+        .kpi-table th { background: var(--brand-green); color: var(--text-dark); padding: 12px; white-space: nowrap; border: 1px solid var(--border);}
+        .kpi-table td { padding: 12px; border: 1px solid var(--border); font-weight: bold;}
+        .text-danger { color: var(--danger); font-weight: bold; }
+        .text-success { color: var(--success); font-weight: bold; }
+        .text-gold { color: #d97706; font-weight: 900; text-shadow: 0 1px 1px rgba(0,0,0,0.1); }
+        .admin-kpi-section { background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px dashed var(--brand-green); }
     </style>
 </head>
 <body>
@@ -219,8 +221,7 @@
 
 <div class="container">
     <div id="auth-box">
-      
-        <h2>Hyde Park Operations ⚡</h2>
+        <h2 style="color: var(--text-dark);"><i class="fa-solid fa-bolt" style="color: var(--brand-green);"></i> Quattro Operations</h2>
         <form onsubmit="handleAuth(event)">
             <div id="signup-fields" style="display: none;">
                 <div class="form-group">
@@ -229,14 +230,13 @@
                 </div>
                 <div class="form-group">
                     <label>Account / Campaign</label>
-                    <input type="text" id="auth-account" placeholder="e.g. Hyde Park, Vodafone...">
+                    <input type="text" id="auth-account" placeholder="e.g. Quattro, Vodafone...">
                 </div>
             </div>
             <div class="form-group">
                 <label>Username</label>
                 <input type="text" id="auth-username" required placeholder="Enter username">
             </div>
-        
             <div class="form-group">
                 <label>Password</label>
                 <input type="password" id="auth-password" required placeholder="••••••••">
@@ -244,12 +244,12 @@
             <button type="submit" id="auth-btn">Login to Platform</button>
         </form>
         <div style="text-align: center; margin-top: 20px;">
-            <a id="toggle-auth-btn" style="color:var(--primary); cursor:pointer; font-weight:bold;" onclick="toggleAuthMode()">Don't have an account? Register now (Requires Approval)</a>
+            <a id="toggle-auth-btn" style="color:var(--text-light); cursor:pointer; font-weight:bold; font-size: 14px; text-decoration: underline;" onclick="toggleAuthMode()">Don't have an account? Register now</a>
         </div>
     </div>
 
     <div id="agent-hub" class="hidden">
-        <h2>Welcome 👋 <br><span id="agent-welcome-name" style="color:var(--primary)"></span></h2>
+        <h2>Welcome 👋 <br><span id="agent-welcome-name" style="color:var(--brand-green)"></span></h2>
         <div class="menu-grid">
             <button class="menu-btn" onclick="viewKPIScorecard()"><i class="fa-solid fa-chart-simple fa-2x"></i> KPI Scorecard 📊</button>
             <button class="menu-btn" onclick="loadQuizzesForAgent()"><i class="fa-solid fa-trophy fa-2x"></i> Available Quizzes 🚀</button>
@@ -262,20 +262,20 @@
     <div id="info-display-box" class="hidden">
         <h2 id="info-box-title">Details</h2>
         <div id="info-content-area" style="overflow-x: auto;">Loading...</div>
-        <button onclick="goHome()" style="background:#64748b; margin-top: 15px;"><i class="fa-solid fa-arrow-left"></i> Back to Home</button>
+        <button onclick="goHome()" style="background:#64748b; color: white; margin-top: 15px; box-shadow: none;"><i class="fa-solid fa-arrow-left"></i> Back to Home</button>
     </div>
 
     <div id="agent-profile" class="hidden">
         <h2>👤 Personal Profile & Chat</h2>
-        <div class="info-card" style="text-align: left; font-size:15px; font-weight:normal;">
+        <div class="info-card" style="text-align: left; font-size:15px; font-weight:normal; border-left: 4px solid var(--brand-green);">
             <p><strong>Name:</strong> <span id="prof-name"></span></p>
             <p><strong>Username:</strong> <span id="prof-user"></span></p>
             <p><strong>Account:</strong> <span id="prof-account"></span></p>
         </div>
         
-        <div style="background: #e0f2fe; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 2px solid #38bdf8;">
-            <h4 style="margin-top: 0; color:#0369a1; text-align: left;">Contact Info</h4>
-            <p id="prof-mandatory-msg" style="font-size:12px; color:#475569; text-align:left;">You cannot use the platform until this is filled.</p>
+        <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--border);">
+            <h4 style="margin-top: 0; color:var(--text-dark); text-align: left;">Contact Info</h4>
+            <p id="prof-mandatory-msg" style="font-size:12px; color:var(--danger); text-align:left;">You cannot use the platform until this is filled.</p>
             <div class="form-group">
                 <label>Phone Number</label>
                 <input type="text" id="prof-phone" placeholder="010XXXXXXXX">
@@ -284,11 +284,11 @@
                 <label>Email Address</label>
                 <input type="email" id="prof-email" placeholder="example@gmail.com">
             </div>
-            <button id="save-profile-btn" onclick="saveProfileData()" style="background:var(--success);">Save Data 💾</button>
+            <button id="save-profile-btn" onclick="saveProfileData()">Save Data 💾</button>
         </div>
 
-        <div style="background: #fff; border: 1px solid #cbd5e1; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-            <h4 style="margin-top: 0; color:var(--primary);"><i class="fa-solid fa-comments"></i> Support Chat / Requests</h4>
+        <div style="background: #fff; border: 1px solid var(--border); padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: var(--shadow);">
+            <h4 style="margin-top: 0; color:var(--text-dark);"><i class="fa-solid fa-comments" style="color:var(--brand-green)"></i> Support Chat</h4>
             <p style="font-size: 12px; color: #64748b; margin-top: 0;">Need to edit your data or ask a question? Chat with management here.</p>
             
             <div class="form-group">
@@ -300,28 +300,28 @@
                 </select>
             </div>
             
-            <div id="agent-chat-history" style="height: 200px; overflow-y: auto; background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; margin-bottom: 10px; display: flex; flex-direction: column;"></div>
+            <div id="agent-chat-history" style="height: 200px; overflow-y: auto; background: var(--bg); border: 1px solid var(--border); padding: 10px; border-radius: 6px; margin-bottom: 10px; display: flex; flex-direction: column;"></div>
 
             <div style="display: flex; gap: 5px;">
-                <input type="text" id="agent-chat-msg" placeholder="Type your message..." style="flex: 1;" onkeydown="if(event.key === 'Enter') sendAgentChat()">
-                <button onclick="sendAgentChat()" style="width: auto; margin: 0; padding: 0 20px;"><i class="fa-solid fa-paper-plane"></i> Send</button>
+                <input type="text" id="agent-chat-msg" placeholder="Type your message..." style="flex: 1; margin:0;" onkeydown="if(event.key === 'Enter') sendAgentChat()">
+                <button onclick="sendAgentChat()" style="width: auto; margin: 0; padding: 0 20px;"><i class="fa-solid fa-paper-plane"></i></button>
             </div>
         </div>
 
-        <button onclick="goHome()" style="background:#94a3b8; margin-top:10px;">Return Home</button>
+        <button onclick="goHome()" style="background:#94a3b8; color:white; margin-top:10px; box-shadow:none;">Return Home</button>
     </div>
 
     <div id="quiz-dashboard" class="hidden">
         <h2 id="quiz-section-title">Available Quizzes:</h2>
         <div id="available-quizzes-list">Loading quizzes...</div>
         
-        <div id="active-quiz-area" class="hidden" style="border-top: 2px dashed #cbd5e1; margin-top: 20px; padding-top: 20px;">
+        <div id="active-quiz-area" class="hidden" style="border-top: 2px dashed var(--border); margin-top: 20px; padding-top: 20px;">
             <h3 id="active-quiz-title" style="color:var(--success)"></h3>
             <div id="quiz-questions-container"></div>
-            <button id="submit-quiz-btn" onclick="submitQuizAnswers()" style="background:var(--success); margin-top:15px;">Submit Answers 🏁</button>
-            <button id="close-quiz-btn" class="hidden" onclick="loadQuizzesForAgent()" style="background:#64748b; margin-top:15px;">Close Quiz ✖️</button>
+            <button id="submit-quiz-btn" onclick="submitQuizAnswers()" style="margin-top:15px;">Submit Answers 🏁</button>
+            <button id="close-quiz-btn" class="hidden" onclick="loadQuizzesForAgent()" style="background:#64748b; color:white; margin-top:15px; box-shadow:none;">Close Quiz ✖️</button>
         </div>
-        <button onclick="goHome()" style="background:#64748b; margin-top: 15px;">Back to Home ↩️</button>
+        <button onclick="goHome()" style="background:#64748b; color:white; margin-top: 15px; box-shadow:none;">Back to Home ↩️</button>
     </div>
 
     <div id="admin-dashboard" class="hidden">
@@ -330,7 +330,7 @@
         <div class="admin-tabs" id="admin-tabs-container">
             <button class="tab-btn" id="tab-btn-users" onclick="switchAdminTab('tab-users', this); loadUsersAdmin();">👥 Users & Accounts</button>
             <button class="tab-btn" id="tab-btn-chats" onclick="switchAdminTab('tab-chats', this); loadAdminChats();">💬 Communications</button>
-            <button class="tab-btn" id="tab-btn-schedules" onclick="switchAdminTab('tab-schedules', this); loadSheetSettings();">📅 Schedules & Breaks Link</button>
+            <button class="tab-btn" id="tab-btn-schedules" onclick="switchAdminTab('tab-schedules', this); loadSheetSettings();">📅 Schedules Link</button>
             <button class="tab-btn" id="tab-btn-kpi" onclick="switchAdminTab('tab-kpi', this);">📈 KPI Scorecard Link</button>
             <button class="tab-btn" id="tab-btn-quizzes" onclick="switchAdminTab('tab-quizzes', this); loadQuizzesAdminSection();">📝 Quizzes</button>
             <button class="tab-btn" id="tab-btn-results" onclick="switchAdminTab('tab-results', this); loadScoresAdmin();">📊 Results</button>
@@ -340,33 +340,29 @@
         <div id="tab-users" class="admin-tab-content hidden">
             <h4>👥 System Users Management</h4>
             <div id="admin-only-add-user" class="admin-add-user-box hidden">
-                <h5>Add Employee Directly (Instantly Approved)</h5>
-            
+                <h5>Add Employee Directly</h5>
                 <input type="text" id="dir-name" placeholder="Full Name" class="input-mini">
                 <input type="text" id="dir-user" placeholder="Username" class="input-mini">
                 <input type="password" id="dir-pass" placeholder="Password" class="input-mini">
                 <input type="text" id="dir-acc" placeholder="Account / Campaign" class="input-mini">
                 <input type="text" id="dir-hrid" placeholder="HR ID (Optional)" class="input-mini">
-       
                  <select id="dir-role" class="input-mini">
                     <option value="agent">Agent</option>
                     <option value="leader">Leader</option>
                     <option value="quality">Quality</option>
                     <option value="admin">Admin</option>
                  </select>
-                <button class="view-btn" style="background:var(--success); width:100%; grid-column: 1 / -1; padding:10px; font-size:14px;" onclick="addConfirmedUser()">Add & Activate Instantly ⚡</button>
+                <button class="view-btn" style="width:100%; grid-column: 1 / -1; padding:10px; font-size:14px;" onclick="addConfirmedUser()">Add & Activate Instantly ⚡</button>
             </div>
             <div class="filter-bar">
-                <input type="text" id="filter-account" placeholder="Filter by Account (e.g. Hyde Park)" onkeyup="loadUsersAdmin()" style="flex:1;">
+                <input type="text" id="filter-account" placeholder="Filter by Account" onkeyup="loadUsersAdmin()" style="flex:1;">
                 <select id="filter-status" onchange="loadUsersAdmin()" style="flex:1;">
-                   
                     <option value="all">All Statuses</option>
                     <option value="pending">Pending Registration Approval</option>
                     <option value="approved">Approved Accounts</option>
                 </select>
             </div>
             <div style="overflow-x:auto;">
-           
                 <table class="data-table">
                     <thead><tr><th>Name & Contact</th><th>Username</th><th>Account</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
                     <tbody id="admin-users-list"><tr><td colspan="6">Fetching users...</td></tr></tbody>
@@ -377,17 +373,17 @@
         <div id="tab-chats" class="admin-tab-content hidden">
             <h4>💬 Communications & Edit Requests</h4>
             <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-                <div style="flex: 1; min-width: 300px; background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 15px;">
+                <div style="flex: 1; min-width: 300px; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 15px; box-shadow: var(--shadow);">
                     <h5>Active Agent Chats</h5>
                     <div id="admin-chat-list" style="display: flex; flex-direction: column; gap: 10px; max-height: 400px; overflow-y: auto;">Loading chats...</div>
                 </div>
-                <div style="flex: 2; min-width: 300px; background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 15px;">
+                <div style="flex: 2; min-width: 300px; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 15px; box-shadow: var(--shadow);">
                     <h5 id="admin-chat-header">Select a chat to view</h5>
-                    <div id="admin-chat-messages" style="height: 300px; overflow-y: auto; background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; margin-bottom: 10px; display: flex; flex-direction: column;"></div>
+                    <div id="admin-chat-messages" style="height: 300px; overflow-y: auto; background: var(--bg); border: 1px solid var(--border); padding: 10px; border-radius: 6px; margin-bottom: 10px; display: flex; flex-direction: column;"></div>
                     <div style="display: flex; gap: 5px;">
-                        <input type="text" id="admin-chat-input" placeholder="Type your reply..." style="flex: 1;" onkeydown="if(event.key === 'Enter') sendAdminReply()" disabled>
+                        <input type="text" id="admin-chat-input" placeholder="Type your reply..." style="flex: 1; margin:0;" onkeydown="if(event.key === 'Enter') sendAdminReply()" disabled>
                         <button id="admin-chat-send-btn" onclick="sendAdminReply()" style="width: auto; margin: 0; padding: 0 20px;" disabled>Reply</button>
-                        <button id="admin-chat-delete-btn" onclick="deleteActiveChat()" style="width: auto; margin: 0; padding: 0 20px; background: var(--danger);" disabled><i class="fa-solid fa-trash"></i> Delete Chat</button>
+                        <button id="admin-chat-delete-btn" class="danger" onclick="deleteActiveChat()" style="width: auto; margin: 0; padding: 0 20px;" disabled><i class="fa-solid fa-trash"></i></button>
                     </div>
                 </div>
             </div>
@@ -395,15 +391,15 @@
 
         <div id="tab-schedules" class="admin-tab-content hidden">
             <h4>📅 Live Data Synchronization (Google Sheets)</h4>
-            <div style="background: #e0f2fe; border: 1px solid #38bdf8; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                <h5 style="margin-top:0; color:#0369a1;"><i class="fa-solid fa-link"></i> Master Google Sheet Link</h5>
-                <p style="font-size:13px; color:#475569; margin-bottom: 15px;">
+            <div style="background: #f8fafc; border: 1px solid var(--border); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <h5 style="margin-top:0; color:var(--text-dark);"><i class="fa-solid fa-link" style="color:var(--brand-green);"></i> Master Google Sheet Link</h5>
+                <p style="font-size:13px; color:var(--text-light); margin-bottom: 15px;">
                     Paste the link to your Google Sheet. The system will automatically read <b>Sheet 1</b> for Schedules and <b>Sheet 2</b> for Breaks in real-time.<br>
                     <b style="color:var(--danger)">Note:</b> Ensure the Sheet is shared as <b>"Anyone with the link can view"</b>.
                 </p>
                 <div style="display: flex; gap: 10px;">
-                    <input type="text" id="master-sheet-url" placeholder="https://docs.google.com/spreadsheets/d/........" style="flex: 1;">
-                    <button onclick="saveAndSyncSheetUrl()" style="width: auto; margin: 0; padding: 0 20px; background: var(--success);"><i class="fa-solid fa-rotate"></i> Save & Sync Now</button>
+                    <input type="text" id="master-sheet-url" placeholder="https://docs.google.com/spreadsheets/d/........" style="flex: 1; margin:0;">
+                    <button onclick="saveAndSyncSheetUrl()" style="width: auto; margin: 0; padding: 0 20px;"><i class="fa-solid fa-rotate"></i> Sync</button>
                 </div>
             </div>
             
@@ -427,14 +423,14 @@
         <div id="tab-kpi" class="admin-tab-content hidden">
             <h4>📈 Live KPI Scorecard Link</h4>
             <div class="admin-kpi-section">
-                <h3 style="color: var(--primary); margin-top:0;"><i class="fa-solid fa-link"></i> Set Live KPI Google Sheet Link</h3>
-                <p style="font-size: 14px; margin-bottom: 15px; color: #475569;">
+                <h3 style="color: var(--text-dark); margin-top:0;"><i class="fa-solid fa-link" style="color:var(--brand-green);"></i> Set Live KPI Google Sheet</h3>
+                <p style="font-size: 14px; margin-bottom: 15px; color: var(--text-light);">
                     Paste the link to the KPI Google Sheet. The sheet must contain exactly these 3 sheet names: <b>Quality</b>, <b>Mistakes</b>, <b>Performance</b>.<br>
                     <b style="color:var(--danger)">Note:</b> Ensure the Sheet is shared as <b>"Anyone with the link can view"</b>.
                 </p>
                 <div style="display: flex; gap: 10px;">
-                    <input type="text" id="kpi-sheet-url" placeholder="https://docs.google.com/spreadsheets/d/........" style="flex: 1; padding: 8px;">
-                    <button onclick="saveAndSyncKPIUrl()" style="width: auto; margin: 0; padding: 0 20px; background: var(--success);"><i class="fa-solid fa-rotate"></i> Save & Sync KPI</button>
+                    <input type="text" id="kpi-sheet-url" placeholder="https://docs.google.com/spreadsheets/d/........" style="flex: 1; margin:0;">
+                    <button onclick="saveAndSyncKPIUrl()" style="width: auto; margin: 0; padding: 0 20px;"><i class="fa-solid fa-rotate"></i> Sync KPI</button>
                 </div>
             </div>
         </div>
@@ -446,67 +442,63 @@
                 <label>Target Audience:</label>
                 <select id="q-target-select"><option value="draft">Hidden Draft ❌</option><option value="all">All Employees</option></select>
             </div>
-            <div style="background:#f8fafc; padding:15px; border-radius:10px; border:1px solid #cbd5e1; margin-top:15px;">
+            <div style="background:#f8fafc; padding:15px; border-radius:10px; border:1px solid var(--border); margin-top:15px;">
                 <div class="form-group"><label>Question Text:</label><input type="text" id="q-text"></div>
                 <div class="form-group"><label>Option 1:</label><input type="text" id="q-opt1"></div>
                 <div class="form-group"><label>Option 2:</label><input type="text" id="q-opt2"></div>
                 <div class="form-group"><label>Option 3:</label><input type="text" id="q-opt3"></div>
-               
                 <div class="form-group"><label>Option 4:</label><input type="text" id="q-opt4"></div>
                 <div class="form-group"><label>Correct Option Number (1-4):</label><input type="number" id="q-correct" min="1" max="4"></div>
             </div>
-            <button onclick="addQuizQuestionAdmin()" style="background:var(--success);">Save Question & Create Quiz 🚀</button>
+            <button onclick="addQuizQuestionAdmin()">Save Question & Create Quiz 🚀</button>
 
-            <h4 style="margin-top: 30px; color: var(--primary);">📋 Current Quizzes List</h4>
+            <h4 style="margin-top: 30px; color: var(--text-dark);">📋 Current Quizzes List</h4>
             <table class="data-table">
                 <thead><tr><th>Quiz Name</th><th>Current Target</th><th>Actions</th></tr></thead>
                 <tbody id="admin-quizzes-control-list"></tbody>
             </table>
 
-            <div id="quiz-viewer-container" class="viewer-box hidden">
-                <h3 style="color:#d946ef; margin-top:0; text-align: left;"><i class="fa-solid fa-eye"></i> Viewing Quiz: <span id="view-quiz-title"></span></h3>
+            <div id="quiz-viewer-container" class="viewer-box hidden" style="background:#fff; border:1px solid var(--border); padding:15px; border-radius:8px; margin-top:15px; box-shadow:var(--shadow);">
+                <h3 style="color:var(--text-dark); margin-top:0; text-align: left;"><i class="fa-solid fa-eye" style="color:var(--brand-green);"></i> Viewing Quiz: <span id="view-quiz-title"></span></h3>
                 <div id="viewer-questions-list"></div>
-                <button onclick="document.getElementById('quiz-viewer-container').classList.add('hidden')" style="background:#64748b; margin-top:10px; width:100%;">Close Viewer ✖️</button>
+                <button onclick="document.getElementById('quiz-viewer-container').classList.add('hidden')" style="background:#64748b; color:white; margin-top:10px; box-shadow:none;">Close Viewer ✖️</button>
             </div>
 
-            <div id="questions-editor-container" class="questions-editor-box hidden">
-                <h3 style="color:#16a34a; text-align:left;"><i class="fa-solid fa-pen-to-square"></i> Editing: <span id="current-editing-quiz-title"></span></h3>
+            <div id="questions-editor-container" class="questions-editor-box hidden" style="background:#fff; border:1px solid var(--border); padding:15px; border-radius:12px; margin-top:20px; box-shadow:var(--shadow);">
+                <h3 style="color:var(--text-dark); text-align:left;"><i class="fa-solid fa-pen-to-square" style="color:var(--brand-green);"></i> Editing: <span id="current-editing-quiz-title"></span></h3>
                 
-                <div class="form-group" style="background: #e0f2fe; padding: 10px; border-radius: 8px; border: 1px solid #7dd3fc;">
-                    <label style="font-size: 13px; color: var(--primary);">Change target for this quiz:</label>
+                <div class="form-group" style="background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid var(--border);">
+                    <label style="font-size: 13px;">Change target for this quiz:</label>
                     <div style="display: flex; gap: 8px;">
-                        <select id="fast-change-target-select" style="padding: 6px; font-size: 13px; flex:1;">
+                        <select id="fast-change-target-select" style="padding: 6px; font-size: 13px; flex:1; margin:0;">
                             <option value="draft">Hidden Draft ❌</option>
                             <option value="all">All Employees</option>
                         </select>
-             
-                        <button class="view-btn" style="background:var(--success); width: auto; margin:0; padding: 0 15px;" onclick="updateQuizTargetFromEditor()">Update Target</button>
+                        <button class="view-btn" style="width: auto; margin:0; padding: 0 15px;" onclick="updateQuizTargetFromEditor()">Update</button>
                     </div>
                 </div>
 
                 <div id="individual-questions-list"></div>
                 
-                <div class="add-fast-question-box">
-          
-                    <h4 style="color:#0284c7; text-align:left; margin-top:0;"><i class="fa-solid fa-plus-circle"></i> Add New Question Instantly:</h4>
+                <div class="add-fast-question-box" style="background: #f8fafc; border: 1px dashed var(--brand-green); padding: 12px; border-radius: 8px; margin-top: 15px;">
+                    <h4 style="color:var(--text-dark); text-align:left; margin-top:0;"><i class="fa-solid fa-plus-circle" style="color:var(--brand-green);"></i> Add New Question Instantly:</h4>
                     <div class="form-group"><label style="font-size:12px;">Question Text:</label><input type="text" id="fast-q-text"></div>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:5px;">
                         <input type="text" id="fast-q-opt1" placeholder="Option 1">
                         <input type="text" id="fast-q-opt2" placeholder="Option 2">
                         <input type="text" id="fast-q-opt3" placeholder="Option 3">
-             
                         <input type="text" id="fast-q-opt4" placeholder="Option 4">
                     </div>
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
                         <div>
                             <label style="display:inline; font-size:12px;">Correct Answer (1-4): </label>
-                            <input type="number" id="fast-q-correct" min="1" max="4" style="width:55px; padding:5px; display:inline;">
+                            <input type="number" id="fast-q-correct" min="1" max="4" style="width:55px; padding:5px; display:inline; margin:0;">
                         </div>
-                        <button class="view-btn" style="background:#0284c7; padding:8px 16px;" onclick="addSingleQuestionFast()">Insert Question ⚡</button>
+                        <button class="view-btn" style="padding:8px 16px; margin:0;" onclick="addSingleQuestionFast()">Insert ⚡</button>
                     </div>
                 </div>
 
-                <button onclick="document.getElementById('questions-editor-container').classList.add('hidden')" style="background:#64748b; margin-top:15px; width:100%;">Close Editor ✖️</button>
+                <button onclick="document.getElementById('questions-editor-container').classList.add('hidden')" style="background:#64748b; color:white; margin-top:15px; box-shadow:none;">Close Editor ✖️</button>
             </div>
         </div>
 
@@ -514,29 +506,28 @@
             <h4>📊 Employee Results & Grades</h4>
             <div style="display: flex; gap: 15px; margin-bottom: 15px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
                 <div class="filter-container">
-                    <label style="margin:0; font-size:14px; color:var(--primary); font-weight:bold;"><i class="fa-solid fa-filter"></i> Filter by Quiz:</label>
-                    <select id="admin-quiz-filter" onchange="filterScoresTable()" style="padding: 6px; border-radius: 6px; border: 1px solid #cbd5e1; min-width: 180px;"><option value="ALL_QUIZZES">All Quizzes</option></select>
+                    <label style="margin:0; font-size:14px; font-weight:bold;"><i class="fa-solid fa-filter" style="color:var(--brand-green);"></i> Filter by Quiz:</label>
+                    <select id="admin-quiz-filter" onchange="filterScoresTable()" style="padding: 6px; border-radius: 6px; border: 1px solid var(--border); min-width: 180px; margin:0;"><option value="ALL_QUIZZES">All Quizzes</option></select>
                 </div>
-                <button onclick="triggerExcelExport()" style="background:var(--success); width: auto; margin: 0;"><i class="fa-solid fa-file-excel"></i> Export Filtered to Excel</button>
+                <button onclick="triggerExcelExport()" style="width: auto; margin: 0;"><i class="fa-solid fa-file-excel"></i> Export to Excel</button>
             </div>
             <div style="overflow-x:auto;">
                 <table class="data-table" id="admin-scores-table">
                     <thead><tr><th>Employee</th><th>HR ID</th><th>Account</th><th>Quiz Name</th><th>Score</th><th>Details</th><th>Date & Time</th><th>Action</th></tr></thead>
                     <tbody id="admin-scores-list"></tbody>
-   
                 </table>
             </div>
         </div>
 
         <div id="tab-gemini" class="admin-tab-content hidden">
-            <h4>🤖 Gemini AI Assistant (Management Only)</h4>
-            <p style="font-size: 13px; color: #64748b;">اسأل جيميناي عن كيفية إدارة الموظفين، تحليل البيانات، أو أي استفسار.</p>
-            <div id="gemini-chat-box" style="height: 300px; overflow-y: auto; background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; margin-bottom: 10px; display: flex; flex-direction: column;">
-                <div class="chat-bubble management">أهلاً بك! أنا جيميناي. كيف يمكنني مساعدتك في إدارة النظام اليوم؟</div>
+            <h4>🤖 Gemini AI Assistant</h4>
+            <p style="font-size: 13px; color: var(--text-light);">اسأل جيميناي عن كيفية إدارة الموظفين، تحليل البيانات، أو أي استفسار.</p>
+            <div id="gemini-chat-box" style="height: 300px; overflow-y: auto; background: var(--bg); border: 1px solid var(--border); padding: 10px; border-radius: 6px; margin-bottom: 10px; display: flex; flex-direction: column;">
+                <div class="chat-bubble management" style="background:#fff; border:1px solid var(--border);">أهلاً بك! أنا جيميناي. كيف يمكنني مساعدتك في إدارة النظام اليوم؟</div>
             </div>
             <div style="display: flex; gap: 5px;">
-                <input type="text" id="gemini-input" placeholder="Type your question for Gemini AI..." style="flex: 1;" onkeydown="if(event.key === 'Enter') askGemini()">
-                <button onclick="askGemini()" style="width: auto; margin: 0; padding: 0 20px;"><i class="fa-solid fa-brain"></i> Ask AI</button>
+                <input type="text" id="gemini-input" placeholder="Type your question..." style="flex: 1; margin:0;" onkeydown="if(event.key === 'Enter') askGemini()">
+                <button onclick="askGemini()" style="width: auto; margin: 0; padding: 0 20px;"><i class="fa-solid fa-brain"></i></button>
             </div>
         </div>
     </div>
@@ -544,7 +535,7 @@
 
 <div id="edit-user-modal" class="modal-overlay hidden">
     <div class="modal-content">
-        <h3 style="margin-top:0; color:var(--primary); text-align:left;">Edit User Profile</h3>
+        <h3 style="margin-top:0; color:var(--text-dark); text-align:left;">Edit User Profile</h3>
         <input type="hidden" id="edit-orig-username">
         <div class="form-group"><label>Full Name</label><input type="text" id="edit-fullname"></div>
         <div class="form-group"><label>HR ID (Admin/Leader only)</label><input type="text" id="edit-hrid"></div>
@@ -553,21 +544,20 @@
             <label>Role</label>
             <select id="edit-role"><option value="agent">Agent</option><option value="leader">Leader</option><option value="quality">Quality</option><option value="admin">Admin</option></select>
         </div>
-    
         <div class="form-group"><label>Phone</label><input type="text" id="edit-phone"></div>
         <div class="form-group"><label>Email</label><input type="text" id="edit-email"></div>
-        <div class="form-group" style="border-top: 1px solid #ccc; padding-top:10px; margin-top:10px;">
-            <label style="color:var(--primary); font-weight: bold;">User Password</label>
+        <div class="form-group" style="border-top: 1px solid var(--border); padding-top:10px; margin-top:10px;">
+            <label style="font-weight: bold;">User Password</label>
             <input type="text" id="edit-password">
         </div>
         <div style="display:flex; gap:10px; margin-top:20px;">
-            <button onclick="saveUserEdit()" style="background:var(--success); margin:0;">Save Changes</button>
-            <button onclick="closeEditUserModal()" style="background:#64748b; margin:0;">Cancel</button>
+            <button onclick="saveUserEdit()" style="margin:0;">Save Changes</button>
+            <button onclick="closeEditUserModal()" style="background:#64748b; color:white; margin:0; box-shadow:none;">Cancel</button>
         </div>
     </div>
 </div>
 
-<div class="footer-credits">Developed By Mohamed Nasser</div>
+<div class="footer-credits">Developed By Mohamed Nasser | Powered by Gemini AI</div>
 
 <script>
     // ⚠️ رابط قاعدة البيانات الأساسي (Firebase) للنظام
@@ -576,11 +566,10 @@
     // متغيرات حفظ الشيتات لايف
     let liveSchedules = {};
     let liveBreaks = {};
-    let liveKPIData = {}; // متغير جديد لشيت الـ KPI
+    let liveKPIData = {}; // لشيت الـ KPI
     
     let isSignUpMode = false; 
     let currentUser = null; 
-  
     let activeQuizQuestions = []; 
     let activeQuizName = ""; 
     let currentEditingQuizName = "";
@@ -605,14 +594,12 @@
     // LIVE GOOGLE SHEET SYNC (البريكات والجدول والـ KPI أونلاين على طول)
     // -----------------------------------------------------------------------------
     function initLiveSheetSync(forceUpdatePreview = false) {
-        // سحب لينك البريكات والجدول
         fetch(`${firebaseBaseUrl}/settings/sheetUrl.json`).then(res => res.json()).then(url => {
             if(url) {
                 if(document.getElementById('master-sheet-url')) document.getElementById('master-sheet-url').value = url;
                 fetchLiveExcelData(url, forceUpdatePreview);
             }
         });
-        // سحب لينك الـ KPI
         fetch(`${firebaseBaseUrl}/settings/kpiSheetUrl.json`).then(res => res.json()).then(url => {
             if(url) {
                 if(document.getElementById('kpi-sheet-url')) document.getElementById('kpi-sheet-url').value = url;
@@ -674,7 +661,6 @@
                     const keys = Object.keys(row);
                     const empKey = keys.find(k => k.toLowerCase().includes('emp') || k.toLowerCase().includes('name')) || keys[0];
                     const breakKey = keys.find(k => k.toLowerCase().includes('break') || k.toLowerCase().includes('بريك') || k.toLowerCase().includes('time')) || keys[1];
-           
                     let name = row[empKey];
                     if(!name) return;
                     liveBreaks[name.toString().toLowerCase().trim()] = row[breakKey];
@@ -717,8 +703,7 @@
         }
     }
 
-    function loadSheetSettings() { renderLiveAdminPreviews();
-    }
+    function loadSheetSettings() { renderLiveAdminPreviews(); }
 
     // -----------------------------------------------------------------------------
     // LIVE KPI SCORECARD LOGIC
@@ -748,28 +733,29 @@
             const workbook = XLSX.read(data, {type: 'array'});
             liveKPIData = {};
 
-            // جلب البيانات من اليمين (بحثاً عن الاسم في عمود K واستخراج النسب اللي جنبه)
-            if (workbook.Sheets["Quality"]) {
-                const qRows = XLSX.utils.sheet_to_json(workbook.Sheets["Quality"], {header: "A", defval: ""});
-                qRows.forEach(row => {
-                    let agentName = row["K"]; // الاسم في العمود K
-                    if(agentName && typeof agentName === 'string') {
-                        let cName = agentName.trim().toLowerCase();
-                        if (cName !== "" && !cName.includes("agent") && !cName.includes("اسم")) {
-                            let key = cleanKPIName(agentName);
-                            if(!liveKPIData[key]) liveKPIData[key] = {};
-                            liveKPIData[key].Quality = {
-                                compliance: row["L"],     // اللي جنبه L
-                                endUser: row["M"],        // اللي بعده M
-                                business: row["N"],       // اللي بعده N
-                                softSkills: row["O"],     // اللي بعده O
-                                total: row["P"]           // اللي بعده P (لو في توتال جاهز)
-                            };
-                        }
+            // السحب من العمود K والي جنبه (L, M, N, O, P)
+            const sheetName = workbook.Sheets["Quality"] ? "Quality" : workbook.SheetNames[0];
+            const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header: "A", defval: ""});
+            
+            rows.forEach(row => {
+                let agentName = row["K"]; // الاسم في K
+                if(agentName && typeof agentName === 'string') {
+                    let cName = agentName.trim().toLowerCase();
+                    if (cName !== "" && !cName.includes("agent") && !cName.includes("اسم")) {
+                        let key = cleanKPIName(agentName);
+                        if(!liveKPIData[key]) liveKPIData[key] = {};
+                        liveKPIData[key].Quality = {
+                            compliance: row["L"], // L
+                            endUser: row["M"],    // M
+                            business: row["N"],   // N
+                            softSkills: row["O"], // O
+                            utilization: row["P"] // P
+                        };
                     }
-                });
-            }
+                }
+            });
 
+            // سحب الأخطاء من شيت Mistakes إن وجد
             if (workbook.Sheets["Mistakes"]) {
                 const mRows = XLSX.utils.sheet_to_json(workbook.Sheets["Mistakes"]);
                 mRows.forEach(row => {
@@ -778,18 +764,6 @@
                         let key = cleanKPIName(agentName);
                         if(!liveKPIData[key]) liveKPIData[key] = {};
                         liveKPIData[key].Mistakes = row["Number of Mistakes"] || row["Mistakes"] || 0;
-                    }
-                });
-            }
-
-            if (workbook.Sheets["Performance"]) {
-                const pRows = XLSX.utils.sheet_to_json(workbook.Sheets["Performance"]);
-                pRows.forEach(row => {
-                    let agentName = row["Agent Name"] || row["Agent"];
-                    if(agentName) {
-                        let key = cleanKPIName(agentName);
-                        if(!liveKPIData[key]) liveKPIData[key] = {};
-                        liveKPIData[key].Performance = row["Utilization "] || row["Utilization"] || row["Performance"] || 0;
                     }
                 });
             }
@@ -803,23 +777,23 @@
 
     function viewKPIScorecard() {
         switchView('info-display-box');
-        document.getElementById('info-box-title').innerText = "📊 KPI Scorecard ";
+        document.getElementById('info-box-title').innerText = "📊 KPI Scorecard (Live)";
         let container = document.getElementById('info-content-area');
         
         let cleanKey = cleanKPIName(currentUser.fullName);
         let data = liveKPIData[cleanKey];
         if (!data) {
-            container.innerHTML = `<div class="info-card" style="color:var(--warning)"><i class="fa-solid fa-circle-exclamation"></i> No KPI Scorecard found for your name [ ${currentUser.fullName} ] in the live sheet. Or the KPI link is not set yet.</div>`;
+            container.innerHTML = `<div class="info-card" style="color:var(--warning); border-left-color:var(--warning);"><i class="fa-solid fa-circle-exclamation"></i> No KPI Scorecard found for your name [ ${currentUser.fullName} ] in the live sheet. Or the KPI link is not set yet.</div>`;
             return;
         }
 
-        // دالة مخصصة لضمان قراءة الأرقام المئوية صح (بتعالج مشكلة الـ 95 بدل 0.95 اللي بتعدي 100%)
+        // دالة مخصصة لضمان قراءة الأرقام المئوية صح
         const parseVal = (val) => {
             if (val === undefined || val === null || val === "") return 0;
-            if (typeof val === 'number') return val;
+            if (typeof val === 'number') { return val > 1 ? val / 100 : val; }
             let num = parseFloat(val.toString().replace(/%/g, '').trim());
             if (isNaN(num)) return 0;
-            if (val.toString().includes('%')) return num / 100;
+            if (val.toString().includes('%') || num > 1) return num / 100;
             return num;
         };
 
@@ -827,8 +801,8 @@
         let endUser = parseVal(data.Quality?.endUser);
         let bus = parseVal(data.Quality?.business);
         let soft = parseVal(data.Quality?.softSkills);
-        let util = parseVal(data.Performance);
-        let mistakes = parseInt(data.Mistakes ?? 2);
+        let util = parseVal(data.Quality?.utilization);
+        let mistakes = parseInt(data.Mistakes ?? 0);
 
         if (comp > 1 && comp <= 100) comp /= 100;
         if (endUser > 1 && endUser <= 100) endUser /= 100;
@@ -836,39 +810,31 @@
         if (soft > 1 && soft <= 100) soft /= 100;
         if (util > 1 && util <= 100) util /= 100;
 
-        // دالة الألوان بناءً على التارجت اللي طلبته
+        // الالوان والتقييم
         const getFormat = (val, target) => {
             let pct = (val * 100).toFixed(1) + '%';
-            if (val >= 1.0) return `<span style="color: #eab308; font-weight: bold;">${pct} 🌟</span>`; // ذهبي
+            if (val >= 1.0) return `<span class="text-gold">${pct} 🌟</span>`; // ذهبي
             if (val >= target) return `<span class="text-success">${pct}</span>`; // أخضر
             return `<span class="text-danger">${pct}</span>`; // أحمر
         };
-
         const formatM = (val) => {
             if (isNaN(val)) return '0';
-            return val > 0 ? `<span class="text-danger">${val}</span>` : `<span style="color: #eab308; font-weight: bold;">0 🌟</span>`;
+            return val > 0 ? `<span class="text-danger">${val}</span>` : `<span class="text-gold">0 🌟</span>`;
         };
 
         let isAllPassed = (comp >= 1.0) && (endUser >= 0.98) && (bus >= 0.95) && (soft >= 0.90) && (util >= 0.86) && (mistakes === 0);
-
-        // التوتال بيقراه لو جاهز، لو لأ بيجمعه ويظبطه بجد
-        let totalQuality = parseVal(data.Quality?.total);
-        if (totalQuality > 1 && totalQuality <= 100) totalQuality /= 100;
-        if (totalQuality === 0) {
-            totalQuality = (comp + endUser + bus + soft) / 4; 
-        }
-
-        let totalPct = (totalQuality * 100).toFixed(1);
+        let totalPct = ((comp + endUser + bus + soft + util) / 5 * 100).toFixed(1);
+        
         let totalHtml = '';
         if (isAllPassed) {
             totalHtml = `<span class="text-success" style="font-size:20px; font-weight:bold;">${totalPct}% <br> <span style="font-size: 16px;">(عاش جداً يا بطل! 🏆🔥 كل مؤشراتك ممتازة)</span></span>`;
         } else {
-            totalHtml = `<span style="color: var(--primary); font-size:22px; font-weight:bold;">${totalPct}%</span>`;
+            totalHtml = `<span style="color: var(--text-dark); font-size:22px; font-weight:bold;">${totalPct}%</span>`;
         }
 
         container.innerHTML = `
         <div class="kpi-card">
-            <h3 style="margin-top:0; color: var(--primary); text-align:center;"><i class="fa-solid fa-chart-line"></i> Monthly KPI Metrics</h3>
+            <h3 style="margin-top:0; color: var(--text-dark); text-align:center;"><i class="fa-solid fa-chart-line" style="color:var(--brand-green);"></i> Monthly KPI Metrics</h3>
             <table class="kpi-table">
                 <thead>
                     <tr>
@@ -876,8 +842,8 @@
                         <th>End User Critical (98%)</th>
                         <th>Business Critical (95%)</th>
                         <th>Soft Skills (90%)</th>
-                        <th>Utilization (86%)</th>
-                        <th>Total Mistakes (2)</th>
+                        <th>Utilization (>86%)</th>
+                        <th>Total Mistakes (0)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -892,11 +858,11 @@
                 </tbody>
             </table>
             
-            <div style="background: #f1f5f9; padding: 15px; margin-top: 15px; border-radius: 8px; text-align: center; border: 2px solid var(--primary);">
-                <h4 style="margin:0 0 10px 0;">Total Quality Score</h4>
+            <div style="background: #f8fafc; padding: 15px; margin-top: 15px; border-radius: 8px; text-align: center; border: 2px solid var(--brand-green);">
+                <h4 style="margin:0 0 10px 0; color:var(--text-dark);">Total KPI Score</h4>
                 ${totalHtml}
             </div>
-            <p style="text-align:center; font-size:12px; color:#64748b; margin-top:15px;">Metrics below target thresholds are highlighted in red. 100% targets are highlighted in gold 🌟.</p>
+            <p style="text-align:center; font-size:12px; color:var(--text-light); margin-top:15px;">Metrics below target thresholds are highlighted in red. 100% targets are highlighted in gold 🌟.</p>
         </div>`;
     }
 
@@ -908,15 +874,13 @@
             const el = document.getElementById(id); if(el) el.classList.add('hidden');
         });
         document.getElementById(viewId).classList.remove('hidden');
-        document.getElementById('top-navbar').style.display = 
-            (viewId === 'auth-box') ? 'none' : 'flex';
+        document.getElementById('top-navbar').style.display = (viewId === 'auth-box') ? 'none' : 'flex';
         
         if(agentChatInterval) clearInterval(agentChatInterval);
 
         if(viewId === 'agent-profile' && currentUser) {
             document.getElementById('prof-name').innerText = currentUser.fullName || '';
-            document.getElementById('prof-user').innerText = currentUser.username ||
-                '';
+            document.getElementById('prof-user').innerText = currentUser.username || '';
             document.getElementById('prof-account').innerText = currentUser.accountName || 'Not Set';
             
             document.getElementById('prof-phone').value = currentUser.phone || '';
@@ -971,7 +935,7 @@
         isSignUpMode = !isSignUpMode;
         document.getElementById('signup-fields').style.display = isSignUpMode ? "block" : "none";
         document.getElementById('auth-btn').innerText = isSignUpMode ? "Register Account (Pending)" : "Login to Platform";
-        document.getElementById('toggle-auth-btn').innerText = isSignUpMode ? "Already have an account? Login here" : "Don't have an account? Register now (Requires Approval)";
+        document.getElementById('toggle-auth-btn').innerText = isSignUpMode ? "Already have an account? Login here" : "Don't have an account? Register now";
     }
 
     function handleAuth(event) {
@@ -980,7 +944,7 @@
         const pass = document.getElementById('auth-password').value.trim();
         
         if (user === "mohamed nasser" && pass === "592005") {
-            currentUser = { username: "mohamed nasser", fullName: "Mohamed Nasser", role: "admin", status: "approved", accountName: "Hyde Park", phone: "01000000000", email: "admin@hydepark.com", hrId: "ADMIN-01" };
+            currentUser = { username: "mohamed nasser", fullName: "Mohamed Nasser", role: "admin", status: "approved", accountName: "Quattro", phone: "01000000000", email: "admin@quattro.com", hrId: "ADMIN-01" };
             setupDashboardPermissions(); return;
         }
 
@@ -996,7 +960,6 @@
                 if(userData && userData.password === pass) {
                     if(userData.status === 'pending') return alert('Sorry, your account is still pending approval from management.');
                     currentUser = userData; setupDashboardPermissions();
-      
                 } else { alert("Incorrect username or password!"); }
             });
         }
@@ -1032,10 +995,9 @@
     function loadAgentChat() {
         fetch(`${firebaseBaseUrl}/chats/${currentUser.username}.json`).then(res => res.json()).then(data => {
             const container = document.getElementById('agent-chat-history'); container.innerHTML = '';
-            if(!data) { container.innerHTML = '<p style="text-align:center; color:#64748b; font-size:12px; margin-top:20px;">No messages yet.</p>'; return; }
+            if(!data) { container.innerHTML = '<p style="text-align:center; color:var(--text-light); font-size:12px; margin-top:20px;">No messages yet.</p>'; return; }
             Object.values(data).forEach(msg => {
                 const isMe = msg.sender === currentUser.username;
-     
                 const bubbleClass = isMe ? 'agent' : 'management';
                 const roleBadge = msg.role !== 'agent' ? ` [${msg.role.toUpperCase()}]` : '';
                 const toText = isMe ? `<br><span style="font-size:10px; color:#94a3b8;">Sent to: ${msg.recipient.toUpperCase()}</span>` : '';
@@ -1052,23 +1014,19 @@
 
             Object.keys(data).forEach(user => {
                 const msgs = Object.values(data[user]);
-      
                 if(msgs.length === 0) return;
                 
                 let canSee = false;
                 if (currentUser.role === 'admin') canSee = true;
-                else { msgs.forEach(m => { if (m.recipient === 'all' || m.recipient === currentUser.role || 
-                    m.sender !== user) canSee = true; }); }
+                else { msgs.forEach(m => { if (m.recipient === 'all' || m.recipient === currentUser.role || m.sender !== user) canSee = true; }); }
 
                 if(!canSee) return;
 
                 const lastMsg = msgs[msgs.length - 1];
                 list.innerHTML += `
-                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; margin-bottom:5px; cursor: pointer;" onclick="openAdminChat('${user}')">
-   
-                        <strong style="color:var(--primary);">@${user}</strong>
-                        <div style="font-size: 12px;
-                            color: #64748b; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${lastMsg.senderName}: ${lastMsg.text}</div>
+                    <div style="background: #f8fafc; border: 1px solid var(--border); padding: 10px; border-radius: 6px; margin-bottom:5px; cursor: pointer; transition: background 0.2s;" onclick="openAdminChat('${user}')" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f8fafc'">
+                        <strong style="color:var(--text-dark);">@${user}</strong>
+                        <div style="font-size: 12px; color: var(--text-light); margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${lastMsg.senderName}: ${lastMsg.text}</div>
                     </div>`;
             });
         });
@@ -1078,7 +1036,6 @@
         activeAdminChatUser = user;
         document.getElementById('admin-chat-header').innerText = `Chatting with: @${user}`;
         document.getElementById('admin-chat-input').disabled = false;
-        
         document.getElementById('admin-chat-send-btn').disabled = false;
         document.getElementById('admin-chat-delete-btn').disabled = false;
         if(adminChatInterval) clearInterval(adminChatInterval);
@@ -1087,7 +1044,6 @@
             if(!activeAdminChatUser) return;
             fetch(`${firebaseBaseUrl}/chats/${activeAdminChatUser}.json`).then(res => res.json()).then(data => {
                 const container = document.getElementById('admin-chat-messages'); container.innerHTML = '';
-       
                 if(!data) return;
                 
                 Object.values(data).forEach(msg => {
@@ -1123,7 +1079,6 @@
                 document.getElementById('admin-chat-messages').innerHTML = ''; document.getElementById('admin-chat-header').innerText = 'Select a chat to view';
                 document.getElementById('admin-chat-input').disabled = true; document.getElementById('admin-chat-send-btn').disabled = true; document.getElementById('admin-chat-delete-btn').disabled = true;
                 activeAdminChatUser = null;
-  
                 if(adminChatInterval) clearInterval(adminChatInterval);
                 loadAdminChats();
             });
@@ -1139,14 +1094,14 @@
         if(!query) return;
 
         const box = document.getElementById('gemini-chat-box');
-        box.innerHTML += `<div class="chat-bubble agent"><strong>You:</strong><br>${query}</div>`;
+        box.innerHTML += `<div class="chat-bubble agent" style="background:#ecfdf5;"><strong>You:</strong><br>${query}</div>`;
         input.value = '';
         box.scrollTop = box.scrollHeight;
 
         const apiKey = "YOUR_GEMINI_API_KEY"; 
         if (apiKey === "YOUR_GEMINI_API_KEY") {
             setTimeout(() => {
-                box.innerHTML += `<div class="chat-bubble management"><strong>🤖 Gemini:</strong><br>لكي يعمل الذكاء الاصطناعي بشكل حقيقي، يرجى استبدال <code>YOUR_GEMINI_API_KEY</code> في الكود بمفتاحك الحقيقي.</div>`;
+                box.innerHTML += `<div class="chat-bubble management" style="background:#fff; border:1px solid var(--border);"><strong>🤖 Gemini:</strong><br>لكي يعمل الذكاء الاصطناعي بشكل حقيقي، يرجى استبدال <code>YOUR_GEMINI_API_KEY</code> في الكود بمفتاحك الحقيقي.</div>`;
                 box.scrollTop = box.scrollHeight;
             }, 1000);
             return;
@@ -1155,16 +1110,15 @@
         const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
         fetch(endpoint, {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ parts: [{ text: `أنت مساعد ذكاء اصطناعي لمديري نظام Hyde Park Operations. أجب بمهنية واختصار على: ${query}` }] }] })
+            body: JSON.stringify({ contents: [{ parts: [{ text: `أنت مساعد ذكاء اصطناعي لمديري نظام Quattro Operations. أجب بمهنية واختصار على: ${query}` }] }] })
         })
         .then(res => res.json())
         .then(data => {
             const reply = data.candidates[0].content.parts[0].text;
-   
-            box.innerHTML += `<div class="chat-bubble management"><strong>🤖 Gemini:</strong><br>${reply.replace(/\n/g, '<br>')}</div>`;
+            box.innerHTML += `<div class="chat-bubble management" style="background:#fff; border:1px solid var(--border);"><strong>🤖 Gemini:</strong><br>${reply.replace(/\n/g, '<br>')}</div>`;
             box.scrollTop = box.scrollHeight;
         })
-        .catch(err => { box.innerHTML += `<div class="chat-bubble management" style="color:red;"><strong>🤖 Error:</strong><br>فشل الاتصال بـ Gemini.</div>`; box.scrollTop = box.scrollHeight; });
+        .catch(err => { box.innerHTML += `<div class="chat-bubble management" style="background:#fee2e2; color:#991b1b;"><strong>🤖 Error:</strong><br>فشل الاتصال بـ Gemini.</div>`; box.scrollTop = box.scrollHeight; });
     }
 
     // -----------------------------------------------------------------------------
@@ -1179,12 +1133,10 @@
         
         loadDropdownTargets();
         
-        if(!currentUser.phone || !currentUser.email) { switchView('agent-profile'); return;
-        }
+        if(!currentUser.phone || !currentUser.email) { switchView('agent-profile'); return; }
 
         if(currentUser.role === 'admin' || currentUser.role === 'leader' || currentUser.role === 'quality') {
-            document.getElementById('tab-btn-users').style.display = (currentUser.role === 'admin' || currentUser.role === 'leader') ?
-                'block' : 'none';
+            document.getElementById('tab-btn-users').style.display = (currentUser.role === 'admin' || currentUser.role === 'leader') ? 'block' : 'none';
             document.getElementById('tab-btn-chats').style.display = 'block';
             document.getElementById('tab-btn-schedules').style.display = (currentUser.role === 'admin' || currentUser.role === 'leader') ? 'block' : 'none';
             document.getElementById('tab-btn-kpi').style.display = (currentUser.role === 'admin' || currentUser.role === 'leader') ? 'block' : 'none';
@@ -1193,15 +1145,12 @@
             document.getElementById('tab-btn-gemini').style.display = 'block';
             document.getElementById('admin-only-add-user').classList.toggle('hidden', currentUser.role !== 'admin');
             
-            if(currentUser.role === 'admin') { badge.innerText = "Admin"; badge.classList.add('badge-admin'); switchAdminTab('tab-users', document.getElementById('tab-btn-users')); loadUsersAdmin();
-            }
-            else if(currentUser.role === 'leader') { badge.innerText = "Leader";
-                badge.classList.add('badge-leader'); switchAdminTab('tab-users', document.getElementById('tab-btn-users')); loadUsersAdmin(); }
-            else if(currentUser.role === 'quality') { badge.innerText = "Quality";
-                badge.classList.add('badge-quality'); switchAdminTab('tab-quizzes', document.getElementById('tab-btn-quizzes')); loadQuizzesAdminSection(); }
+            if(currentUser.role === 'admin') { badge.innerText = "Admin"; badge.style.background = "#7c3aed"; switchAdminTab('tab-users', document.getElementById('tab-btn-users')); loadUsersAdmin(); }
+            else if(currentUser.role === 'leader') { badge.innerText = "Leader"; badge.style.background = "#2563eb"; switchAdminTab('tab-users', document.getElementById('tab-btn-users')); loadUsersAdmin(); }
+            else if(currentUser.role === 'quality') { badge.innerText = "Quality"; badge.style.background = "#db2777"; switchAdminTab('tab-quizzes', document.getElementById('tab-btn-quizzes')); loadQuizzesAdminSection(); }
             switchView('admin-dashboard');
         } else {
-            badge.innerText = "Agent"; badge.style.background = "var(--success)";
+            badge.innerText = "Agent"; badge.style.background = "var(--brand-green)"; badge.style.color = "var(--text-dark)";
             document.getElementById('agent-welcome-name').innerText = currentUser.fullName;
             document.getElementById('nav-profile-btn').style.display = "inline-block";
             switchView('agent-hub');
@@ -1219,29 +1168,23 @@
             if(!users) { tbody.innerHTML = '<tr><td colspan="6">No users found.</td></tr>'; return; }
             
             Object.keys(users).forEach(uKey => {
-       
                 let u = users[uKey];
                 if (!u) return; 
                 let accMatch = !filterAcc || (u.accountName && u.accountName.toLowerCase().includes(filterAcc));
                 let statusMatch = filterStatus === 'all' || u.status === filterStatus;
                 
-    
                 if(accMatch && statusMatch) {
-                    let statusHtml = u.status === 'pending' ? '<span class="badge badge-pending">Pending</span>' : '<span class="badge" style="background:var(--success)">Active</span>';
+                    let statusHtml = u.status === 'pending' ? '<span class="badge" style="background:var(--warning); color:#000;">Pending</span>' : '<span class="badge" style="background:var(--success);">Active</span>';
                     let actionsHtml = '';
                     
-         
-                    if(u.status === 'pending' && (currentUser.role === 'admin' ||
-                        currentUser.role === 'leader')) {
-                        actionsHtml += `<button class="view-btn" style="background:var(--success); margin-bottom:5px;"
-                            onclick="approveUser('${u.username}')">Approve ✔️</button>`;
-                        if(currentUser.role === 'admin') actionsHtml += `<button class="view-btn" style="background:var(--danger);" onclick="deleteUser('${u.username}')">Reject & Delete ❌</button>`;
+                    if(u.status === 'pending' && (currentUser.role === 'admin' || currentUser.role === 'leader')) {
+                        actionsHtml += `<button class="view-btn" style="background:var(--success); color:white; margin-bottom:5px;" onclick="approveUser('${u.username}')">Approve ✔️</button>`;
+                        if(currentUser.role === 'admin') actionsHtml += `<button class="view-btn" style="background:var(--danger); color:white;" onclick="deleteUser('${u.username}')">Reject & Delete ❌</button>`;
                     } else if(currentUser.role === 'admin') {
-                        actionsHtml += `<div class="action-inline"><button class="view-btn" style="background:var(--primary)" onclick="openEditUserModal('${u.username}')">Edit <i class="fa-solid fa-pen"></i></button><button class="view-btn" style="background:var(--danger)" onclick="deleteUser('${u.username}')">Delete <i class="fa-solid fa-trash"></i></button></div>`;
-                    } else { actionsHtml += `<span style="color:#94a3b8; font-size:11px;">Admin Only</span>`; }
+                        actionsHtml += `<div class="action-inline"><button class="view-btn" style="background:var(--primary); color:var(--text-dark);" onclick="openEditUserModal('${u.username}')">Edit <i class="fa-solid fa-pen"></i></button><button class="view-btn" style="background:var(--danger); color:white;" onclick="deleteUser('${u.username}')">Delete <i class="fa-solid fa-trash"></i></button></div>`;
+                    } else { actionsHtml += `<span style="color:var(--text-light); font-size:11px;">Admin Only</span>`; }
 
-                    tbody.innerHTML += `<tr><td><b>${u.fullName ||
-                        'No Name'}</b><br><small style="color:#64748b;">HR ID: ${u.hrId || 'Not Set'} | ${u.phone||'No Phone'} | ${u.email||'No Email'}</small></td><td><code>${u.username}</code></td><td>${u.accountName || '-'}</td><td><span class="badge" style="background:#64748b; text-transform:capitalize;">${u.role}</span></td><td>${statusHtml}</td><td>${actionsHtml}</td></tr>`;
+                    tbody.innerHTML += `<tr><td><b>${u.fullName || 'No Name'}</b><br><small style="color:var(--text-light);">HR ID: ${u.hrId || 'Not Set'} | ${u.phone||'No Phone'} | ${u.email||'No Email'}</small></td><td><code>${u.username}</code></td><td>${u.accountName || '-'}</td><td><span class="badge" style="background:var(--text-light); text-transform:capitalize;">${u.role}</span></td><td>${statusHtml}</td><td>${actionsHtml}</td></tr>`;
                 }
             });
         });
@@ -1264,10 +1207,8 @@
         });
     }
 
-    function approveUser(username) { fetch(`${firebaseBaseUrl}/users/${username}/status.json`, { method: 'PUT', body: JSON.stringify("approved") }).then(() => { alert('Account approved successfully!'); loadUsersAdmin(); loadDropdownTargets(); });
-    }
-    function deleteUser(username) { if(confirm(`Are you sure you want to permanently delete user [ ${username} ]?`)) { fetch(`${firebaseBaseUrl}/users/${username}.json`, { method: 'DELETE' }).then(() => { alert('Account deleted!'); loadUsersAdmin(); loadDropdownTargets(); });
-    } }
+    function approveUser(username) { fetch(`${firebaseBaseUrl}/users/${username}/status.json`, { method: 'PUT', body: JSON.stringify("approved") }).then(() => { alert('Account approved successfully!'); loadUsersAdmin(); loadDropdownTargets(); }); }
+    function deleteUser(username) { if(confirm(`Are you sure you want to permanently delete user [ ${username} ]?`)) { fetch(`${firebaseBaseUrl}/users/${username}.json`, { method: 'DELETE' }).then(() => { alert('Account deleted!'); loadUsersAdmin(); loadDropdownTargets(); }); } }
 
     function openEditUserModal(username) {
         const u = globalUsersList[username];
@@ -1294,12 +1235,10 @@
             let optionsHtml = '<option value="draft">Hidden Draft ❌</option><option value="all">All Employees</option>';
             let accounts = new Set();
             if(users) {
-   
                 Object.values(users).forEach(u => { if(u && u.accountName) accounts.add(u.accountName); });
                 if(accounts.size > 0) {
                     optionsHtml += `<optgroup label="By Account / Campaign">`;
                     accounts.forEach(acc => optionsHtml += `<option value="ACC_${acc}">Campaign: ${acc}</option>`);
-         
                     optionsHtml += `</optgroup>`;
                 }
             }
@@ -1330,9 +1269,8 @@
             if(!quizzes) { tbody.innerHTML = '<tr><td colspan="3">No quizzes created yet.</td></tr>'; return; }
             Object.keys(quizzes).forEach(name => {
                 let q = quizzes[name]; if (!q) return; 
-     
                 let tgtDisplay = q.target === 'draft' ? 'Draft ❌' : q.target === 'all' ? 'All' : q.target.startsWith('ACC_') ? `Camp: ${q.target.replace('ACC_','')}` : `User: ${q.target}`;
-                tbody.innerHTML += `<tr><td><b>${name}</b></td><td><span class="badge" style="background:var(--primary)">${tgtDisplay}</span></td><td><div class="action-inline"><button class="view-btn" style="background:#d946ef" onclick="viewQuizQuestions('${name}')"><i class="fa-solid fa-eye"></i> View</button><button class="view-btn" style="background:#16a34a" onclick="openQuestionsEditor('${name}')"><i class="fa-solid fa-pen"></i> Edit</button><button class="view-btn" style="background:var(--danger)" onclick="deleteQuizCompletely('${name}')">Delete</button></div></td></tr>`;
+                tbody.innerHTML += `<tr><td><b>${name}</b></td><td><span class="badge" style="background:var(--text-light)">${tgtDisplay}</span></td><td><div class="action-inline"><button class="view-btn" style="background:#d946ef; color:white;" onclick="viewQuizQuestions('${name}')"><i class="fa-solid fa-eye"></i> View</button><button class="view-btn" style="background:#16a34a; color:white;" onclick="openQuestionsEditor('${name}')"><i class="fa-solid fa-pen"></i> Edit</button><button class="view-btn" style="background:var(--danger); color:white;" onclick="deleteQuizCompletely('${name}')">Delete</button></div></td></tr>`;
             });
         });
     }
@@ -1345,9 +1283,8 @@
             container.innerHTML = ''; if(!qs) { container.innerHTML = '<p>No questions found.</p>'; return; }
             Object.values(qs).forEach((q, idx) => {
                 if (!q) return; let optsHtml = '';
-                if(q.opts) { q.opts.forEach((o, i) => { let isCorrect = (i+1) == 
-                    q.correct; optsHtml += `<div style="padding:6px; margin:4px 0; border-radius:4px; font-size:14px; ${isCorrect ? 'background:#d1fae5; color:#065f46; font-weight:bold; border:1px solid #10b981;' : 'background:#f1f5f9; color:#64748b;'}">${i+1}. ${o} ${isCorrect ? '✔️ Correct' : ''}</div>`; }); }
-                container.innerHTML += `<div class="viewer-q"><p style="margin:0 0 10px 0; color:var(--text); font-weight:bold; font-size:16px;">Q${idx+1}: ${q.question}</p>${optsHtml}</div>`;
+                if(q.opts) { q.opts.forEach((o, i) => { let isCorrect = (i+1) == q.correct; optsHtml += `<div style="padding:6px; margin:4px 0; border-radius:4px; font-size:14px; ${isCorrect ? 'background:#ecfdf5; color:#065f46; font-weight:bold; border:1px solid #10b981;' : 'background:#f8fafc; color:#64748b; border:1px solid var(--border);'}">${i+1}. ${o} ${isCorrect ? '✔️ Correct' : ''}</div>`; }); }
+                container.innerHTML += `<div class="viewer-q"><p style="margin:0 0 10px 0; color:var(--text-dark); font-weight:bold; font-size:16px;">Q${idx+1}: ${q.question}</p>${optsHtml}</div>`;
             });
         });
     }
@@ -1361,10 +1298,7 @@
             container.innerHTML = ''; if(!questions) return;
             Object.keys(questions).forEach(qKey => {
                 let q = questions[qKey]; if (!q) return;
-                container.innerHTML += `<div class="question-edit-row"><label style="font-size:12px; color:var(--primary)">Question Text:</label><input type="text" id="edit_txt_${qKey}" value="${q.question}" style="margin-bottom:5px;"><div style="display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:5px;"><input type="text" id="edit_opt1_${qKey}" value="${q.opts ? (q.opts[0] || '') : ''}"><input type="text" id="edit_opt2_${qKey}" value="${q.opts 
-                    ? (q.opts[1] || '') : ''}"><input type="text" id="edit_opt3_${qKey}" value="${q.opts ? (q.opts[2] || '') : ''}"><input type="text" id="edit_opt4_${qKey}" value="${q.opts ? (q.opts[3] || '') : ''}"></div><div style="display:flex; justify-content:space-between;
-                    align-items:center;"><div><label style="display:inline; font-size:12px;">Correct (1-4): </label><input type="number" id="edit_corr_${qKey}" value="${q.correct || 1}" min="1" max="4" style="width:50px; padding:4px;
-                    display:inline;"></div><div><button class="view-btn" style="background:var(--success);" onclick="saveSingleQuestionChanges('${quizName}', '${qKey}')">Save</button> <button class="view-btn" style="background:var(--danger);" onclick="deleteSingleQuestion('${quizName}', '${qKey}')">Delete</button></div></div></div>`;
+                container.innerHTML += `<div class="question-edit-row"><label style="font-size:12px; color:var(--text-dark); font-weight:bold;">Question Text:</label><input type="text" id="edit_txt_${qKey}" value="${q.question}" style="margin-bottom:5px;"><div style="display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:5px;"><input type="text" id="edit_opt1_${qKey}" value="${q.opts ? (q.opts[0] || '') : ''}"><input type="text" id="edit_opt2_${qKey}" value="${q.opts ? (q.opts[1] || '') : ''}"><input type="text" id="edit_opt3_${qKey}" value="${q.opts ? (q.opts[2] || '') : ''}"><input type="text" id="edit_opt4_${qKey}" value="${q.opts ? (q.opts[3] || '') : ''}"></div><div style="display:flex; justify-content:space-between; align-items:center;"><div><label style="display:inline; font-size:12px;">Correct (1-4): </label><input type="number" id="edit_corr_${qKey}" value="${q.correct || 1}" min="1" max="4" style="width:50px; padding:4px; display:inline;"></div><div><button class="view-btn" style="background:var(--success); color:white;" onclick="saveSingleQuestionChanges('${quizName}', '${qKey}')">Save</button> <button class="view-btn" style="background:var(--danger); color:white;" onclick="deleteSingleQuestion('${quizName}', '${qKey}')">Delete</button></div></div></div>`;
             });
         });
     }
@@ -1375,8 +1309,7 @@
     }
 
     function addSingleQuestionFast() {
-        const txt = document.getElementById('fast-q-text').value.trim(); const o1 = document.getElementById('fast-q-opt1').value.trim(); const o2 
-            = document.getElementById('fast-q-opt2').value.trim(); const o3 = document.getElementById('fast-q-opt3').value.trim(); const o4 = document.getElementById('fast-q-opt4').value.trim(); const corr = document.getElementById('fast-q-correct').value.trim();
+        const txt = document.getElementById('fast-q-text').value.trim(); const o1 = document.getElementById('fast-q-opt1').value.trim(); const o2 = document.getElementById('fast-q-opt2').value.trim(); const o3 = document.getElementById('fast-q-opt3').value.trim(); const o4 = document.getElementById('fast-q-opt4').value.trim(); const corr = document.getElementById('fast-q-correct').value.trim();
         if(!txt || !o1 || !o2 || !corr) return alert('Please complete basic question info!');
         let newQ = { question: txt, opts: [o1, o2, o3, o4], correct: parseInt(corr) };
         fetch(`${firebaseBaseUrl}/quizzes/${currentEditingQuizName}/questions.json`, { method: 'POST', body: JSON.stringify(newQ) }).then(() => { alert('⚡ Question inserted successfully!'); ['fast-q-text','fast-q-opt1','fast-q-opt2','fast-q-opt3','fast-q-opt4','fast-q-correct'].forEach(id => document.getElementById(id).value = ''); openQuestionsEditor(currentEditingQuizName); });
@@ -1387,12 +1320,10 @@
         fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions/${qKey}.json`, { method: 'PUT', body: JSON.stringify(updatedQ) }).then(() => { alert('🟢 Saved!'); openQuestionsEditor(quizName); });
     }
 
-    function deleteSingleQuestion(quizName, qKey) { if(confirm('Delete this question permanently?')) fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions/${qKey}.json`, { method: 'DELETE' }).then(() => openQuestionsEditor(quizName));
-    }
+    function deleteSingleQuestion(quizName, qKey) { if(confirm('Delete this question permanently?')) fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions/${qKey}.json`, { method: 'DELETE' }).then(() => openQuestionsEditor(quizName)); }
 
     function deleteQuizCompletely(name) {
-        if(confirm(`⚠️ Delete quiz [ ${name} ] entirely?`)) { fetch(`${firebaseBaseUrl}/quizzes/${name}.json`, { method: 'DELETE' }).then(() => loadQuizzesAdminSection());
-        }
+        if(confirm(`⚠️ Delete quiz [ ${name} ] entirely?`)) { fetch(`${firebaseBaseUrl}/quizzes/${name}.json`, { method: 'DELETE' }).then(() => loadQuizzesAdminSection()); }
     }
 
     // -----------------------------------------------------------------------------
@@ -1400,10 +1331,9 @@
     // -----------------------------------------------------------------------------
     function viewAgentSchedule() {
         switchView('info-display-box');
-        document.getElementById('info-box-title').innerText = "🗓️ Your Weekly Schedule ";
+        document.getElementById('info-box-title').innerText = "🗓️ Your Weekly Schedule (Live from Sheet)";
         let nameKey = currentUser.fullName.trim().toLowerCase();
-        if(!liveSchedules[nameKey]) { document.getElementById('info-content-area').innerHTML = `<div class="info-card" style="color:var(--danger)">No schedule found for [ ${currentUser.fullName} ] in the live Google Sheet.
-            Or the sheet is not linked yet.</div>`; return; }
+        if(!liveSchedules[nameKey]) { document.getElementById('info-content-area').innerHTML = `<div class="info-card" style="color:var(--danger); border-left-color:var(--danger);">No schedule found for [ ${currentUser.fullName} ] in the live Google Sheet. Or the sheet is not linked yet.</div>`; return; }
         
         let s = liveSchedules[nameKey];
         const todayStr = daysMap[new Date().getDay()]; 
@@ -1413,22 +1343,19 @@
                 <tbody><tr>
                     <td class="${s.sunday.toLowerCase().includes('off')?'off-day':'work-day'} ${todayStr==='sunday'?'current-day-highlight':''}">${s.sunday}</td>
                     <td class="${s.monday.toLowerCase().includes('off')?'off-day':'work-day'} ${todayStr==='monday'?'current-day-highlight':''}">${s.monday}</td>
-   
-                 <td class="${s.tuesday.toLowerCase().includes('off')?'off-day':'work-day'} ${todayStr==='tuesday'?'current-day-highlight':''}">${s.tuesday}</td>
+                    <td class="${s.tuesday.toLowerCase().includes('off')?'off-day':'work-day'} ${todayStr==='tuesday'?'current-day-highlight':''}">${s.tuesday}</td>
                     <td class="${s.wednesday.toLowerCase().includes('off')?'off-day':'work-day'} ${todayStr==='wednesday'?'current-day-highlight':''}">${s.wednesday}</td>
                     <td class="${s.thursday.toLowerCase().includes('off')?'off-day':'work-day'} ${todayStr==='thursday'?'current-day-highlight':''}">${s.thursday}</td>
                     <td class="${s.friday.toLowerCase().includes('off')?'off-day':'work-day'} ${todayStr==='friday'?'current-day-highlight':''}">${s.friday}</td>
-               
-     <td class="${s.saturday.toLowerCase().includes('off')?'off-day':'work-day'} ${todayStr==='saturday'?'current-day-highlight':''}">${s.saturday}</td>
+                    <td class="${s.saturday.toLowerCase().includes('off')?'off-day':'work-day'} ${todayStr==='saturday'?'current-day-highlight':''}">${s.saturday}</td>
                 </tr></tbody>
-            </table><p style="text-align:center;
-            margin-top:10px; font-size:12px; color:#854d0e;">(Current day is highlighted in yellow 🌟)</p>`;
+            </table><p style="text-align:center; margin-top:10px; font-size:12px; color:var(--warning); font-weight:bold;">(Current day is highlighted in yellow 🌟)</p>`;
     }
 
     function viewAgentBreaks() {
-        switchView('info-display-box'); document.getElementById('info-box-title').innerText = "Your Scheduled Break Time ";
+        switchView('info-display-box'); document.getElementById('info-box-title').innerText = "Your Scheduled Break Time (Live)";
         let nameKey = currentUser.fullName.trim().toLowerCase(); let b = liveBreaks[nameKey];
-        document.getElementById('info-content-area').innerHTML = b ? `<div class="info-card" style="color:var(--success)"><i class="fa-solid fa-mug-hot"></i> <b>Break Time:</b> ${b}</div>` : '<div class="info-card">No break time assigned for your name in Sheet 2 yet.</div>';
+        document.getElementById('info-content-area').innerHTML = b ? `<div class="info-card" style="color:var(--text-dark); border-left-color:var(--brand-green);"><i class="fa-solid fa-mug-hot" style="color:var(--brand-green);"></i> <b style="color:var(--brand-green);">Break Time:</b> ${b}</div>` : '<div class="info-card" style="border-left-color:var(--warning);">No break time assigned for your name in Sheet 2 yet.</div>';
     }
 
     function loadQuizzesForAgent() {
@@ -1436,14 +1363,12 @@
  
         fetch(`${firebaseBaseUrl}/quizzes.json`).then(res => res.json()).then(quizzes => {
             const list = document.getElementById('available-quizzes-list'); list.innerHTML = '';
-            if(!quizzes) { list.innerHTML = 'No quizzes available for you currently.';
-                return; }
+            if(!quizzes) { list.innerHTML = 'No quizzes available for you currently.'; return; }
             Object.keys(quizzes).forEach(name => {
                 let q = quizzes[name]; if (!q) return;
                 let tgt = q.target;
                 if(tgt === 'all' || tgt === currentUser.username || tgt === `ACC_${currentUser.accountName}`) {
-                 
-                    list.innerHTML += `<div class="info-card" style="margin-bottom:10px; text-align:left; display:flex; justify-content:space-between; align-items:center;"><span style="font-weight:bold; color:var(--primary);"><i class="fa-solid fa-file-pen"></i> ${name}</span><button onclick="startQuizForAgent('${name}')" style="width:auto; margin:0; padding:8px 15px;">Start Quiz 🚀</button></div>`;
+                    list.innerHTML += `<div class="info-card" style="margin-bottom:10px; text-align:left; display:flex; justify-content:space-between; align-items:center; background:#fff;"><span style="font-weight:bold; color:var(--text-dark);"><i class="fa-solid fa-file-pen" style="color:var(--brand-green);"></i> ${name}</span><button onclick="startQuizForAgent('${name}')" style="width:auto; margin:0; padding:8px 15px;">Start Quiz 🚀</button></div>`;
                 }
             });
         });
@@ -1459,11 +1384,9 @@
             document.getElementById('submit-quiz-btn').style.display = 'block'; document.getElementById('close-quiz-btn').classList.add('hidden');
 
             activeQuizQuestions.forEach((q, i) => {
-   
                 if (!q) return;
-                let h = `<div style="background:white; padding:15px; margin-bottom:15px; border-radius:8px; border:2px solid #e2e8f0;"><p style="margin-top:0; font-size:16px; color:var(--text); font-weight:bold;">Q${i+1}: ${q.question}</p>`;
-                if(q.opts) { q.opts.forEach((o, oi) => { if(o) h += `<label class="option-label" id="label_${i}_${oi+1}"><input type="radio" name="q_${i}" value="${oi+1}"> ${o}</label>`;
-                }); }
+                let h = `<div style="background:white; padding:15px; margin-bottom:15px; border-radius:8px; border:1px solid var(--border);"><p style="margin-top:0; font-size:16px; color:var(--text-dark); font-weight:bold;">Q${i+1}: ${q.question}</p>`;
+                if(q.opts) { q.opts.forEach((o, oi) => { if(o) h += `<label class="option-label" id="label_${i}_${oi+1}"><input type="radio" name="q_${i}" value="${oi+1}"> ${o}</label>`; }); }
                 container.innerHTML += h + `</div>`;
             });
             document.getElementById('active-quiz-area').classList.remove('hidden');
@@ -1478,13 +1401,11 @@
             const sel = document.querySelector(`input[name="q_${i}"]:checked`);
             let safeText = q.question.replace(/\|/g, '-').replace(/\./g, ' '); 
             if(sel && sel.value == q.correct) { score++; detailsArr.push(`${safeText} : Correct ✅`); } 
-            else { detailsArr.push(`${safeText} : ${sel ? 'Wrong ❌' : 
-                'Not Answered ⚠️'}`); }
+            else { detailsArr.push(`${safeText} : ${sel ? 'Wrong ❌' : 'Not Answered ⚠️'}`); }
             document.querySelectorAll(`input[name="q_${i}"]`).forEach(el => el.disabled = true);
         });
         let res = `${score} / ${activeQuizQuestions.length}`;
-        let scorePayload = { username: currentUser.fullName || currentUser.username, hrId: currentUser.hrId ||
-            'Not Set', account: currentUser.accountName || '-', quizName: activeQuizName, score: res, details: detailsArr.join(" | "), timestamp: new Date().toLocaleString() };
+        let scorePayload = { username: currentUser.fullName || currentUser.username, hrId: currentUser.hrId || 'Not Set', account: currentUser.accountName || '-', quizName: activeQuizName, score: res, details: detailsArr.join(" | "), timestamp: new Date().toLocaleString() };
         fetch(`${firebaseBaseUrl}/scores.json`, { method: 'POST', body: JSON.stringify(scorePayload) })
         .then(() => { alert(`Quiz Submitted! Score: ${res}`); document.getElementById('submit-quiz-btn').style.display = 'none'; document.getElementById('close-quiz-btn').classList.remove('hidden'); });
     }
@@ -1498,13 +1419,11 @@
             const filterSelect = document.getElementById('admin-quiz-filter');
             if (filterSelect) {
                 let uniqueQuizzes = new Set();
-  
                 if(scores) { Object.values(scores).forEach(s => { if(s && s.quizName) uniqueQuizzes.add(s.quizName); }); }
                 let opts = `<option value="ALL_QUIZZES">All Quizzes</option>`;
                 uniqueQuizzes.forEach(q => { opts += `<option value="${q.replace(/"/g, '&quot;')}">${q}</option>`; });
                 filterSelect.innerHTML = opts;
             }
- 
             filterScoresTable();
         });
     }
@@ -1512,43 +1431,37 @@
     function filterScoresTable() {
         const tbody = document.getElementById('admin-scores-list');
         tbody.innerHTML = '';
-        if(!globalScoresData) { tbody.innerHTML = '<tr><td colspan="8">No results recorded yet.</td></tr>'; return;
-        }
+        if(!globalScoresData) { tbody.innerHTML = '<tr><td colspan="8">No results recorded yet.</td></tr>'; return; }
         
-        const filterVal = document.getElementById('admin-quiz-filter').value ||
-            "ALL_QUIZZES";
+        const filterVal = document.getElementById('admin-quiz-filter').value || "ALL_QUIZZES";
         let hasData = false;
         Object.keys(globalScoresData).forEach(id => {
             let score = globalScoresData[id]; if (!score) return; 
             if(filterVal === "ALL_QUIZZES" || score.quizName === filterVal) {
                 hasData = true;
-                let detailsHtml = score.details ? score.details.split(' | ').map(p => `<div class="details-row">${p}</div>`).join('') : 'No details';
-        
-                tbody.innerHTML += `<tr><td><b>${score.username}</b></td><td>${score.hrId}</td><td>${score.account}</td><td>${score.quizName}</td><td><span class="badge-score">${score.score}</span></td><td><button class="view-btn" onclick="document.getElementById('det_${id}').classList.toggle('hidden')">View Details</button><div id="det_${id}" class="details-container hidden">${detailsHtml}</div><span style="display:none;" class="excel-details-export">${score.details||''}</span></td><td><small>${score.timestamp}</small></td><td><button class="view-btn" style="background:var(--danger);" onclick="deleteScoreFromSystem('${id}')">Delete</button></td></tr>`;
+                let detailsHtml = score.details ? score.details.split(' | ').map(p => `<div style="margin-bottom:4px; padding:4px; background:#f1f5f9; border-radius:4px;">${p}</div>`).join('') : 'No details';
+                tbody.innerHTML += `<tr><td><b>${score.username}</b></td><td>${score.hrId}</td><td>${score.account}</td><td>${score.quizName}</td><td><span class="badge-score">${score.score}</span></td><td><button class="view-btn" style="background:#64748b; color:white;" onclick="document.getElementById('det_${id}').classList.toggle('hidden')">View Details</button><div id="det_${id}" class="details-container hidden">${detailsHtml}</div><span style="display:none;" class="excel-details-export">${score.details||''}</span></td><td><small style="color:var(--text-light);">${score.timestamp}</small></td><td><button class="view-btn danger" onclick="deleteScoreFromSystem('${id}')">Delete</button></td></tr>`;
             }
         });
         if(!hasData) tbody.innerHTML = `<tr><td colspan="8">No matching records found.</td></tr>`;
     }
 
-    function deleteScoreFromSystem(id) { if(confirm('Delete this score?')) fetch(`${firebaseBaseUrl}/scores/${id}.json`, { method: 'DELETE' }).then(() => loadScoresAdmin());
-    }
+    function deleteScoreFromSystem(id) { if(confirm('Delete this score?')) fetch(`${firebaseBaseUrl}/scores/${id}.json`, { method: 'DELETE' }).then(() => loadScoresAdmin()); }
 
     function loadAgentScoresArchive() {
         switchView('quiz-dashboard'); document.getElementById('active-quiz-area').classList.add('hidden');
         fetch(`${firebaseBaseUrl}/scores.json`).then(res => res.json()).then(scores => {
             const list = document.getElementById('available-quizzes-list'); list.innerHTML = '';
-            if(!scores) { list.innerHTML = 'Your archive is empty.'; return; }
-            let h = `<table class="data-table" style="width:100%"><thead><tr><th>Quiz Name</th><th>Score</th><th>Date</th></tr></thead><tbody>`;
+            if(!scores) { list.innerHTML = '<p style="text-align:center; padding:20px; color:var(--text-light);">Your archive is empty.</p>'; return; }
+            let h = `<table class="data-table" style="width:100%; background:#fff;"><thead><tr><th>Quiz Name</th><th>Score</th><th>Date</th></tr></thead><tbody>`;
             let hasArchive = false;
             Object.keys(scores).forEach(id => {
-          
                 let s = scores[id];
                 if (s && (s.username === currentUser.fullName || s.username === currentUser.username)) {
-                    hasArchive = true; h += `<tr><td>${s.quizName}</td><td><span class="badge-score">${s.score}</span></td><td>${s.timestamp}</td></tr>`;
+                    hasArchive = true; h += `<tr><td>${s.quizName}</td><td><span class="badge-score">${s.score}</span></td><td><small>${s.timestamp}</small></td></tr>`;
                 }
             });
-           
-            list.innerHTML = hasArchive ? h + `</tbody></table>` : 'No completed quiz history found.';
+            list.innerHTML = hasArchive ? h + `</tbody></table>` : '<p style="text-align:center; padding:20px; color:var(--text-light);">No completed quiz history found.</p>';
         });
     }
 
@@ -1558,7 +1471,7 @@
         detailCells.forEach(cell => { let exportSpan = cell.querySelector('.excel-details-export'); if(exportSpan) cell.innerText = exportSpan.innerText; });
         tableClone.querySelectorAll('tr').forEach(row => { if(row.children.length > 7) row.removeChild(row.children[7]); });
         const wb = XLSX.utils.table_to_book(tableClone, { sheet: "Results" });
-        XLSX.writeFile(wb, "HydePark_Results.xlsx");
+        XLSX.writeFile(wb, "Quattro_Operations_Results.xlsx");
     }
 </script>
 </body>
