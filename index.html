@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,1261 +7,1559 @@
     <title>Quatro Operations ⚡</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
         :root { 
             --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --success: #10b981; 
-            --danger: #ef4444; 
-            --warning: #f59e0b; 
-            --bg: #f8fafc; 
-            --text: #0f172a;
-            --border: #e2e8f0;
-            --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+            --success: #10b981; --danger: #ef4444; 
+            --warning: #f59e0b; --bg: #f8fafc; --text: #0f172a;
         }
-        
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        
         body { 
-            background: var(--bg); 
-            color: var(--text); 
-            min-height: 100vh; 
-            display: flex;
-            flex-direction: column;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg); color: var(--text); margin: 0; padding: 10px; 
+            min-height: 100vh; box-sizing: border-box; display: flex; flex-direction: column;
         }
-
-        /* نظام شاشات الدخول والـ Auth */
-        .auth-container {
-            max-width: 450px;
-            width: 90%;
-            margin: 80px auto;
+        .container { 
             background: #ffffff;
-            padding: 35px;
-            border-radius: 16px;
-            box-shadow: var(--card-shadow);
-            border: 1px solid var(--border);
+            padding: 25px; border-radius: 16px; 
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); width: 100%; max-width: 1150px; 
+            box-sizing: border-box;
+            margin: 80px auto 20px auto; flex: 1; 
         }
-
-        .auth-title {
-            text-align: center;
-            font-size: 1.6rem;
-            font-weight: 800;
-            margin-bottom: 25px;
-            color: var(--text);
+        h2, h3, h4, h5 { text-align: center;
+            color: var(--primary); margin-top: 0; }
+        .form-group { margin-bottom: 16px; text-align: left;
         }
-
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; }
-        .form-group input, .form-group select {
-            width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; outline: none; font-size: 0.95rem;
+        label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px;
         }
-        .form-group input:focus, .form-group select:focus { border-color: var(--primary); }
-
-        /* الناف بار المطور والموزع هندسياً بدقة */
-        .navbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #ffffff;
-            padding: 15px 40px;
-            box-shadow: var(--card-shadow);
-            border-bottom: 1px solid var(--border);
-            z-index: 100;
+        input, select, textarea { 
+            width: 100%;
+            padding: 12px; border: 1px solid #cbd5e1; 
+            border-radius: 8px; box-sizing: border-box; font-size: 15px; font-family: inherit;
         }
-
-        /* الهوم والبروفايل جنب بعض على الشمال تماماً وبشكل جمالي */
-        .nav-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
+        input[readonly] { background-color: #f1f5f9; color: #64748b; cursor: not-allowed; border-color: #e2e8f0;
         }
-
-        .nav-link-btn {
-            background: none;
-            border: none;
-            color: var(--text);
-            font-weight: 700;
-            font-size: 0.95rem;
-            padding: 10px 18px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        button { 
+            width: 100%;
+            padding: 12px; background: var(--primary); color: white; 
+            border: none; border-radius: 8px; font-size: 16px; cursor: pointer; 
+            font-weight: bold; margin-top: 10px;
+            transition: all 0.2s; 
+            display: flex; align-items: center; justify-content: center; gap: 8px;
         }
-
-        .nav-link-btn:hover, .nav-link-btn.active {
-            background: #eff6ff;
-            color: var(--primary);
+        button:hover { opacity: 0.9; transform: translateY(-1px);
         }
-
-        /* اللوجو والاسم في النص بالظبط */
-        .nav-center {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        button:disabled { background: #94a3b8 !important; cursor: not-allowed; opacity: 0.7;
         }
-
-        .nav-logo-img {
-            height: 42px;
-            width: auto;
-            object-fit: contain;
+        .hidden { display: none !important;
         }
-
-        .nav-brand-name {
-            font-size: 1.35rem;
-            font-weight: 800;
-            color: var(--text);
-            letter-spacing: -0.3px;
+        
+        .navbar { 
+            position: fixed;
+            top: 0; left: 0; right: 0; height: 60px; 
+            background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+            display: flex; justify-content: space-between;
+            align-items: center; 
+            padding: 0 20px; z-index: 1000; box-sizing: border-box; 
         }
-
-        .nav-right {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .badge-user-info {
+        .nav-btn { 
             background: #f1f5f9;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 700;
+            color: var(--text); padding: 8px 14px; 
+            border-radius: 6px; font-size: 14px; border: 1px solid #cbd5e1; 
+            font-weight: 600; cursor: pointer; width: auto;
+            margin: 0; 
+        }
+        .logout-btn { background: var(--danger); color: white; border: none;
         }
 
-        /* توزيع لوحة التحكم الشاملة (Dashboard Layout) */
-        .dashboard-wrapper {
-            max-width: 1500px;
-            width: 100%;
-            margin: 30px auto;
-            padding: 0 25px;
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-            flex: 1;
+        .menu-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 20px;
         }
-
-        /* الصف الأول: الجدول جنبه البريك */
-        .dashboard-row-top {
-            display: grid;
-            grid-template-columns: 1.2fr 0.8fr;
-            gap: 25px;
-        }
-
-        /* الصف الثاني: الكويز جنبه الدرجات */
-        .dashboard-row-mid {
-            display: grid;
-            grid-template-columns: 0.8fr 1.2fr;
-            gap: 25px;
-        }
-
-        /* الصف الثالث: الكيبي اي تكون في النص تحت بعدهم */
-        .dashboard-row-bottom {
-            display: flex;
-            justify-content: center;
-            width: 100%;
-        }
-
-        .kpi-center-container {
-            width: 100%;
-            max-width: 900px;
-        }
-
-        /* تصميم الكروت العامة */
-        .main-app-card {
-            background: #ffffff;
-            border-radius: 16px;
-            padding: 25px;
-            box-shadow: var(--card-shadow);
-            border: 1px solid var(--border);
-        }
-
-        .card-top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #f1f5f9;
-            padding-bottom: 12px;
-        }
-
-        .card-header-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        /* فلاتر البحث المتجاورة تماماً */
-        .inline-filters-container {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            background: #f8fafc;
-            padding: 12px;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-        }
-
-        .inline-filters-container input, .inline-filters-container select {
-            flex: 1;
-            padding: 10px 14px;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            outline: none;
-        }
-
-        /* الجداول الذكية */
-        .responsive-table-holder {
-            overflow-x: auto;
-            max-height: 380px;
-        }
-
-        .system-data-table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: right;
-            font-size: 0.95rem;
-        }
-
-        .system-data-table th {
-            background: #f1f5f9;
-            padding: 14px;
-            font-weight: 700;
-            border-bottom: 2px solid #cbd5e1;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        .system-data-table td {
-            padding: 14px;
-            border-bottom: 1px solid var(--border);
-            vertical-align: middle;
-        }
-
-        /* نظام التذاكر والطلبات المطور بالكامل (Tickets System) */
-        .tickets-master-panel {
-            display: grid;
-            grid-template-columns: 340px 1fr;
-            gap: 0;
-            background: #ffffff;
-            border-radius: 16px;
-            overflow: hidden;
-            border: 1px solid var(--border);
-            box-shadow: var(--card-shadow);
-            height: 600px;
-        }
-
-        .tickets-sidebar-list {
-            background: #f8fafc;
-            border-left: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-
-        .sidebar-search-area {
+        @media(min-width: 500px) { .menu-grid { grid-template-columns: 1fr 1fr;
+        } }
+        .menu-btn { 
             padding: 20px;
-            border-bottom: 1px solid var(--border);
-            background: #ffffff;
+            font-size: 16px; border-radius: 12px; 
+            border: 2px solid var(--primary); background: #fff; color: var(--primary); 
+            cursor: pointer; font-weight: bold; text-align: center; flex-direction: column;
+            display: flex; align-items: center; justify-content: center; gap: 10px; 
+        }
+        
+        .admin-tabs { display: flex;
+            gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
+        .tab-btn { 
+            background: #e2e8f0;
+            color: var(--text); padding: 8px 12px; 
+            border-radius: 6px; border: none; font-weight: bold; cursor: pointer; 
+            font-size: 13px; white-space: nowrap; width: auto;
+            margin: 0; 
+        }
+        .tab-btn.active { background: var(--primary); color: white;
+        }
+        
+        .data-table { width: 100%;
+            border-collapse: collapse; margin-top: 15px; font-size: 13px; text-align: left; }
+        .data-table th, .data-table td { border: 1px solid #cbd5e1;
+            padding: 10px; text-align: center; vertical-align: middle; }
+        .data-table th { background: #1e293b;
+            color: white; font-weight: bold; } 
+        
+        .info-card { background: #f1f5f9;
+            padding: 20px; border-radius: 12px; border: 1px solid #cbd5e1; text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 15px; border-left: 4px solid var(--primary);
+        }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; color: white;
+            font-weight: bold; display: inline-block; }
+        .badge-admin { background: #7c3aed;
+        } 
+        .badge-leader { background: #2563eb;
+        } 
+        .badge-quality { background: #db2777;
+        } 
+        .badge-pending { background: var(--warning); color: #000;
+        }
+        .badge-score { background: #1e293b; color: #f8fafc; padding: 6px 12px; font-size: 14px;
+            border-radius: 8px; letter-spacing: 1px; }
+        
+        .option-label { display: block;
+            padding: 10px; margin: 6px 0; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: normal; cursor: pointer; transition: all 0.3s; text-align: left;
+        }
+        .correct-ans { background: #d1fae5 !important; border-color: #10b981 !important; color: #065f46 !important;
+            font-weight: bold; }
+        .wrong-ans { background: #fee2e2 !important; border-color: #ef4444 !important;
+            color: #991b1b !important; font-weight: bold; }
+
+        .footer-credits { text-align: center; font-size: 12px;
+            color: #64748b; padding: 15px 0; font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;}
+        .view-btn { background: #4f46e5; color: white; padding: 6px 12px; border-radius: 4px;
+            font-size: 12px; cursor: pointer; border: none; font-weight: bold; width: auto; margin: 0;
+        }
+        .off-day { background: #fee2e2; color: #ef4444; font-weight: bold;
+        }
+        .work-day { background: #e0f2fe; color: #0369a1; font-weight: bold;
+        }
+        .current-day-highlight { background-color: #fef08a !important; color: #854d0e !important; font-weight: 900;
+            border: 3px solid #eab308 !important; box-shadow: inset 0 0 10px rgba(234, 179, 8, 0.5);
+        }
+        .action-inline { display: flex; gap: 4px; justify-content: center; align-items: center; flex-wrap: wrap;
+        }
+        .input-mini { padding: 6px; font-size: 13px; width: 100%; box-sizing: border-box; border-radius: 4px;
+            border: 1px solid #cbd5e1; }
+        
+        .admin-add-user-box { background: #f1f5f9;
+            padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #cbd5e1; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;
+        }
+        .admin-add-user-box h5 { grid-column: 1 / -1; margin: 0 0 10px 0;
+            color: var(--text); }
+        .filter-bar { display: flex; gap: 10px; background: #e2e8f0; padding: 10px;
+            border-radius: 8px; margin-bottom: 10px; flex-wrap: wrap;}
+        
+        .viewer-box { background: #fdf4ff;
+            border: 1px solid #e879f9; padding: 15px; border-radius: 8px; margin-top: 15px;
+        }
+        .viewer-q { background: white; padding: 10px; border-left: 4px solid #d946ef; margin-bottom: 10px;
+            border-radius: 4px; text-align: left; }
+
+        .questions-editor-box { background: #f0fdf4; border: 2px solid #16a34a;
+            padding: 15px; border-radius: 12px; margin-top: 20px; text-align: left; }
+        .question-edit-row { background: white;
+            padding: 12px; border: 1px solid #bbf7d0; border-radius: 8px; margin-bottom: 10px;
+        }
+        .add-fast-question-box { background: #e0f2fe; border: 1px dashed #0284c7; padding: 12px; border-radius: 8px;
+            margin-top: 15px; }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0;
+            bottom: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 2000;
+        }
+        .modal-content { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 500px;
+            max-height: 90vh; overflow-y: auto; }
+        .details-container { margin-top: 10px; text-align: left; background: #f8fafc;
+            padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 12px;
         }
 
-        .tickets-scrollable-area {
-            flex: 1;
-            overflow-y: auto;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+        /* Chat Styles */
+        .chat-bubble { padding: 8px 12px;
+            border-radius: 8px; margin-bottom: 8px; max-width: 80%; word-wrap: break-word; font-size: 14px;
+        }
+        .chat-bubble.agent { background: #e0f2fe; color: #0369a1; margin-left: auto; text-align: right; border-bottom-right-radius: 0;
+        }
+        .chat-bubble.management { background: #f1f5f9; color: #334155; margin-right: auto; text-align: left; border-bottom-left-radius: 0;
+            border: 1px solid #cbd5e1; }
+        .chat-meta { font-size: 10px; color: #64748b; margin-top: 4px;
         }
 
-        .ticket-list-card {
-            background: #ffffff;
-            padding: 16px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            cursor: pointer;
-            position: relative;
-            transition: all 0.2s ease;
+        /* KPI Styles */
+        .kpi-card { background: var(--bg);
+            padding: 15px; border-radius: 8px; border: 1px solid #cbd5e1; margin-top: 15px; overflow-x: auto;
         }
-
-        .ticket-list-card:hover, .ticket-list-card.active {
-            border-color: var(--primary);
-            background: #f0f7ff;
+        .kpi-table { width: 100%; border-collapse: collapse; text-align: center; margin-top: 10px; font-size: 14px;
+            background: white;}
+        .kpi-table th { background: var(--primary); color: white; padding: 10px; white-space: nowrap;
+            border: 1px solid #e2e8f0;}
+        .kpi-table td { padding: 10px; border: 1px solid #e2e8f0;
+            font-weight: bold;}
+        .text-danger { color: var(--danger); font-weight: bold;
         }
-
-        .ticket-card-title {
-            font-weight: 700;
-            font-size: 0.95rem;
-            margin-bottom: 6px;
-            color: var(--text);
-            padding-left: 20px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        .text-success { color: var(--success); font-weight: bold;
         }
-
-        .ticket-card-details {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.8rem;
-            color: #64748b;
-        }
-
-        /* النقطة الحمراء الذكية للتنبيهات الفردية لكل شات */
-        .red-alert-dot {
-            position: absolute;
-            top: 18px;
-            left: 15px;
-            width: 10px;
-            height: 10px;
-            background-color: var(--danger);
-            border-radius: 50%;
-            display: none;
-            box-shadow: 0 0 0 2px #ffffff;
-        }
-
-        .ticket-list-card.has-new-messages .red-alert-dot {
-            display: block;
-        }
-
-        /* نافذة محادثة الطلب الفعالة */
-        .ticket-chat-window {
-            display: flex;
-            flex-direction: column;
-            background: #ffffff;
-            height: 100%;
-        }
-
-        .chat-header-info {
-            padding: 18px 25px;
-            border-bottom: 1px solid var(--border);
-            background: #ffffff;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .chat-body-stream {
-            flex: 1;
-            padding: 25px;
-            background: #f1f5f9;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .chat-bubble {
-            max-width: 65%;
-            padding: 14px 18px;
-            border-radius: 14px;
-            font-size: 0.95rem;
-            line-height: 1.5;
-            position: relative;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }
-
-        .chat-bubble.sent-by-me {
-            background: var(--primary);
-            color: #ffffff;
-            align-self: flex-start;
-            border-top-right-radius: 0;
-        }
-
-        .chat-bubble.received-by-me {
-            background: #ffffff;
-            color: var(--text);
-            align-self: flex-end;
-            border-top-left-radius: 0;
-            border: 1px solid var(--border);
-        }
-
-        .chat-bubble-author { font-weight: 700; display: block; margin-bottom: 4px; font-size: 0.85rem; }
-        .chat-bubble-time { font-size: 0.75rem; opacity: 0.8; display: block; text-align: left; margin-top: 5px; }
-
-        .chat-file-attachment-link {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 8px;
-            padding: 8px 12px;
-            background: rgba(0, 0, 0, 0.05);
-            border-radius: 6px;
-            color: inherit;
-            text-decoration: none;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-
-        .chat-footer-input-bar {
-            padding: 18px 25px;
-            background: #ffffff;
-            border-top: 1px solid var(--border);
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-
-        .chat-footer-input-bar input[type="text"] {
-            flex: 1; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 8px; outline: none; font-size: 0.95rem;
-        }
-
-        /* الأزرار والمفاتيح التفاعلية */
-        .btn-system {
-            padding: 10px 20px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer;
-            display: inline-flex; align-items: center; gap: 8px; font-size: 0.9rem; transition: all 0.2s;
-        }
-        .btn-system-primary { background: var(--primary); color: white; }
-        .btn-system-primary:hover { background: var(--primary-hover); }
-        .btn-system-success { background: var(--success); color: white; }
-        .btn-system-danger { background: var(--danger); color: white; }
-
-        .file-attach-trigger {
-            cursor: pointer; padding: 12px; background: #f1f5f9; border-radius: 8px; color: #475569; transition: background 0.2s;
-        }
-        .file-attach-trigger:hover { background: #e2e8f0; }
-
-        .badge-status { padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 700; }
-        .badge-status-active { background: #d1fae5; color: #065f46; }
-        .badge-status-break { background: #fef3c7; color: #92400e; }
-
-        /* ستايل التوقيع الفني النهائي والمطلوب حراً */
-        .footer-hr { border: 0; height: 1px; background: var(--border); margin-top: auto; padding-top: 40px; }
-        .footer-branding-signature { text-align: center; padding: 25px 0; font-size: 1.15rem; font-weight: 800; color: #64748b; }
-
-        .hidden-section { display: none !important; }
+        .admin-kpi-section { background: #e0f2fe; padding: 15px; border-radius: 8px; margin-bottom: 20px;
+            border: 1px dashed var(--primary); }
     </style>
 </head>
 <body>
 
-    <div id="auth-view-section" class="auth-container">
-        <div class="auth-title">Quatro Operations ⚡</div>
-        <div class="form-group">
-            <label>اسم المستخدم أو البريد الإلكتروني:</label>
-            <input type="text" id="auth-username-field" placeholder="أدخل اسم المستخدم...">
-        </div>
-        <div class="form-group">
-            <label>صلاحية الدخول (الرتبة):</label>
-            <select id="auth-role-field">
-                <option value="admin">مسؤول النظام (Admin - محمد ناصر)</option>
-                <option value="agent">وكيل خدمة / موظف (Agent)</option>
-            </select>
-        </div>
-        <button class="btn-system btn-system-primary" style="width: 100%; justify-content: center; padding: 14px;" onclick="handleSystemLogin()">تسجيل الدخول الآمن</button>
+<div class="navbar" id="top-navbar" style="display: none;">
+    <div>
+        <button class="nav-btn" onclick="goHome()"><i class="fa-solid fa-house"></i> Home</button>
+        <button class="nav-btn" id="nav-profile-btn" onclick="switchView('agent-profile')" style="display:none;"><i class="fa-solid fa-user"></i> Profile / Chat</button>
     </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <span id="user-role-badge" class="badge"></span>
+        <button class="nav-btn logout-btn" onclick="logout()"><i class="fa-solid fa-door-open"></i> Logout</button>
+    </div>
+</div>
 
-    <div id="main-application-wrapper" class="hidden-section">
+<div class="container">
+    <div id="auth-box">
+      
+        <h2>Hyde Park Operations ⚡</h2>
+        <form onsubmit="handleAuth(event)">
+            <div id="signup-fields" style="display: none;">
+                <div class="form-group">
+                    <label>Full Name (Must match Excel exactly)</label>
+                    <input type="text" id="auth-fullname" placeholder="e.g. John Doe">
+                </div>
+                <div class="form-group">
+                    <label>Account / Campaign</label>
+                    <input type="text" id="auth-account" placeholder="e.g. Hyde Park, Vodafone...">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="auth-username" required placeholder="Enter username">
+            </div>
         
-        <nav class="navbar">
-            <div class="nav-left">
-                <button class="nav-link-btn active" id="nav-home-trigger" onclick="navigateToView('dashboard')"><i class="fa-solid fa-chart-pie"></i> لوحة التحكم</button>
-                <button class="nav-link-btn" id="nav-tickets-trigger" onclick="navigateToView('tickets')"><i class="fa-solid fa-envelope-open-text"></i> الطلبات والشات</button>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="auth-password" required placeholder="••••••••">
             </div>
-            
-            <div class="nav-center">
-                <img src="logo.png" alt="Logo" class="nav-logo-img" onerror="this.style.opacity='0';">
-                <span class="nav-brand-name">Quatro Operations ⚡</span>
-            </div>
-
-            <div class="nav-right">
-                <span class="badge-user-info" id="global-user-badge">تحميل...</span>
-                <button class="btn-system btn-system-danger" onclick="handleSystemLogout()" style="padding: 6px 12px; font-size: 0.8rem;"><i class="fa-solid fa-sign-out-alt"></i> خروج</button>
-            </div>
-        </nav>
-
-        <div class="dashboard-wrapper" id="view-dashboard-panel">
-            
-            <div class="dashboard-row-top">
-                <div class="main-app-card">
-                    <div class="card-top-bar">
-                        <div class="card-header-title"><i class="fa-solid fa-list-check" style="color: var(--primary);"></i> جدول العمليات والمتابعة الفورية للـ Agents</div>
-                        <button class="btn-system btn-system-primary" style="padding: 6px 12px; font-size: 0.8rem;" onclick="reloadDashboardData()"><i class="fa-solid fa-rotate"></i> تحديث الجداول</button>
-                    </div>
-                    <div class="responsive-table-holder">
-                        <table class="system-data-table">
-                            <thead>
-                                <tr>
-                                    <th>اسم الوكيل الموظف</th>
-                                    <th>المسمى الوظيفي</th>
-                                    <th>فترة العمل (Shift)</th>
-                                    <th>الحالة الحالية</th>
-                                </tr>
-                            </thead>
-                            <tbody id="dom-table-operations-body">
-                                </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="main-app-card">
-                    <div class="card-top-bar">
-                        <div class="card-header-title"><i class="fa-solid fa-mug-hot" style="color: var(--warning);"></i> إدارة ومراقبة الـ Breaks الحية</div>
-                        <div id="agent-break-action-container">
-                            </div>
-                    </div>
-                    <div class="responsive-table-holder">
-                        <table class="system-data-table">
-                            <thead>
-                                <tr>
-                                    <th>الموظف</th>
-                                    <th>نوع الراحة</th>
-                                    <th>وقت البداية</th>
-                                    <th>الحالة المستغرقة</th>
-                                </tr>
-                            </thead>
-                            <tbody id="dom-table-breaks-body">
-                                </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div class="dashboard-row-mid">
-                <div class="main-app-card">
-                    <div class="card-top-bar">
-                        <div class="card-header-title"><i class="fa-solid fa-graduation-cap" style="color: var(--success);"></i> بوابة الاختبارات والكويزات الفورية</div>
-                    </div>
-                    <div id="quiz-workspace-dynamic-area">
-                        </div>
-                </div>
-
-                <div class="main-app-card">
-                    <div class="card-top-bar">
-                        <div class="card-header-title"><i class="fa-solid fa-square-poll-vertical" style="color: #8b5cf6;"></i> سجل نتائج وتقارير درجات الكويزات</div>
-                        <button class="btn-system btn-system-success" style="padding: 6px 12px; font-size: 0.8rem;" onclick="processAdvancedExcelExport()"><i class="fa-solid fa-file-excel"></i> سحب شيت Excel مطور</button>
-                    </div>
-
-                    <div class="inline-filters-container">
-                        <input type="text" id="filter-agent-name-input" onkeyup="applyRealtimeDashboardFilters()" placeholder="🔍 فلتر بالاسم الموظف...">
-                        <select id="filter-quiz-title-input" onchange="applyRealtimeDashboardFilters()">
-                            <option value="">🔍 فلتر حسب اسم الكويز المحدد...</option>
-                        </select>
-                    </div>
-
-                    <div class="responsive-table-holder">
-                        <table class="system-data-table" id="admin-scores-table">
-                            <thead>
-                                <tr id="scores-table-header-row">
-                                    <th>اسم الموظف</th>
-                                    <th>عنوان الكويز</th>
-                                    <th>النتيجة الإجمالية</th>
-                                    <th>تاريخ ووقت الحل</th>
-                                </tr>
-                            </thead>
-                            <tbody id="dom-table-scores-body">
-                                </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div class="dashboard-row-bottom">
-                <div class="kpi-center-container">
-                    <div class="main-app-card" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #ffffff;">
-                        <div class="card-top-bar" style="border-color: rgba(255,255,255,0.1);">
-                            <div class="card-header-title" style="color: #ffffff;"><i class="fa-solid fa-chart-line" style="color: #38bdf8;"></i> مؤشرات الأداء ومعدل قياس الخدمة العام للـ Operations</div>
-                        </div>
-                        <div style="display: flex; justify-content: space-around; align-items: center; text-align: center; padding: 10px 0;">
-                            <div>
-                                <div style="font-size: 1.8rem; font-weight: 800; color: #38bdf8;">94.2%</div>
-                                <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 5px; font-weight: 600;">مستوى الخدمة المستهدف (SLA)</div>
-                            </div>
-                            <div style="width: 1px; height: 45px; background: rgba(255,255,255,0.1);"></div>
-                            <div>
-                                <div style="font-size: 1.8rem; font-weight: 800; color: #34d399;">4.75 / 5</div>
-                                <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 5px; font-weight: 600;">تقييم رضا العملاء (CSAT)</div>
-                            </div>
-                            <div style="width: 1px; height: 45px; background: rgba(255,255,255,0.1);"></div>
-                            <div>
-                                <div style="font-size: 1.8rem; font-weight: 800; color: #f43f5e;">174s</div>
-                                <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 5px; font-weight: 600;">متوسط وقت المعالجة (AHT)</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+            <button type="submit" id="auth-btn">Login to Platform</button>
+        </form>
+        <div style="text-align: center; margin-top: 20px;">
+            <a id="toggle-auth-btn" style="color:var(--primary); cursor:pointer; font-weight:bold;" onclick="toggleAuthMode()">Don't have an account? Register now (Requires Approval)</a>
         </div>
-
-        <div class="dashboard-wrapper hidden-section" id="view-tickets-panel">
-            <div class="tickets-master-panel">
-                
-                <div class="tickets-sidebar-list">
-                    <div class="sidebar-search-area">
-                        <h3 style="font-size: 1.05rem; font-weight: 800; margin-bottom: 12px;"><i class="fa-solid fa-folder-open" style="color: var(--primary);"></i> الطلبات والـ Tickets المفتوحة</h3>
-                        <button class="btn-system btn-system-primary" style="width: 100%; justify-content: center; font-size: 0.85rem;" onclick="launchNewTicketCreationFlow()"><i class="fa-solid fa-plus"></i> تقديم وإنشاء طلب جديد</button>
-                    </div>
-                    
-                    <div class="tickets-scrollable-area" id="dom-tickets-list-target">
-                        </div>
-                </div>
-
-                <div class="ticket-chat-window" id="dom-ticket-chat-window-target">
-                    </div>
-
-            </div>
-        </div>
-
     </div>
 
-    <hr class="footer-hr">
-    <div class="footer-branding-signature">M.</div>
+    <div id="agent-hub" class="hidden">
+        <h2>Welcome 👋 <br><span id="agent-welcome-name" style="color:var(--primary)"></span></h2>
+        <div class="menu-grid">
+            <button class="menu-btn" onclick="viewKPIScorecard()"><i class="fa-solid fa-chart-simple fa-2x"></i> KPI Scorecard 📊</button>
+            <button class="menu-btn" onclick="loadQuizzesForAgent()"><i class="fa-solid fa-trophy fa-2x"></i> Available Quizzes 🚀</button>
+            <button class="menu-btn" onclick="loadAgentScoresArchive()"><i class="fa-solid fa-box-archive fa-2x"></i> Results Archive 📊</button>
+            <button class="menu-btn" onclick="viewAgentSchedule()"><i class="fa-solid fa-calendar-days fa-2x"></i> Weekly Schedule 📅</button>
+            <button class="menu-btn" onclick="viewAgentBreaks()"><i class="fa-solid fa-mug-hot fa-2x"></i> Break Times ☕</button>
+        </div>
+    </div>
 
-    <script>
-        // أنظمة تخزين الحالة الافتراضية للـ LocalStorage لضمان التشغيل الذاتي بدون سيرفر
-        if (!localStorage.getItem('quatro_users')) {
-            localStorage.setItem('quatro_users', JSON.stringify([
-                { username: "mohamed_nasser", fullName: "محمد ناصر فتيح", role: "admin", jobTitle: "قائد الفريق / مسؤول النظام", shift: "صباحية" },
-                { username: "mahmoud_farghaly", fullName: "محمود فرغلي", role: "agent", jobTitle: "وكيل دعم فني أول", shift: "مسائية" },
-                { username: "ahmed_ali", fullName: "أحمد علي مبروك", role: "agent", jobTitle: "وكيل خدمة عملاء", shift: "صباحية" }
-            ]));
-        }
+    <div id="info-display-box" class="hidden">
+        <h2 id="info-box-title">Details</h2>
+        <div id="info-content-area" style="overflow-x: auto;">Loading...</div>
+        <button onclick="goHome()" style="background:#64748b; margin-top: 15px;"><i class="fa-solid fa-arrow-left"></i> Back to Home</button>
+    </div>
 
-        if (!localStorage.getItem('quatro_quizzes')) {
-            localStorage.setItem('quatro_quizzes', JSON.stringify([
-                {
-                    id: "quiz_1",
-                    title: "اختبار تقييم الأداء الأسبوعي الثالث",
-                    questions: [
-                        { text: "هل تم الالتزام بالـ SLA المعياري للمكالمة؟", options: ["نعم", "لا"], correct: "نعم" },
-                        { text: "ما الإجراء المتبع عند اعتراض العميل على الفاتورة؟", options: ["تصعيد المشكلة للقسم المالي", "إغلاق المكالمة فوراً"], correct: "تصعيد المشكلة للقسم المالي" }
-                    ]
-                }
-            ]));
-        }
+    <div id="agent-profile" class="hidden">
+        <h2>👤 Personal Profile & Chat</h2>
+        <div class="info-card" style="text-align: left; font-size:15px; font-weight:normal;">
+            <p><strong>Name:</strong> <span id="prof-name"></span></p>
+            <p><strong>Username:</strong> <span id="prof-user"></span></p>
+            <p><strong>Account:</strong> <span id="prof-account"></span></p>
+        </div>
+        
+        <div style="background: #e0f2fe; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 2px solid #38bdf8;">
+            <h4 style="margin-top: 0; color:#0369a1; text-align: left;">Contact Info</h4>
+            <p id="prof-mandatory-msg" style="font-size:12px; color:#475569; text-align:left;">You cannot use the platform until this is filled.</p>
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="text" id="prof-phone" placeholder="010XXXXXXXX">
+            </div>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="prof-email" placeholder="example@gmail.com">
+            </div>
+            <button id="save-profile-btn" onclick="saveProfileData()" style="background:var(--success);">Save Data 💾</button>
+        </div>
 
-        if (!localStorage.getItem('quatro_scores')) {
-            localStorage.setItem('quatro_scores', JSON.stringify([
-                { username: "mahmoud_farghaly", fullName: "محمود فرغلي", quizTitle: "اختبار تقييم الأداء الأسبوعي الثالث", scoreText: "2 / 2", timestamp: "2026-05-31 02:30 م", rawAnswers: {"هل تم الالتزام بالـ SLA المعياري للمكالمة؟":"نعم (صحيحة)", "ما الإجراء المتبع عند اعتراض العميل على الفاتورة؟":"تصعيد المشكلة للقسم المالي (صحيحة)"} },
-                { username: "ahmed_ali", fullName: "أحمد علي مبروك", quizTitle: "اختبار تقييم الأداء الأسبوعي الثالث", scoreText: "1 / 2", timestamp: "2026-05-31 03:15 م", rawAnswers: {"هل تم الالتزام بالـ SLA المعياري للمكالمة؟":"نعم (صحيحة)", "ما الإجراء المتبع عند اعتراض العميل على الفاتورة؟":"إغلاق المكالمة فوراً (خاطئة)"} }
-            ]));
-        }
-
-        if (!localStorage.getItem('quatro_breaks')) {
-            localStorage.setItem('quatro_breaks', JSON.stringify([
-                { username: "mahmoud_farghaly", fullName: "محمود فرغلي", type: "راحة الغداء", startTime: "02:15 م", duration: "45 دقيقة" }
-            ]));
-        }
-
-        if (!localStorage.getItem('quatro_tickets')) {
-            localStorage.setItem('quatro_tickets', JSON.stringify([
-                {
-                    id: "TK-7701",
-                    title: "طلب تبرير تأخير عن العمل الشفت الصباحي",
-                    assignedTo: "محمد إيهاب",
-                    createdBy: "mahmoud_farghaly",
-                    creatorName: "محمود فرغلي",
-                    unreadForAdmin: true,
-                    unreadForAgent: false,
-                    messages: [
-                        { senderName: "محمود فرغلي", roleType: "agent", text: "صباح الخير، أرجو قبول هذا الطلب لتبرير التأخير اليوم بسبب عطل مفاجئ في المواصلات العامة بمدينة حلوان. ومرفق لسيادتكم الإثبات الفوري.", time: "09:15 ص", attachedFile: "صورة_العطل_اليومي.png", fileData: "data:text/plain;base64,U01B" },
-                        { senderName: "محمد ناصر (مسؤول)", roleType: "admin", text: "أهلاً محمود، جاري مراجعة الطلب مع الأستاذ محمد إيهاب وسيتم اعتماده فوراً بالسيستم.", time: "10:00 ص", attachedFile: null, fileData: null }
-                    ]
-                }
-            ]));
-        }
-
-        // متغيرات تتبع الحالة الحية للمستخدم الحالي داخل التطبيق
-        let currentUser = null;
-        let currentSelectedTicketId = null;
-        let currentUploadedFileBase64 = null;
-        let currentUploadedFileName = null;
-
-        // وظيفة تسجيل الدخول وإدارة الصلاحيات
-        function handleSystemLogin() {
-            let enteredUser = document.getElementById('auth-username-field').value.trim();
-            let selectedRole = document.getElementById('auth-role-field').value;
-            let usersList = JSON.parse(localStorage.getItem('quatro_users'));
+        <div style="background: #fff; border: 1px solid #cbd5e1; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+            <h4 style="margin-top: 0; color:var(--primary);"><i class="fa-solid fa-comments"></i> Support Chat / Requests</h4>
+            <p style="font-size: 12px; color: #64748b; margin-top: 0;">Need to edit your data or ask a question? Chat with management here.</p>
             
-            // البحث عن الموظف أو إنشائه تلقائياً لتسهيل الدخول
-            let userMatch = usersList.find(u => u.username === enteredUser || u.fullName === enteredUser);
-            if (!userMatch) {
-                userMatch = { 
-                    username: enteredUser || "user_" + Math.floor(Math.random()*1000), 
-                    fullName: enteredUser || "موظف تجريبي جديد", 
-                    role: selectedRole, 
-                    jobTitle: selectedRole === "admin" ? "مسؤول النظام والعمليات" : "وكيل خدمة عملاء", 
-                    shift: "صباحية" 
-                };
-                usersList.push(userMatch);
-                localStorage.setItem('quatro_users', JSON.stringify(usersList));
-            }
+            <div class="form-group">
+                <select id="chat-recipient" style="padding: 8px;">
+                    <option value="all">To: All Management (الكل)</option>
+                    <option value="admin">To: Admin Only</option>
+                    <option value="leader">To: My Leader</option>
+                    <option value="quality">To: Quality Team</option>
+                </select>
+            </div>
             
-            // في حال رغبة العميل بالدخول كـ Admin صريح باسم محمد ناصر
-            if(selectedRole === 'admin' && (!enteredUser)) {
-                userMatch = usersList.find(u => u.role === 'admin') || userMatch;
-            }
+            <div id="agent-chat-history" style="height: 200px; overflow-y: auto; background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; margin-bottom: 10px; display: flex; flex-direction: column;"></div>
 
-            currentUser = userMatch;
-            document.getElementById('auth-view-section').classList.add('hidden-section');
-            document.getElementById('main-application-wrapper').classList.remove('hidden-section');
+            <div style="display: flex; gap: 5px;">
+                <input type="text" id="agent-chat-msg" placeholder="Type your message..." style="flex: 1;" onkeydown="if(event.key === 'Enter') sendAgentChat()">
+                <button onclick="sendAgentChat()" style="width: auto; margin: 0; padding: 0 20px;"><i class="fa-solid fa-paper-plane"></i> Send</button>
+            </div>
+        </div>
+
+        <button onclick="goHome()" style="background:#94a3b8; margin-top:10px;">Return Home</button>
+    </div>
+
+    <div id="quiz-dashboard" class="hidden">
+        <h2 id="quiz-section-title">Available Quizzes:</h2>
+        <div id="available-quizzes-list">Loading quizzes...</div>
+        
+        <div id="active-quiz-area" class="hidden" style="border-top: 2px dashed #cbd5e1; margin-top: 20px; padding-top: 20px;">
+            <h3 id="active-quiz-title" style="color:var(--success)"></h3>
+            <div id="quiz-questions-container"></div>
+            <button id="submit-quiz-btn" onclick="submitQuizAnswers()" style="background:var(--success); margin-top:15px;">Submit Answers 🏁</button>
+            <button id="close-quiz-btn" class="hidden" onclick="loadQuizzesForAgent()" style="background:#64748b; margin-top:15px;">Close Quiz ✖️</button>
+        </div>
+        <button onclick="goHome()" style="background:#64748b; margin-top: 15px;">Back to Home ↩️</button>
+    </div>
+
+    <div id="admin-dashboard" class="hidden">
+        <h2>Master Control Panel 👑</h2>
+        
+        <div class="admin-tabs" id="admin-tabs-container">
+            <button class="tab-btn" id="tab-btn-users" onclick="switchAdminTab('tab-users', this); loadUsersAdmin();">👥 Users & Accounts</button>
+            <button class="tab-btn" id="tab-btn-chats" onclick="switchAdminTab('tab-chats', this); loadAdminChats();">💬 Communications</button>
+            <button class="tab-btn" id="tab-btn-schedules" onclick="switchAdminTab('tab-schedules', this); loadSheetSettings();">📅 Schedules & Breaks Link</button>
+            <button class="tab-btn" id="tab-btn-kpi" onclick="switchAdminTab('tab-kpi', this);">📈 KPI Scorecard Link</button>
+            <button class="tab-btn" id="tab-btn-quizzes" onclick="switchAdminTab('tab-quizzes', this); loadQuizzesAdminSection();">📝 Quizzes</button>
+            <button class="tab-btn" id="tab-btn-results" onclick="switchAdminTab('tab-results', this); loadScoresAdmin();">📊 Results</button>
+            <button class="tab-btn" id="tab-btn-gemini" onclick="switchAdminTab('tab-gemini', this);">🤖 Gemini AI</button>
+        </div>
+
+        <div id="tab-users" class="admin-tab-content hidden">
+            <h4>👥 System Users Management</h4>
+            <div id="admin-only-add-user" class="admin-add-user-box hidden">
+                <h5>Add Employee Directly (Instantly Approved)</h5>
             
-            document.getElementById('global-user-badge').innerText = `${currentUser.fullName} (${currentUser.jobTitle})`;
-            
-            // بناء لوحة التحكم ومزامنة محتويات الشاشات فوراً لتعمل الأزرار بكفاءة كاملة
-            reloadDashboardData();
-            buildQuizWorkspaceUI();
-            rebuildTicketsSidebarUI();
-        }
+                <input type="text" id="dir-name" placeholder="Full Name" class="input-mini">
+                <input type="text" id="dir-user" placeholder="Username" class="input-mini">
+                <input type="password" id="dir-pass" placeholder="Password" class="input-mini">
+                <input type="text" id="dir-acc" placeholder="Account / Campaign" class="input-mini">
+                <input type="text" id="dir-hrid" placeholder="HR ID (Optional)" class="input-mini">
+       
+                 <select id="dir-role" class="input-mini">
+                    <option value="agent">Agent</option>
+                    <option value="leader">Leader</option>
+                    <option value="quality">Quality</option>
+                    <option value="admin">Admin</option>
+                 </select>
+                <button class="view-btn" style="background:var(--success); width:100%; grid-column: 1 / -1; padding:10px; font-size:14px;" onclick="addConfirmedUser()">Add & Activate Instantly ⚡</button>
+            </div>
+            <div class="filter-bar">
+                <input type="text" id="filter-account" placeholder="Filter by Account (e.g. Hyde Park)" onkeyup="loadUsersAdmin()" style="flex:1;">
+                <select id="filter-status" onchange="loadUsersAdmin()" style="flex:1;">
+                   
+                    <option value="all">All Statuses</option>
+                    <option value="pending">Pending Registration Approval</option>
+                    <option value="approved">Approved Accounts</option>
+                </select>
+            </div>
+            <div style="overflow-x:auto;">
+           
+                <table class="data-table">
+                    <thead><tr><th>Name & Contact</th><th>Username</th><th>Account</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+                    <tbody id="admin-users-list"><tr><td colspan="6">Fetching users...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
 
-        function handleSystemLogout() {
-            currentUser = null;
-            document.getElementById('main-application-wrapper').classList.add('hidden-section');
-            document.getElementById('auth-view-section').classList.remove('hidden-section');
-        }
-
-        // نظام التنقل الفعال والربط المحكم بين التبويبات والأزرار
-        function navigateToView(viewName) {
-            document.getElementById('nav-home-trigger').classList.remove('active');
-            document.getElementById('nav-tickets-trigger').classList.remove('active');
-            document.getElementById('view-dashboard-panel').classList.add('hidden-section');
-            document.getElementById('view-tickets-panel').classList.add('hidden-section');
-
-            if (viewName === 'dashboard') {
-                document.getElementById('nav-home-trigger').classList.add('active');
-                document.getElementById('view-dashboard-panel').classList.remove('hidden-section');
-                reloadDashboardData();
-            } else if (viewName === 'tickets') {
-                document.getElementById('nav-tickets-trigger').classList.add('active');
-                document.getElementById('view-tickets-panel').classList.remove('hidden-section');
-                rebuildTicketsSidebarUI();
-            }
-        }
-
-        // ميكانيكية تحديث وبناء جداول لوحة التحكم (العمليات والبريكات والدرجات)
-        function reloadDashboardData() {
-            let users = JSON.parse(localStorage.getItem('quatro_users'));
-            let breaks = JSON.parse(localStorage.getItem('quatro_breaks'));
-            let scores = JSON.parse(localStorage.getItem('quatro_scores'));
-            let quizzes = JSON.parse(localStorage.getItem('quatro_quizzes'));
-
-            // 1. بناء جدول المتابعة والعمليات الفورية
-            let htmlOps = "";
-            users.forEach(u => {
-                let isOnBreak = breaks.some(b => b.username === u.username);
-                let currentStatusBadge = isOnBreak 
-                    ? `<span class="badge-status badge-status-break"><i class="fa-solid fa-mug-hot"></i> في بريك حالياً</span>`
-                    : `<span class="badge-status badge-status-active"><i class="fa-solid fa-signal"></i> متصل ونشط</span>`;
-                
-                htmlOps += `<tr>
-                    <td><strong>${u.fullName}</strong></td>
-                    <td>${u.jobTitle}</td>
-                    <td>${u.shift}</td>
-                    <td>${currentStatusBadge}</td>
-                </tr>`;
-            });
-            document.getElementById('dom-table-operations-body').innerHTML = htmlOps;
-
-            // 2. بناء جدول البريكات وتفعيل أزرار التحكم الفعالة
-            let htmlBreaks = "";
-            breaks.forEach(b => {
-                htmlBreaks += `<tr>
-                    <td>${b.fullName}</td>
-                    <td><i class="fa-solid fa-circle-chevron-left" style="color:var(--warning)"></i> ${b.type}</td>
-                    <td>${b.startTime}</td>
-                    <td><strong style="color: var(--danger);">${b.duration}</strong></td>
-                </tr>`;
-            });
-            document.getElementById('dom-table-breaks-body').innerHTML = htmlBreaks || `<tr><td colspan="4" style="text-align:center; color:#94a3b8;">لا يوجد موظفين في فترات الراحة حالياً.</td></tr>`;
-
-            // بناء أزرار بدء وإنهاء البريك المخصصة للموظف (Agent Action)
-            let breakActionArea = document.getElementById('agent-break-action-container');
-            if (currentUser.role === 'agent') {
-                let userActiveBreak = breaks.find(b => b.username === currentUser.username);
-                if (!userActiveBreak) {
-                    breakActionArea.innerHTML = `<button class="btn-system btn-system-warning" onclick="triggerAgentStartBreak()"><i class="fa-solid fa-play"></i> بدء بريك جديد</button>`;
-                } else {
-                    breakActionArea.innerHTML = `<button class="btn-system btn-system-danger" onclick="triggerAgentEndBreak()"><i class="fa-solid fa-stop"></i> إنهاء البريك والعودة</button>`;
-                }
-            } else {
-                breakActionArea.innerHTML = `<span style="font-size:0.8rem; color:#64748b; font-weight:700;">لوحة تحكم المشرف</span>`;
-            }
-
-            // 3. بناء وتحديث فلاتر وجداول نتائج درجات الكويز لتظهر في صفوف متناسقة جنب بعضها
-            let quizFilterSelect = document.getElementById('filter-quiz-title-input');
-            let currentSelectedFilterVal = quizFilterSelect.value;
-            quizFilterSelect.innerHTML = `<option value="">🔍 فلتر حسب اسم الكويز المحدد...</option>`;
-            quizzes.forEach(q => {
-                quizFilterSelect.innerHTML += `<option value="${q.title}">${q.title}</option>`;
-            });
-            quizFilterSelect.value = currentSelectedFilterVal;
-
-            buildScoresTableDOM(scores);
-        }
-
-        // بناء الجدول الشامل لدرجات الكويز مع ضمان التنسيق الأفقي الصحيح وعزل المرفقات المخفية للتصدير
-        function buildScoresTableDOM(scores) {
-            let tbody = document.getElementById('dom-table-scores-body');
-            tbody.innerHTML = "";
-
-            scores.forEach(s => {
-                tbody += `<tr>
-                    <td><strong>${s.fullName}</strong></td>
-                    <td>${s.quizTitle}</td>
-                    <td><span style="background:#d1fae5; color:#065f46; padding:5px 12px; border-radius:6px; font-weight:800;">${s.scoreText}</span></td>
-                    <td>${s.timestamp}</td>
-                    <td style="display:none;" class="quiz-raw-answers-payload">${JSON.stringify(s.rawAnswers || {})}</td>
-                </tr>`;
-            });
-
-            if(scores.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#94a3b8;">لا توجد درجات مسجلة مطابقة للبحث.</td></tr>`;
-            }
-        }
-
-        // تطبيق الفلاتر المتجاورة (البحث بالاسم والبحث بالكويز) معاً في نفس الوقت بمرونة فائقة
-        function applyRealtimeDashboardFilters() {
-            let searchName = document.getElementById('filter-agent-name-input').value.toLowerCase();
-            let searchQuiz = document.getElementById('filter-quiz-title-input').value;
-            let allScores = JSON.parse(localStorage.getItem('quatro_scores'));
-
-            let filtered = allScores.filter(s => {
-                let nameMatch = s.fullName.toLowerCase().includes(searchName);
-                let quizMatch = (searchQuiz === "") || (s.quizTitle === searchQuiz);
-                return nameMatch && quizMatch;
-            });
-
-            buildScoresTableDOM(filtered);
-        }
-
-        // إدارة عمليات البريك الحية للـ Agents
-        function triggerAgentStartBreak() {
-            let breakType = prompt("أدخل نوع البريك (مثال: راحة الغداء، بريك قصير، صلاة):", "بريك قصير");
-            if(!breakType) return;
-            
-            let breaks = JSON.parse(localStorage.getItem('quatro_breaks'));
-            let timeStr = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
-            
-            breaks.push({
-                username: currentUser.username,
-                fullName: currentUser.fullName,
-                type: breakType,
-                startTime: timeStr,
-                duration: "بدأ للتو"
-            });
-            
-            localStorage.setItem('quatro_breaks', JSON.stringify(breaks));
-            reloadDashboardData();
-        }
-
-        function triggerAgentEndBreak() {
-            let breaks = JSON.parse(localStorage.getItem('quatro_breaks'));
-            breaks = breaks.filter(b => b.username !== currentUser.username);
-            localStorage.setItem('quatro_breaks', JSON.stringify(breaks));
-            reloadDashboardData();
-        }
-
-        // تفعيل وبناء كارت الكويزات التفاعلي (إنشاء للـ Admin / حل للـ Agent)
-        function buildQuizWorkspaceUI() {
-            let container = document.getElementById('quiz-workspace-dynamic-area');
-            let quizzes = JSON.parse(localStorage.getItem('quatro_quizzes'));
-
-            if (currentUser.role === 'admin') {
-                // واجهة المشرف لإنشاء كويزات جديدة للعمليات
-                container.innerHTML = `
-                    <div style="display: flex; flex-direction: column; gap: 12px;">
-                        <div class="form-group" style="margin:0;">
-                            <label>عنوان الكويز الجديد المستهدف:</label>
-                            <input type="text" id="admin-created-quiz-title" value="تقييم معايير الجودة ومكالمات الـ Escalation">
-                        </div>
-                        <div style="background: #f8fafc; padding:12px; border-radius:8px; border:1px solid var(--border); font-size:0.85rem; line-height:1.5;">
-                            <strong>الأسئلة الافتراضية الجاهزة للنشر:</strong>
-                            <p style="margin-top:4px; color:#475569;">Q1: هل يحق للعميل طلب تعويض مالي مباشر؟</p>
-                            <p style="color:#475569;">Q2: ما هو الحد الأقصى لزمن انتظار العميل على قائمة الـ Hold؟</p>
-                        </div>
-                        <button class="btn-system btn-system-success" style="justify-content: center;" onclick="executeAdminPublishQuiz()"><i class="fa-solid fa-bullhorn"></i> نشر الكويز للوكلاء حالياً</button>
+        <div id="tab-chats" class="admin-tab-content hidden">
+            <h4>💬 Communications & Edit Requests</h4>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 300px; background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 15px;">
+                    <h5>Active Agent Chats</h5>
+                    <div id="admin-chat-list" style="display: flex; flex-direction: column; gap: 10px; max-height: 400px; overflow-y: auto;">Loading chats...</div>
+                </div>
+                <div style="flex: 2; min-width: 300px; background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 15px;">
+                    <h5 id="admin-chat-header">Select a chat to view</h5>
+                    <div id="admin-chat-messages" style="height: 300px; overflow-y: auto; background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; margin-bottom: 10px; display: flex; flex-direction: column;"></div>
+                    <div style="display: flex; gap: 5px;">
+                        <input type="text" id="admin-chat-input" placeholder="Type your reply..." style="flex: 1;" onkeydown="if(event.key === 'Enter') sendAdminReply()" disabled>
+                        <button id="admin-chat-send-btn" onclick="sendAdminReply()" style="width: auto; margin: 0; padding: 0 20px;" disabled>Reply</button>
+                        <button id="admin-chat-delete-btn" onclick="deleteActiveChat()" style="width: auto; margin: 0; padding: 0 20px; background: var(--danger);" disabled><i class="fa-solid fa-trash"></i> Delete Chat</button>
                     </div>
-                `;
-            } else {
-                // واجهة الحل المخصصة للـ Agent لحل أحدث كويز منشور
-                let latestQuiz = quizzes[quizzes.length - 1];
-                let scores = JSON.parse(localStorage.getItem('quatro_scores'));
-                let alreadySolved = scores.some(s => s.username === currentUser.username && s.quizTitle === latestQuiz.title);
+                </div>
+            </div>
+        </div>
 
-                if (alreadySolved) {
-                    container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--success); font-weight:700;">
-                        <i class="fa-solid fa-circle-check" style="font-size:2rem; display:block; margin-bottom:10px;"></i>
-                        لقد قمت بحل هذا الاختبار المنشور بنجاح ومزامنة نتيجتك في السجل الأسبوعي.
+        <div id="tab-schedules" class="admin-tab-content hidden">
+            <h4>📅 Live Data Synchronization (Google Sheets)</h4>
+            <div style="background: #e0f2fe; border: 1px solid #38bdf8; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <h5 style="margin-top:0; color:#0369a1;"><i class="fa-solid fa-link"></i> Master Google Sheet Link</h5>
+                <p style="font-size:13px; color:#475569; margin-bottom: 15px;">
+                    Paste the link to your Google Sheet. The system will automatically read <b>Sheet 1</b> for Schedules and <b>Sheet 2</b> for Breaks in real-time.<br>
+                    <b style="color:var(--danger)">Note:</b> Ensure the Sheet is shared as <b>"Anyone with the link can view"</b>.
+                </p>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="master-sheet-url" placeholder="https://docs.google.com/spreadsheets/d/........" style="flex: 1;">
+                    <button onclick="saveAndSyncSheetUrl()" style="width: auto; margin: 0; padding: 0 20px; background: var(--success);"><i class="fa-solid fa-rotate"></i> Save & Sync Now</button>
+                </div>
+            </div>
+            
+            <h5>👀 Live Preview: Schedules (Sheet 1)</h5>
+            <div style="overflow-x:auto;">
+                <table class="data-table">
+                    <thead><tr><th>Employee</th><th>Sunday</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th><th>Saturday</th></tr></thead>
+                    <tbody id="admin-schedule-list"></tbody>
+                </table>
+            </div>
+
+            <h5 style="margin-top: 30px;">☕ Live Preview: Breaks (Sheet 2)</h5>
+            <div style="overflow-x:auto;">
+                <table class="data-table">
+                    <thead><tr><th>Employee</th><th>Break Time</th></tr></thead>
+                    <tbody id="admin-breaks-list"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab-kpi" class="admin-tab-content hidden">
+            <h4>📈 Live KPI Scorecard Link</h4>
+            <div class="admin-kpi-section">
+                <h3 style="color: var(--primary); margin-top:0;"><i class="fa-solid fa-link"></i> Set Live KPI Google Sheet Link</h3>
+                <p style="font-size: 14px; margin-bottom: 15px; color: #475569;">
+                    Paste the link to the KPI Google Sheet. The sheet must contain exactly these 3 sheet names: <b>Quality</b>, <b>Mistakes</b>, <b>Performance</b>.<br>
+                    <b style="color:var(--danger)">Note:</b> Ensure the Sheet is shared as <b>"Anyone with the link can view"</b>.
+                </p>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="kpi-sheet-url" placeholder="https://docs.google.com/spreadsheets/d/........" style="flex: 1; padding: 8px;">
+                    <button onclick="saveAndSyncKPIUrl()" style="width: auto; margin: 0; padding: 0 20px; background: var(--success);"><i class="fa-solid fa-rotate"></i> Save & Sync KPI</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-quizzes" class="admin-tab-content hidden">
+            <h4>📝 Create & Edit Quizzes</h4>
+            <div class="form-group"><label>New Quiz Name:</label><input type="text" id="q-quizname" placeholder="e.g. Quality Test - May"></div>
+            <div class="form-group">
+                <label>Target Audience:</label>
+                <select id="q-target-select"><option value="draft">Hidden Draft ❌</option><option value="all">All Employees</option></select>
+            </div>
+            <div style="background:#f8fafc; padding:15px; border-radius:10px; border:1px solid #cbd5e1; margin-top:15px;">
+                <div class="form-group"><label>Question Text:</label><input type="text" id="q-text"></div>
+                <div class="form-group"><label>Option 1:</label><input type="text" id="q-opt1"></div>
+                <div class="form-group"><label>Option 2:</label><input type="text" id="q-opt2"></div>
+                <div class="form-group"><label>Option 3:</label><input type="text" id="q-opt3"></div>
+               
+                <div class="form-group"><label>Option 4:</label><input type="text" id="q-opt4"></div>
+                <div class="form-group"><label>Correct Option Number (1-4):</label><input type="number" id="q-correct" min="1" max="4"></div>
+            </div>
+            <button onclick="addQuizQuestionAdmin()" style="background:var(--success);">Save Question & Create Quiz 🚀</button>
+
+            <h4 style="margin-top: 30px; color: var(--primary);">📋 Current Quizzes List</h4>
+            <table class="data-table">
+                <thead><tr><th>Quiz Name</th><th>Current Target</th><th>Actions</th></tr></thead>
+                <tbody id="admin-quizzes-control-list"></tbody>
+            </table>
+
+            <div id="quiz-viewer-container" class="viewer-box hidden">
+                <h3 style="color:#d946ef; margin-top:0; text-align: left;"><i class="fa-solid fa-eye"></i> Viewing Quiz: <span id="view-quiz-title"></span></h3>
+                <div id="viewer-questions-list"></div>
+                <button onclick="document.getElementById('quiz-viewer-container').classList.add('hidden')" style="background:#64748b; margin-top:10px; width:100%;">Close Viewer ✖️</button>
+            </div>
+
+            <div id="questions-editor-container" class="questions-editor-box hidden">
+                <h3 style="color:#16a34a; text-align:left;"><i class="fa-solid fa-pen-to-square"></i> Editing: <span id="current-editing-quiz-title"></span></h3>
+                
+                <div class="form-group" style="background: #e0f2fe; padding: 10px; border-radius: 8px; border: 1px solid #7dd3fc;">
+                    <label style="font-size: 13px; color: var(--primary);">Change target for this quiz:</label>
+                    <div style="display: flex; gap: 8px;">
+                        <select id="fast-change-target-select" style="padding: 6px; font-size: 13px; flex:1;">
+                            <option value="draft">Hidden Draft ❌</option>
+                            <option value="all">All Employees</option>
+                        </select>
+             
+                        <button class="view-btn" style="background:var(--success); width: auto; margin:0; padding: 0 15px;" onclick="updateQuizTargetFromEditor()">Update Target</button>
+                    </div>
+                </div>
+
+                <div id="individual-questions-list"></div>
+                
+                <div class="add-fast-question-box">
+          
+                    <h4 style="color:#0284c7; text-align:left; margin-top:0;"><i class="fa-solid fa-plus-circle"></i> Add New Question Instantly:</h4>
+                    <div class="form-group"><label style="font-size:12px;">Question Text:</label><input type="text" id="fast-q-text"></div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:5px;">
+                        <input type="text" id="fast-q-opt1" placeholder="Option 1">
+                        <input type="text" id="fast-q-opt2" placeholder="Option 2">
+                        <input type="text" id="fast-q-opt3" placeholder="Option 3">
+             
+                        <input type="text" id="fast-q-opt4" placeholder="Option 4">
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+                        <div>
+                            <label style="display:inline; font-size:12px;">Correct Answer (1-4): </label>
+                            <input type="number" id="fast-q-correct" min="1" max="4" style="width:55px; padding:5px; display:inline;">
+                        </div>
+                        <button class="view-btn" style="background:#0284c7; padding:8px 16px;" onclick="addSingleQuestionFast()">Insert Question ⚡</button>
+                    </div>
+                </div>
+
+                <button onclick="document.getElementById('questions-editor-container').classList.add('hidden')" style="background:#64748b; margin-top:15px; width:100%;">Close Editor ✖️</button>
+            </div>
+        </div>
+
+        <div id="tab-results" class="admin-tab-content hidden">
+            <h4>📊 Employee Results & Grades</h4>
+            <div style="display: flex; gap: 15px; margin-bottom: 15px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+                <div class="filter-container">
+                    <label style="margin:0; font-size:14px; color:var(--primary); font-weight:bold;"><i class="fa-solid fa-filter"></i> Filter by Quiz:</label>
+                    <select id="admin-quiz-filter" onchange="filterScoresTable()" style="padding: 6px; border-radius: 6px; border: 1px solid #cbd5e1; min-width: 180px;"><option value="ALL_QUIZZES">All Quizzes</option></select>
+                </div>
+                <button onclick="triggerExcelExport()" style="background:var(--success); width: auto; margin: 0;"><i class="fa-solid fa-file-excel"></i> Export Filtered to Excel</button>
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="data-table" id="admin-scores-table">
+                    <thead><tr><th>Employee</th><th>HR ID</th><th>Account</th><th>Quiz Name</th><th>Score</th><th>Details</th><th>Date & Time</th><th>Action</th></tr></thead>
+                    <tbody id="admin-scores-list"></tbody>
+   
+                </table>
+            </div>
+        </div>
+
+        <div id="tab-gemini" class="admin-tab-content hidden">
+            <h4>🤖 Gemini AI Assistant (Management Only)</h4>
+            <p style="font-size: 13px; color: #64748b;">اسأل جيميناي عن كيفية إدارة الموظفين، تحليل البيانات، أو أي استفسار.</p>
+            <div id="gemini-chat-box" style="height: 300px; overflow-y: auto; background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; margin-bottom: 10px; display: flex; flex-direction: column;">
+                <div class="chat-bubble management">أهلاً بك! أنا جيميناي. كيف يمكنني مساعدتك في إدارة النظام اليوم؟</div>
+            </div>
+            <div style="display: flex; gap: 5px;">
+                <input type="text" id="gemini-input" placeholder="Type your question for Gemini AI..." style="flex: 1;" onkeydown="if(event.key === 'Enter') askGemini()">
+                <button onclick="askGemini()" style="width: auto; margin: 0; padding: 0 20px;"><i class="fa-solid fa-brain"></i> Ask AI</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="edit-user-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+        <h3 style="margin-top:0; color:var(--primary); text-align:left;">Edit User Profile</h3>
+        <input type="hidden" id="edit-orig-username">
+        <div class="form-group"><label>Full Name</label><input type="text" id="edit-fullname"></div>
+        <div class="form-group"><label>HR ID (Admin/Leader only)</label><input type="text" id="edit-hrid"></div>
+        <div class="form-group"><label>Account</label><input type="text" id="edit-account"></div>
+        <div class="form-group">
+            <label>Role</label>
+            <select id="edit-role"><option value="agent">Agent</option><option value="leader">Leader</option><option value="quality">Quality</option><option value="admin">Admin</option></select>
+        </div>
+    
+        <div class="form-group"><label>Phone</label><input type="text" id="edit-phone"></div>
+        <div class="form-group"><label>Email</label><input type="text" id="edit-email"></div>
+        <div class="form-group" style="border-top: 1px solid #ccc; padding-top:10px; margin-top:10px;">
+            <label style="color:var(--primary); font-weight: bold;">User Password</label>
+            <input type="text" id="edit-password">
+        </div>
+        <div style="display:flex; gap:10px; margin-top:20px;">
+            <button onclick="saveUserEdit()" style="background:var(--success); margin:0;">Save Changes</button>
+            <button onclick="closeEditUserModal()" style="background:#64748b; margin:0;">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<div class="footer-credits">Developed By Mohamed Nasser</div>
+
+<script>
+    // ⚠️ رابط قاعدة البيانات الأساسي (Firebase) للنظام
+    const firebaseBaseUrl = "https://agent-system-01-default-rtdb.firebaseio.com";
+    
+    // متغيرات حفظ الشيتات لايف
+    let liveSchedules = {};
+    let liveBreaks = {};
+    let liveKPIData = {}; // متغير جديد لشيت الـ KPI
+    
+    let isSignUpMode = false; 
+    let currentUser = null; 
+  
+    let activeQuizQuestions = []; 
+    let activeQuizName = ""; 
+    let currentEditingQuizName = "";
+    let globalScoresData = null; 
+    let globalUsersList = {};
+    const daysMap = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
+    let activeAdminChatUser = null;
+    let agentChatInterval = null;
+    let adminChatInterval = null;
+
+    window.addEventListener('DOMContentLoaded', () => {
+        initLiveSheetSync();
+        const savedUser = localStorage.getItem('currentUser');
+        if (savedUser) {
+            currentUser = JSON.parse(savedUser);
+            setupDashboardPermissions();
+        }
+    });
+
+    // -----------------------------------------------------------------------------
+    // LIVE GOOGLE SHEET SYNC (البريكات والجدول والـ KPI أونلاين على طول)
+    // -----------------------------------------------------------------------------
+    function initLiveSheetSync(forceUpdatePreview = false) {
+        // سحب لينك البريكات والجدول
+        fetch(`${firebaseBaseUrl}/settings/sheetUrl.json`).then(res => res.json()).then(url => {
+            if(url) {
+                if(document.getElementById('master-sheet-url')) document.getElementById('master-sheet-url').value = url;
+                fetchLiveExcelData(url, forceUpdatePreview);
+            }
+        });
+        // سحب لينك الـ KPI
+        fetch(`${firebaseBaseUrl}/settings/kpiSheetUrl.json`).then(res => res.json()).then(url => {
+            if(url) {
+                if(document.getElementById('kpi-sheet-url')) document.getElementById('kpi-sheet-url').value = url;
+                fetchLiveKPIExcelData(url, false);
+            }
+        });
+    }
+
+    function saveAndSyncSheetUrl() {
+        const url = document.getElementById('master-sheet-url').value.trim();
+        if(!url) return alert("Please enter a valid Google Sheet URL.");
+        fetch(`${firebaseBaseUrl}/settings/sheetUrl.json`, { method: 'PUT', body: JSON.stringify(url) })
+        .then(() => {
+            alert("URL Saved! Syncing live Schedule and Break data...");
+            fetchLiveExcelData(url, true);
+        });
+    }
+
+    function fetchLiveExcelData(url, updateAdminPreview = false) {
+        const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+        if(!match) return;
+        const sheetId = match[1];
+        const exportUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=xlsx`;
+        fetch(exportUrl)
+        .then(res => {
+            if(!res.ok) throw new Error("Make sure the Google Sheet is shared as 'Anyone with the link can view'.");
+            return res.arrayBuffer();
+        })
+        .then(data => {
+            const workbook = XLSX.read(data, {type: 'array'});
+            
+            liveSchedules = {};
+            if(workbook.SheetNames.length > 0) {
+                const wsSched = workbook.Sheets[workbook.SheetNames[0]];
+                const rowsSched = XLSX.utils.sheet_to_json(wsSched);
+                rowsSched.forEach(row => {
+                    const keys = Object.keys(row);
+                    const empKey = keys.find(k => k.toLowerCase().includes('emp') || k.toLowerCase().includes('name')) || keys[0];
+                    let name = row[empKey];
+                    if(!name) return;
+                    name = name.toString().toLowerCase().trim();
+                    liveSchedules[name] = {
+                        sunday: row['Sunday'] || row['sunday'] || row['الأحد'] || "OFF",
+                        monday: row['Monday'] || row['monday'] || row['الإثنين'] || "OFF",
+                        tuesday: row['Tuesday'] || row['tuesday'] || row['الثلاثاء'] || "OFF",
+                        wednesday: row['Wednesday'] || row['wednesday'] || row['الأربعاء'] || "OFF",
+                        thursday: row['Thursday'] || row['thursday'] || row['الخميس'] || "OFF",
+                        friday: row['Friday'] || row['friday'] || row['الجمعة'] || "OFF",
+                        saturday: row['Saturday'] || row['saturday'] || row['السبت'] || "OFF"
+                    };
+                });
+            }
+
+            liveBreaks = {};
+            if(workbook.SheetNames.length > 1) {
+                const wsBreaks = workbook.Sheets[workbook.SheetNames[1]];
+                const rowsBreaks = XLSX.utils.sheet_to_json(wsBreaks);
+                rowsBreaks.forEach(row => {
+                    const keys = Object.keys(row);
+                    const empKey = keys.find(k => k.toLowerCase().includes('emp') || k.toLowerCase().includes('name')) || keys[0];
+                    const breakKey = keys.find(k => k.toLowerCase().includes('break') || k.toLowerCase().includes('بريك') || k.toLowerCase().includes('time')) || keys[1];
+           
+                    let name = row[empKey];
+                    if(!name) return;
+                    liveBreaks[name.toString().toLowerCase().trim()] = row[breakKey];
+                });
+            }
+
+            if(updateAdminPreview) renderLiveAdminPreviews();
+        })
+        .catch(err => { console.error("Live Sheet Sync Error:", err); });
+    }
+
+    function renderLiveAdminPreviews() {
+        const schedBody = document.getElementById('admin-schedule-list');
+        const breakBody = document.getElementById('admin-breaks-list');
+        schedBody.innerHTML = ''; breakBody.innerHTML = '';
+        if(Object.keys(liveSchedules).length === 0) {
+            schedBody.innerHTML = '<tr><td colspan="8">No valid schedule data found in Sheet 1.</td></tr>';
+        } else {
+            Object.keys(liveSchedules).forEach(name => {
+                let s = liveSchedules[name];
+                schedBody.innerHTML += `<tr>
+                    <td><b>${name.toUpperCase()}</b></td>
+                    <td class="${s.sunday.toLowerCase().includes('off')?'off-day':''}">${s.sunday}</td>
+                    <td class="${s.monday.toLowerCase().includes('off')?'off-day':''}">${s.monday}</td>
+                    <td class="${s.tuesday.toLowerCase().includes('off')?'off-day':''}">${s.tuesday}</td>
+                    <td class="${s.wednesday.toLowerCase().includes('off')?'off-day':''}">${s.wednesday}</td>
+                    <td class="${s.thursday.toLowerCase().includes('off')?'off-day':''}">${s.thursday}</td>
+                    <td class="${s.friday.toLowerCase().includes('off')?'off-day':''}">${s.friday}</td>
+                    <td class="${s.saturday.toLowerCase().includes('off')?'off-day':''}">${s.saturday}</td>
+                </tr>`;
+            });
+        }
+
+        if(Object.keys(liveBreaks).length === 0) {
+            breakBody.innerHTML = '<tr><td colspan="2">No valid break data found in Sheet 2.</td></tr>';
+        } else {
+            Object.keys(liveBreaks).forEach(name => {
+                breakBody.innerHTML += `<tr><td><b>${name.toUpperCase()}</b></td><td>${liveBreaks[name]}</td></tr>`;
+            });
+        }
+    }
+
+    function loadSheetSettings() { renderLiveAdminPreviews();
+    }
+
+    // -----------------------------------------------------------------------------
+    // LIVE KPI SCORECARD LOGIC
+    // -----------------------------------------------------------------------------
+    function cleanKPIName(name) {
+        return name ? name.toString().trim().toLowerCase().replace(/\s+/g, '_').replace(/[.#$[\]]/g, '') : '';
+    }
+
+    function saveAndSyncKPIUrl() {
+        const url = document.getElementById('kpi-sheet-url').value.trim();
+        if(!url) return alert("Please enter a valid KPI Google Sheet URL.");
+        fetch(`${firebaseBaseUrl}/settings/kpiSheetUrl.json`, { method: 'PUT', body: JSON.stringify(url) })
+        .then(() => {
+            alert("KPI URL Saved! Syncing live KPI data...");
+            fetchLiveKPIExcelData(url, true);
+        });
+    }
+
+    function fetchLiveKPIExcelData(url, showAlert = false) {
+        const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+        if(!match) return;
+        const sheetId = match[1];
+        const exportUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=xlsx`;
+        fetch(exportUrl)
+        .then(res => res.arrayBuffer())
+        .then(data => {
+            const workbook = XLSX.read(data, {type: 'array'});
+            liveKPIData = {};
+
+            // جلب البيانات من اليمين (بحثاً عن الاسم في عمود K واستخراج النسب اللي جنبه)
+            if (workbook.Sheets["Quality"]) {
+                const qRows = XLSX.utils.sheet_to_json(workbook.Sheets["Quality"], {header: "A", defval: ""});
+                qRows.forEach(row => {
+                    let agentName = row["K"]; // الاسم في العمود K
+                    if(agentName && typeof agentName === 'string') {
+                        let cName = agentName.trim().toLowerCase();
+                        if (cName !== "" && !cName.includes("agent") && !cName.includes("اسم")) {
+                            let key = cleanKPIName(agentName);
+                            if(!liveKPIData[key]) liveKPIData[key] = {};
+                            liveKPIData[key].Quality = {
+                                compliance: row["L"],     // اللي جنبه L
+                                endUser: row["M"],        // اللي بعده M
+                                business: row["N"],       // اللي بعده N
+                                softSkills: row["O"],     // اللي بعده O
+                                total: row["P"]           // اللي بعده P (لو في توتال جاهز)
+                            };
+                        }
+                    }
+                });
+            }
+
+            if (workbook.Sheets["Mistakes"]) {
+                const mRows = XLSX.utils.sheet_to_json(workbook.Sheets["Mistakes"]);
+                mRows.forEach(row => {
+                    let agentName = row["Agent "] || row["Agent Name"] || row["Agent"];
+                    if(agentName) {
+                        let key = cleanKPIName(agentName);
+                        if(!liveKPIData[key]) liveKPIData[key] = {};
+                        liveKPIData[key].Mistakes = row["Number of Mistakes"] || row["Mistakes"] || 0;
+                    }
+                });
+            }
+
+            if (workbook.Sheets["Performance"]) {
+                const pRows = XLSX.utils.sheet_to_json(workbook.Sheets["Performance"]);
+                pRows.forEach(row => {
+                    let agentName = row["Agent Name"] || row["Agent"];
+                    if(agentName) {
+                        let key = cleanKPIName(agentName);
+                        if(!liveKPIData[key]) liveKPIData[key] = {};
+                        liveKPIData[key].Performance = row["Utilization "] || row["Utilization"] || row["Performance"] || 0;
+                    }
+                });
+            }
+
+            if(showAlert) alert("✅ Live KPI Data Synced Successfully!");
+        })
+        .catch(err => { 
+            if(showAlert) alert("Error syncing KPI: " + err); 
+        });
+    }
+
+    function viewKPIScorecard() {
+        switchView('info-display-box');
+        document.getElementById('info-box-title').innerText = "📊 KPI Scorecard (Live)";
+        let container = document.getElementById('info-content-area');
+        
+        let cleanKey = cleanKPIName(currentUser.fullName);
+        let data = liveKPIData[cleanKey];
+        if (!data) {
+            container.innerHTML = `<div class="info-card" style="color:var(--warning)"><i class="fa-solid fa-circle-exclamation"></i> No KPI Scorecard found for your name [ ${currentUser.fullName} ] in the live sheet. Or the KPI link is not set yet.</div>`;
+            return;
+        }
+
+        // دالة مخصصة لضمان قراءة الأرقام المئوية صح (بتعالج مشكلة الـ 95 بدل 0.95 اللي بتعدي 100%)
+        const parseVal = (val) => {
+            if (val === undefined || val === null || val === "") return 0;
+            if (typeof val === 'number') return val;
+            let num = parseFloat(val.toString().replace(/%/g, '').trim());
+            if (isNaN(num)) return 0;
+            if (val.toString().includes('%')) return num / 100;
+            return num;
+        };
+
+        let comp = parseVal(data.Quality?.compliance);
+        let endUser = parseVal(data.Quality?.endUser);
+        let bus = parseVal(data.Quality?.business);
+        let soft = parseVal(data.Quality?.softSkills);
+        let util = parseVal(data.Performance);
+        let mistakes = parseInt(data.Mistakes ?? 0);
+
+        if (comp > 1 && comp <= 100) comp /= 100;
+        if (endUser > 1 && endUser <= 100) endUser /= 100;
+        if (bus > 1 && bus <= 100) bus /= 100;
+        if (soft > 1 && soft <= 100) soft /= 100;
+        if (util > 1 && util <= 100) util /= 100;
+
+        // دالة الألوان بناءً على التارجت اللي طلبته
+        const getFormat = (val, target) => {
+            let pct = (val * 100).toFixed(1) + '%';
+            if (val >= 1.0) return `<span style="color: #eab308; font-weight: bold;">${pct} 🌟</span>`; // ذهبي
+            if (val >= target) return `<span class="text-success">${pct}</span>`; // أخضر
+            return `<span class="text-danger">${pct}</span>`; // أحمر
+        };
+
+        const formatM = (val) => {
+            if (isNaN(val)) return '0';
+            return val > 0 ? `<span class="text-danger">${val}</span>` : `<span style="color: #eab308; font-weight: bold;">0 🌟</span>`;
+        };
+
+        let isAllPassed = (comp >= 1.0) && (endUser >= 0.98) && (bus >= 0.95) && (soft >= 0.90) && (util >= 0.86) && (mistakes === 0);
+
+        // التوتال بيقراه لو جاهز، لو لأ بيجمعه ويظبطه بجد
+        let totalQuality = parseVal(data.Quality?.total);
+        if (totalQuality > 1 && totalQuality <= 100) totalQuality /= 100;
+        if (totalQuality === 0) {
+            totalQuality = (comp + endUser + bus + soft) / 4; 
+        }
+
+        let totalPct = (totalQuality * 100).toFixed(1);
+        let totalHtml = '';
+        if (isAllPassed) {
+            totalHtml = `<span class="text-success" style="font-size:20px; font-weight:bold;">${totalPct}% <br> <span style="font-size: 16px;">(عاش جداً يا بطل! 🏆🔥 كل مؤشراتك ممتازة)</span></span>`;
+        } else {
+            totalHtml = `<span style="color: var(--primary); font-size:22px; font-weight:bold;">${totalPct}%</span>`;
+        }
+
+        container.innerHTML = `
+        <div class="kpi-card">
+            <h3 style="margin-top:0; color: var(--primary); text-align:center;"><i class="fa-solid fa-chart-line"></i> Monthly KPI Metrics</h3>
+            <table class="kpi-table">
+                <thead>
+                    <tr>
+                        <th>Compliance Critical (100%)</th>
+                        <th>End User Critical (98%)</th>
+                        <th>Business Critical (95%)</th>
+                        <th>Soft Skills (90%)</th>
+                        <th>Utilization (>86%)</th>
+                        <th>Total Mistakes (0)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>${getFormat(comp, 1.0)}</td>
+                        <td>${getFormat(endUser, 0.98)}</td>
+                        <td>${getFormat(bus, 0.95)}</td>
+                        <td>${getFormat(soft, 0.90)}</td>
+                        <td>${getFormat(util, 0.86)}</td>
+                        <td>${formatM(mistakes)}</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div style="background: #f1f5f9; padding: 15px; margin-top: 15px; border-radius: 8px; text-align: center; border: 2px solid var(--primary);">
+                <h4 style="margin:0 0 10px 0;">Total Quality Score</h4>
+                ${totalHtml}
+            </div>
+            <p style="text-align:center; font-size:12px; color:#64748b; margin-top:15px;">Metrics below target thresholds are highlighted in red. 100% targets are highlighted in gold 🌟.</p>
+        </div>`;
+    }
+
+    // -----------------------------------------------------------------------------
+    // NAVIGATION & AUTH
+    // -----------------------------------------------------------------------------
+    function switchView(viewId) {
+        ['auth-box', 'agent-hub', 'info-display-box', 'quiz-dashboard', 'admin-dashboard', 'agent-profile'].forEach(id => {
+            const el = document.getElementById(id); if(el) el.classList.add('hidden');
+        });
+        document.getElementById(viewId).classList.remove('hidden');
+        document.getElementById('top-navbar').style.display = 
+            (viewId === 'auth-box') ? 'none' : 'flex';
+        
+        if(agentChatInterval) clearInterval(agentChatInterval);
+
+        if(viewId === 'agent-profile' && currentUser) {
+            document.getElementById('prof-name').innerText = currentUser.fullName || '';
+            document.getElementById('prof-user').innerText = currentUser.username ||
+                '';
+            document.getElementById('prof-account').innerText = currentUser.accountName || 'Not Set';
+            
+            document.getElementById('prof-phone').value = currentUser.phone || '';
+            document.getElementById('prof-email').value = currentUser.email || '';
+            if(currentUser.phone && currentUser.email) {
+                document.getElementById('prof-phone').readOnly = true;
+                document.getElementById('prof-email').readOnly = true;
+                document.getElementById('save-profile-btn').classList.add('hidden');
+                document.getElementById('prof-mandatory-msg').classList.add('hidden');
+            } else {
+                document.getElementById('prof-phone').readOnly = false;
+                document.getElementById('prof-email').readOnly = false;
+                document.getElementById('save-profile-btn').classList.remove('hidden');
+                document.getElementById('prof-mandatory-msg').classList.remove('hidden');
+            }
+            loadAgentChat();
+            agentChatInterval = setInterval(loadAgentChat, 5000);
+        }
+    }
+
+    function goHome() { 
+        if(!currentUser) return switchView('auth-box');
+        if(!currentUser.phone || !currentUser.email) {
+            alert("You must complete your profile data (Phone and Email) first to use the platform.");
+            return switchView('agent-profile');
+        }
+
+        if(currentUser.role === 'admin' || currentUser.role === 'leader' || currentUser.role === 'quality') {
+            switchView('admin-dashboard');
+        } else {
+            switchView('agent-hub');
+        }
+    }
+
+    function logout() { 
+        localStorage.removeItem('currentUser');
+        currentUser = null; 
+        if(agentChatInterval) clearInterval(agentChatInterval);
+        if(adminChatInterval) clearInterval(adminChatInterval);
+        switchView('auth-box'); 
+    }
+
+    function switchAdminTab(tabId, btn) {
+        document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.remove('hidden');
+        if(btn) btn.classList.add('active');
+        if(adminChatInterval) clearInterval(adminChatInterval);
+    }
+
+    function toggleAuthMode() {
+        isSignUpMode = !isSignUpMode;
+        document.getElementById('signup-fields').style.display = isSignUpMode ? "block" : "none";
+        document.getElementById('auth-btn').innerText = isSignUpMode ? "Register Account (Pending)" : "Login to Platform";
+        document.getElementById('toggle-auth-btn').innerText = isSignUpMode ? "Already have an account? Login here" : "Don't have an account? Register now (Requires Approval)";
+    }
+
+    function handleAuth(event) {
+        event.preventDefault();
+        const user = document.getElementById('auth-username').value.trim().toLowerCase();
+        const pass = document.getElementById('auth-password').value.trim();
+        
+        if (user === "mohamed nasser" && pass === "592005") {
+            currentUser = { username: "mohamed nasser", fullName: "Mohamed Nasser", role: "admin", status: "approved", accountName: "Hyde Park", phone: "01000000000", email: "admin@hydepark.com", hrId: "ADMIN-01" };
+            setupDashboardPermissions(); return;
+        }
+
+        if (isSignUpMode) {
+            const name = document.getElementById('auth-fullname').value.trim();
+            const acc = document.getElementById('auth-account').value.trim();
+            if(!name || !acc) return alert('Please complete Name and Account fields');
+            let newUserData = { fullName: name, username: user, password: pass, role: "agent", accountName: acc, status: "pending", phone: "", email: "", hrId: "" };
+            fetch(`${firebaseBaseUrl}/users/${user}.json`, { method: 'PUT', body: JSON.stringify(newUserData) })
+            .then(() => { alert('Request registered successfully! Please wait for admin approval.'); toggleAuthMode(); });
+        } else {
+            fetch(`${firebaseBaseUrl}/users/${user}.json`).then(res => res.json()).then(userData => {
+                if(userData && userData.password === pass) {
+                    if(userData.status === 'pending') return alert('Sorry, your account is still pending approval from management.');
+                    currentUser = userData; setupDashboardPermissions();
+      
+                } else { alert("Incorrect username or password!"); }
+            });
+        }
+    }
+
+    function saveProfileData() {
+        const phone = document.getElementById('prof-phone').value.trim();
+        const email = document.getElementById('prof-email').value.trim();
+        if(!phone || !email) return alert('Phone and Email are mandatory!');
+        
+        currentUser.phone = phone; currentUser.email = email;
+        fetch(`${firebaseBaseUrl}/users/${currentUser.username}/phone.json`, { method: 'PUT', body: JSON.stringify(phone) });
+        fetch(`${firebaseBaseUrl}/users/${currentUser.username}/email.json`, { method: 'PUT', body: JSON.stringify(email) })
+        .then(() => { localStorage.setItem('currentUser', JSON.stringify(currentUser)); alert('Data saved successfully!'); goHome(); });
+    }
+
+    // -----------------------------------------------------------------------------
+    // CHAT SYSTEM
+    // -----------------------------------------------------------------------------
+    function sendAgentChat() {
+        const msg = document.getElementById('agent-chat-msg').value.trim();
+        const to = document.getElementById('chat-recipient').value;
+        if(!msg) return;
+
+        const chatData = {
+            sender: currentUser.username, senderName: currentUser.fullName,
+            role: currentUser.role, recipient: to, text: msg, timestamp: new Date().toLocaleString()
+        };
+        fetch(`${firebaseBaseUrl}/chats/${currentUser.username}.json`, { method: 'POST', body: JSON.stringify(chatData) })
+        .then(() => { document.getElementById('agent-chat-msg').value = ''; loadAgentChat(); });
+    }
+
+    function loadAgentChat() {
+        fetch(`${firebaseBaseUrl}/chats/${currentUser.username}.json`).then(res => res.json()).then(data => {
+            const container = document.getElementById('agent-chat-history'); container.innerHTML = '';
+            if(!data) { container.innerHTML = '<p style="text-align:center; color:#64748b; font-size:12px; margin-top:20px;">No messages yet.</p>'; return; }
+            Object.values(data).forEach(msg => {
+                const isMe = msg.sender === currentUser.username;
+     
+                const bubbleClass = isMe ? 'agent' : 'management';
+                const roleBadge = msg.role !== 'agent' ? ` [${msg.role.toUpperCase()}]` : '';
+                const toText = isMe ? `<br><span style="font-size:10px; color:#94a3b8;">Sent to: ${msg.recipient.toUpperCase()}</span>` : '';
+                container.innerHTML += `<div class="chat-bubble ${bubbleClass}"><strong>${msg.senderName}${roleBadge}</strong><br>${msg.text}${toText}<div class="chat-meta">${msg.timestamp}</div></div>`;
+            });
+            container.scrollTop = container.scrollHeight;
+        });
+    }
+
+    function loadAdminChats() {
+        fetch(`${firebaseBaseUrl}/chats.json`).then(res => res.json()).then(data => {
+            const list = document.getElementById('admin-chat-list'); list.innerHTML = '';
+            if(!data) { list.innerHTML = '<p>No active chats.</p>'; return; }
+
+            Object.keys(data).forEach(user => {
+                const msgs = Object.values(data[user]);
+      
+                if(msgs.length === 0) return;
+                
+                let canSee = false;
+                if (currentUser.role === 'admin') canSee = true;
+                else { msgs.forEach(m => { if (m.recipient === 'all' || m.recipient === currentUser.role || 
+                    m.sender !== user) canSee = true; }); }
+
+                if(!canSee) return;
+
+                const lastMsg = msgs[msgs.length - 1];
+                list.innerHTML += `
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; margin-bottom:5px; cursor: pointer;" onclick="openAdminChat('${user}')">
+   
+                        <strong style="color:var(--primary);">@${user}</strong>
+                        <div style="font-size: 12px;
+                            color: #64748b; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${lastMsg.senderName}: ${lastMsg.text}</div>
                     </div>`;
-                } else {
-                    let questionsHtml = "";
-                    latestQuiz.questions.forEach((q, idx) => {
-                        questionsHtml += `<div style="margin-bottom:15px; background:#f8fafc; padding:10px; border-radius:8px;">
-                            <p style="font-weight:700; font-size:0.9rem; margin-bottom:8px;">س${idx+1}: ${q.text}</p>
-                            ${q.options.map(opt => `<label style="display:inline-flex; align-items:center; gap:6px; margin-left:15px; font-size:0.85rem;">
-                                <input type="radio" name="agent_q_${idx}" value="${opt}"> ${opt}
-                            </label>`).join('')}
-                        </div>`;
-                    });
-
-                    container.innerHTML = `
-                        <h4 style="font-size:0.95rem; font-weight:800; margin-bottom:12px; color:var(--primary);">${latestQuiz.title}</h4>
-                        <div id="agent-quiz-questions-form-holder">${questionsHtml}</div>
-                        <button class="btn-system btn-system-primary" style="width:100%; justify-content:center;" onclick="executeAgentSubmitQuizAnswers('${latestQuiz.id}')"><i class="fa-solid fa-paper-plane"></i> إرسال وتأكيد الإجابات</button>
-                    `;
-                }
-            }
-        }
-
-        function executeAdminPublishQuiz() {
-            let title = document.getElementById('admin-created-quiz-title').value.trim();
-            if(!title) return alert("يرجى كتابة عنوان الكويز أولاً.");
-
-            let quizzes = JSON.parse(localStorage.getItem('quatro_quizzes'));
-            quizzes.push({
-                id: "quiz_" + Date.now(),
-                title: title,
-                questions: [
-                    { text: "هل يحق للعميل طلب تعويض مالي مباشر؟", options: ["نعم ويتم بشروط", "لا لست مخولاً لذلك"], correct: "نعم ويتم بشروط" },
-                    { text: "ما هو الحد الأقصى لزمن انتظار العميل على قائمة الـ Hold؟", options: ["2 دقيقة (120 ثانية)", "5 دقائق متواصلة"], correct: "2 دقيقة (120 ثانية)" }
-                ]
             });
-            localStorage.setItem('quatro_quizzes', JSON.stringify(quizzes));
-            alert("تم نشر وإتاحة الكويز الجديد لجميع الموظفين بنجاح!");
-            reloadDashboardData();
-            buildQuizWorkspaceUI();
-        }
+        });
+    }
 
-        function executeAgentSubmitQuizAnswers(quizId) {
-            let quizzes = JSON.parse(localStorage.getItem('quatro_quizzes'));
-            let targetQuiz = quizzes.find(q => q.id === quizId);
-            let rawAnswers = {};
-            let scoreCount = 0;
-
-            for (let i = 0; i < targetQuiz.questions.forEach((q, idx) => {
-                let checkedRadio = document.querySelector(`input[name="agent_q_${idx}"]:checked`);
-                let answerVal = checkedRadio ? checkedRadio.value : "لم يتم الحل";
+    function openAdminChat(user) {
+        activeAdminChatUser = user;
+        document.getElementById('admin-chat-header').innerText = `Chatting with: @${user}`;
+        document.getElementById('admin-chat-input').disabled = false;
+        
+        document.getElementById('admin-chat-send-btn').disabled = false;
+        document.getElementById('admin-chat-delete-btn').disabled = false;
+        if(adminChatInterval) clearInterval(adminChatInterval);
+        
+        const fetchChat = () => {
+            if(!activeAdminChatUser) return;
+            fetch(`${firebaseBaseUrl}/chats/${activeAdminChatUser}.json`).then(res => res.json()).then(data => {
+                const container = document.getElementById('admin-chat-messages'); container.innerHTML = '';
+       
+                if(!data) return;
                 
-                let isCorrect = (answerVal === q.correct);
-                if(isCorrect) scoreCount++;
-
-                rawAnswers[q.text] = answerVal + (isCorrect ? " (صحيحة)" : " (خاطئة)");
-            }));
-
-            let scores = JSON.parse(localStorage.getItem('quatro_scores'));
-            scores.push({
-                username: currentUser.username,
-                fullName: currentUser.fullName,
-                quizTitle: targetQuiz.title,
-                scoreText: `${scoreCount} / ${targetQuiz.questions.length}`,
-                timestamp: new Date().toLocaleString('ar-EG'),
-                rawAnswers: rawAnswers
-            });
-
-            localStorage.setItem('quatro_scores', JSON.stringify(scores));
-            alert("تم حفظ وإرسال إجاباتك بنجاح ومزامنة النتيجة فوراً!");
-            reloadDashboardData();
-            buildQuizWorkspaceUI();
-        }
-
-        // التصدير العبقري والمطور لملفات الإكسيل (تفكيك وفصل كل سؤال في عمود مستقل تماماً فوق اسم الطالب)
-        function processAdvancedExcelExport() {
-            let rows = document.querySelectorAll('#dom-table-scores-body tr');
-            let resultDataArray = [];
-
-            rows.forEach(row => {
-                // تجاهل الرسائل الفارغة أو الصفوف التي تم إخفاؤها بالفلاتر المباشرة بالصفحة
-                if (row.style.display === "none" || row.cells.length < 4) return;
-
-                let empName = row.cells[0].innerText;
-                let quizTitle = row.cells[1].innerText;
-                let finalScore = row.cells[2].innerText;
-                let solveTime = row.cells[3].innerText;
-                
-                // استخراج محتوى خلية الـ Payload المخفية التي تحمل إجابات الأسئلة التفصيلية كـ JSON
-                let rawJsonContainer = row.querySelector('.quiz-raw-answers-payload');
-                let parsedAnswers = {};
-                if (rawJsonContainer) {
-                    try { parsedAnswers = JSON.parse(rawJsonContainer.innerText); } catch(e) { parsedAnswers = {}; }
-                }
-
-                // إنشاء كائن الصف الأساسي لملف الإكسيل المطور
-                let rowObjectForExcel = {
-                    "اسم الموظف الكامل": empName,
-                    "عنوان الكويز والاختبار": quizTitle,
-                    "النتيجة الكلية المحققة": finalScore,
-                    "تاريخ ووقت الحل المعتمد": solveTime
-                };
-
-                // دمج كل سؤال كعمود منفصل ومستقل بذاته تماماً فوق اسم الطالب لمعرفة من حل صح ومن لا
-                Object.keys(parsedAnswers).forEach(questionKey => {
-                    rowObjectForExcel[questionKey] = parsedAnswers[questionKey]; 
+                Object.values(data).forEach(msg => {
+                    const isAgent = msg.sender === activeAdminChatUser;
+                    const bubbleClass = isAgent ? 'management' : 'agent'; 
+                    const roleBadge = msg.role !== 'agent' ? ` [${msg.role.toUpperCase()}]` : '';
+                    const toText = isAgent ? `<br><span style="font-size:10px; color:#94a3b8;">Sent to: ${msg.recipient.toUpperCase()}</span>` : '';
+                    container.innerHTML += `<div class="chat-bubble ${bubbleClass}" style="text-align: ${isAgent ? 'left' : 'right'}; margin-${isAgent ? 'right' : 'left'}: auto;"><strong>${msg.senderName}${roleBadge}</strong><br>${msg.text}${toText}<div class="chat-meta">${msg.timestamp}</div></div>`;
                 });
-
-                resultDataArray.push(rowObjectForExcel);
+                container.scrollTop = container.scrollHeight;
             });
+        };
+        fetchChat(); adminChatInterval = setInterval(fetchChat, 5000);
+    }
 
-            if (resultDataArray.length === 0) {
-                return alert("لا توجد بيانات درجات متاحة للتصدير حالياً طبقاً للفلاتر المحددة.");
-            }
+    function sendAdminReply() {
+        if(!activeAdminChatUser) return;
+        const msg = document.getElementById('admin-chat-input').value.trim();
+        if(!msg) return;
 
-            // توليد الشيت باستدعاء مكتبة SheetJS المتطورة
-            const worksheet = XLSX.utils.json_to_sheet(resultDataArray);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "تقرير تفصيلي شامل الأسئلة");
-            
-            // تحميل وتنزيل الملف فوراً على جهاز المستخدم
-            XLSX.writeFile(workbook, `Quatro_Advanced_Scores_Report.xlsx`);
-        }
+        const chatData = {
+            sender: currentUser.username, senderName: currentUser.fullName, role: currentUser.role,
+            recipient: activeAdminChatUser, text: msg, timestamp: new Date().toLocaleString()
+        };
+        fetch(`${firebaseBaseUrl}/chats/${activeAdminChatUser}.json`, { method: 'POST', body: JSON.stringify(chatData) })
+        .then(() => { document.getElementById('admin-chat-input').value = ''; });
+    }
 
-        // ==================== محرك وبناء نظام الطلبات والشات المطور (Tickets Engine) ====================
-        function rebuildTicketsSidebarUI() {
-            let targetList = document.getElementById('dom-tickets-list-target');
-            let tickets = JSON.parse(localStorage.getItem('quatro_tickets'));
-            targetList.innerHTML = "";
-
-            // تصفية التذاكر المتاحة للموظف العادي مقابل المشرف المسؤول (Admin)
-            let visibleTickets = (currentUser.role === 'admin') 
-                ? tickets 
-                : tickets.filter(t => t.createdBy === currentUser.username);
-
-            visibleTickets.forEach(ticket => {
-                // التحقق من حالة النقطة الحمراء المخصصة لهذا الشات فقط دوناً عن البقية
-                let isUnread = (currentUser.role === 'admin') ? ticket.unreadForAdmin : ticket.unreadForAgent;
-                let unreadClass = isUnread ? "has-new-messages" : "";
-                let activeClass = (currentSelectedTicketId === ticket.id) ? "active" : "";
-
-                targetList.innerHTML += `
-                    <div class="ticket-list-card ${unreadClass} ${activeClass}" id="card-ticket-id-${ticket.id}" onclick="selectAndOpenActiveTicket('${ticket.id}')">
-                        <div class="red-alert-dot"></div>
-                        <div class="ticket-card-title">${ticket.title}</div>
-                        <div class="ticket-card-details">
-                            <span>موجه إلى: <strong>${ticket.assignedTo}</strong></span>
-                            <span>#${ticket.id}</span>
-                        </div>
-                    </div>
-                `;
+    function deleteActiveChat() {
+        if(!activeAdminChatUser) return;
+        if(confirm(`Are you sure you want to permanently delete all chat history with @${activeAdminChatUser}?`)) {
+            fetch(`${firebaseBaseUrl}/chats/${activeAdminChatUser}.json`, { method: 'DELETE' }).then(() => {
+                document.getElementById('admin-chat-messages').innerHTML = ''; document.getElementById('admin-chat-header').innerText = 'Select a chat to view';
+                document.getElementById('admin-chat-input').disabled = true; document.getElementById('admin-chat-send-btn').disabled = true; document.getElementById('admin-chat-delete-btn').disabled = true;
+                activeAdminChatUser = null;
+  
+                if(adminChatInterval) clearInterval(adminChatInterval);
+                loadAdminChats();
             });
-
-            if(visibleTickets.length === 0) {
-                targetList.innerHTML = `<div style="text-align:center; padding:20px; color:#94a3b8; font-size:0.85rem;">لا توجد طلبات مفتوحة حالياً.</div>`;
-            }
-
-            renderActiveTicketWorkspace();
         }
+    }
 
-        // فتح وعرض تذكرة محددة منفصلة وإيقاف النقطة الحمراء الخاصة بها فوراً كـ Read
-        function selectAndOpenActiveTicket(ticketId) {
-            currentSelectedTicketId = ticketId;
-            let tickets = JSON.parse(localStorage.getItem('quatro_tickets'));
-            let targetTicket = tickets.find(t => t.id === ticketId);
+    // -----------------------------------------------------------------------------
+    // GEMINI AI
+    // -----------------------------------------------------------------------------
+    function askGemini() {
+        const input = document.getElementById('gemini-input');
+        const query = input.value.trim();
+        if(!query) return;
 
-            if (targetTicket) {
-                if (currentUser.role === 'admin') {
-                    targetTicket.unreadForAdmin = false;
-                } else {
-                    targetTicket.unreadForAgent = false;
-                }
-                localStorage.setItem('quatro_tickets', JSON.stringify(tickets));
-            }
+        const box = document.getElementById('gemini-chat-box');
+        box.innerHTML += `<div class="chat-bubble agent"><strong>You:</strong><br>${query}</div>`;
+        input.value = '';
+        box.scrollTop = box.scrollHeight;
 
-            rebuildTicketsSidebarUI();
-        }
-
-        // بناء كامل مساحة المحادثة والشات المتقدم مع تفعيل المرفقات والصور والردود التلقائية الذكية
-        function renderActiveTicketWorkspace() {
-            let workspace = document.getElementById('dom-ticket-chat-window-target');
-            if (!currentSelectedTicketId) {
-                workspace.innerHTML = `
-                    <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; color:#94a3b8;">
-                        <i class="fa-solid fa-comments-blur" style="font-size:3.5rem; margin-bottom:15px; opacity:0.5;"></i>
-                        <p style="font-weight:700;">يرجى اختيار أحد الطلبات من القائمة الجانبية لفتح نافذة الشات المستقلة.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            let tickets = JSON.parse(localStorage.getItem('quatro_tickets'));
-            let activeTicket = tickets.find(t => t.id === currentSelectedTicketId);
-
-            if (!activeTicket) {
-                currentSelectedTicketId = null;
-                return renderActiveTicketWorkspace();
-            }
-
-            // بناء دفق الرسائل السابقة المتبادلة في هذا الطلب الفردي
-            let messagesHtml = "";
-            activeTicket.messages.forEach(msg => {
-                // تحديد المظهر الجانبي للفقاعة بناءً على من قام بالإرسال الفعلي بالسيستم
-                let determineBubbleClass = (msg.senderName.includes('مسؤول') && currentUser.role === 'admin') || (!msg.senderName.includes('مسؤول') && currentUser.role === 'agent')
-                    ? "sent-by-me" 
-                    : "received-by-me";
-
-                let fileLinkHtml = msg.attachedFile 
-                    ? `<a href="${msg.fileData}" download="${msg.attachedFile}" class="chat-file-attachment-link" title="تحميل المرفق الرسمي للملف"><i class="fa-solid fa-file-arrow-down"></i> ${msg.attachedFile}</a>`
-                    : "";
-
-                messagesHtml += `
-                    <div class="chat-bubble ${determineBubbleClass}">
-                        <span class="chat-bubble-author">${msg.senderName}</span>
-                        <div>${msg.text}</div>
-                        ${fileLinkHtml}
-                        <span class="chat-bubble-time">${msg.time}</span>
-                    </div>
-                `;
-            });
-
-            workspace.innerHTML = `
-                <div class="chat-header-info">
-                    <div>
-                        <h4 style="font-size:0.95rem; font-weight:800; color:var(--text);">${activeTicket.title}</h4>
-                        <span style="font-size:0.75rem; color:#64748b;">رقم التتبع: ${activeTicket.id} | الجهة المستلمة: <strong>${activeTicket.assignedTo}</strong></span>
-                    </div>
-                    <span class="badge-status badge-status-active">طلب قيد المتابعة حياً</span>
-                </div>
-
-                <div class="chat-body-stream" id="chat-messages-scroll-container">
-                    ${messagesHtml}
-                </div>
-
-                <div class="chat-footer-input-bar">
-                    <input type="text" id="ticket-reply-text-field" placeholder="اكتب ردك الرسمي وتفاصيلك الإضافية بداخل الشات هنا...">
-                    
-                    <label class="file-attach-trigger" title="إرفاق وثيقة أو صورة لإرسالها مع الطلب">
-                        <input type="file" id="chat-system-raw-file-input" style="display:none;" onchange="processFileAttachmentInChat(this)">
-                        <i class="fa-solid fa-paperclip"></i>
-                    </label>
-
-                    <button class="btn-system btn-system-primary" onclick="submitChatMessageInActiveTicket()"><i class="fa-solid fa-paper-plane"></i> إرسال الرد</button>
-                </div>
-            `;
-
-            // جعل صندوق الشات يتمرر لأسفل رسالة تلقائياً ومستقراً
-            let msgBox = document.getElementById('chat-messages-scroll-container');
-            if(msgBox) msgBox.scrollTop = msgBox.scrollHeight;
-        }
-
-        // قراءة الملف وتحويله المباشر لسلسلة Base64 نصية آمنة للمتصفح والجيتهاب بمرونة عالية
-        function processFileAttachmentInChat(inputElement) {
-            if (inputElement.files && inputElement.files[0]) {
-                let file = inputElement.files[0];
-                currentUploadedFileName = file.name;
-
-                let reader = new FileReader();
-                reader.onload = function(e) {
-                    currentUploadedFileBase64 = e.target.result;
-                    alert(`تم ربط وتجهيز المرفق: [${currentUploadedFileName}] بنجاح وسيتم إرساله مع الرسالة حالاً.`);
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        // إرسال الرسالة الجديدة وضمان توجيه وإضاءة النقطة الحمراء للطرف المستلم فقط
-        function submitChatMessageInActiveTicket() {
-            let inputField = document.getElementById('ticket-reply-text-field');
-            let txt = inputField.value.trim();
-
-            if (!txt && !currentUploadedFileBase64) return;
-
-            let tickets = JSON.parse(localStorage.getItem('quatro_tickets'));
-            let idx = tickets.findIndex(t => t.id === currentSelectedTicketId);
-
-            if (idx !== -1) {
-                let timeStr = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
-                let senderTitle = (currentUser.role === 'admin') ? "محمد ناصر (مسؤول)" : currentUser.fullName;
-
-                // إضافة الرسالة لسجل المحادثة للطلب الفردي
-                tickets[idx].messages.push({
-                    senderName: senderTitle,
-                    roleType: currentUser.role,
-                    text: txt || "تم إرفاق ملف رسمي مصاحب للطلب والمراجعة.",
-                    time: timeStr,
-                    attachedFile: currentUploadedFileName,
-                    fileData: currentUploadedFileBase64
-                });
-
-                // توجيه وإشعال النقطة الحمراء للتنبيه عند الطرف المستلم بالتحديد وليس عند الراسل
-                if (currentUser.role === 'admin') {
-                    tickets[idx].unreadForAgent = true; // تظهر النقطة الحمراء عند الوكيل فقط
-                    tickets[idx].unreadForAdmin = false;
-                } else {
-                    tickets[idx].unreadForAdmin = true; // تظهر النقطة الحمراء عند المشرف الأدمن فقط
-                    tickets[idx].unreadForAgent = false;
-                }
-
-                localStorage.setItem('quatro_tickets', JSON.stringify(tickets));
-
-                // تصفير المدخلات والمرفقات بعد النجاح
-                inputField.value = "";
-                currentUploadedFileBase64 = null;
-                currentUploadedFileName = null;
-                document.getElementById('chat-system-raw-file-input').value = "";
-
-                renderActiveTicketWorkspace();
-                
-                // محاكاة استلام رد تلقائي ذكي بعد 4 ثوانٍ في حال تفعيل طلب جديد لتجربة النظام حياً
-                simulateInteractiveSystemReply(tickets[idx].id);
-            }
-        }
-
-        function simulateInteractiveSystemReply(ticketId) {
+        const apiKey = "YOUR_GEMINI_API_KEY"; 
+        if (apiKey === "YOUR_GEMINI_API_KEY") {
             setTimeout(() => {
-                let tickets = JSON.parse(localStorage.getItem('quatro_tickets'));
-                let idx = tickets.findIndex(t => t.id === ticketId);
-                if (idx === -1) return;
+                box.innerHTML += `<div class="chat-bubble management"><strong>🤖 Gemini:</strong><br>لكي يعمل الذكاء الاصطناعي بشكل حقيقي، يرجى استبدال <code>YOUR_GEMINI_API_KEY</code> في الكود بمفتاحك الحقيقي.</div>`;
+                box.scrollTop = box.scrollHeight;
+            }, 1000);
+            return;
+        }
 
-                // الرد التلقائي يتم توليده فقط إذا كان آخر من أرسل هو الوكيل لمحاكاة مراجعة الإدارة
-                let lastMsg = tickets[idx].messages[tickets[idx].messages.length - 1];
-                if (lastMsg.roleType === 'agent' && currentUser.role === 'agent') {
-                    tickets[idx].messages.push({
-                        senderName: "نظام الرد التلقائي (المشرف)",
-                        roleType: "admin",
-                        text: "تم استلام تحديثك المرفق يا غالي وجاري اتخاذ الإجراء اللازم من قبل الإدارة العليا فوراً.",
-                        time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
-                        attachedFile: null,
-                        fileData: null
-                    });
-                    tickets[idx].unreadForAgent = true; // إضاءة النقطة الحمراء فوراً عند الموظف المتابع للطلب!
-                    localStorage.setItem('quatro_tickets', JSON.stringify(tickets));
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+        fetch(endpoint, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: [{ parts: [{ text: `أنت مساعد ذكاء اصطناعي لمديري نظام Hyde Park Operations. أجب بمهنية واختصار على: ${query}` }] }] })
+        })
+        .then(res => res.json())
+        .then(data => {
+            const reply = data.candidates[0].content.parts[0].text;
+   
+            box.innerHTML += `<div class="chat-bubble management"><strong>🤖 Gemini:</strong><br>${reply.replace(/\n/g, '<br>')}</div>`;
+            box.scrollTop = box.scrollHeight;
+        })
+        .catch(err => { box.innerHTML += `<div class="chat-bubble management" style="color:red;"><strong>🤖 Error:</strong><br>فشل الاتصال بـ Gemini.</div>`; box.scrollTop = box.scrollHeight; });
+    }
+
+    // -----------------------------------------------------------------------------
+    // ADMIN DASHBOARD (USERS, QUIZZES, RESULTS)
+    // -----------------------------------------------------------------------------
+    function setupDashboardPermissions() {
+        if (!currentUser) return;
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        const badge = document.getElementById('user-role-badge');
+        badge.className = "badge"; 
+        document.getElementById('nav-profile-btn').style.display = "none";
+        
+        loadDropdownTargets();
+        
+        if(!currentUser.phone || !currentUser.email) { switchView('agent-profile'); return;
+        }
+
+        if(currentUser.role === 'admin' || currentUser.role === 'leader' || currentUser.role === 'quality') {
+            document.getElementById('tab-btn-users').style.display = (currentUser.role === 'admin' || currentUser.role === 'leader') ?
+                'block' : 'none';
+            document.getElementById('tab-btn-chats').style.display = 'block';
+            document.getElementById('tab-btn-schedules').style.display = (currentUser.role === 'admin' || currentUser.role === 'leader') ? 'block' : 'none';
+            document.getElementById('tab-btn-kpi').style.display = (currentUser.role === 'admin' || currentUser.role === 'leader') ? 'block' : 'none';
+            document.getElementById('tab-btn-quizzes').style.display = (currentUser.role === 'admin' || currentUser.role === 'quality') ? 'block' : 'none';
+            document.getElementById('tab-btn-results').style.display = (currentUser.role === 'admin' || currentUser.role === 'leader' || currentUser.role === 'quality') ? 'block' : 'none';
+            document.getElementById('tab-btn-gemini').style.display = 'block';
+            document.getElementById('admin-only-add-user').classList.toggle('hidden', currentUser.role !== 'admin');
+            
+            if(currentUser.role === 'admin') { badge.innerText = "Admin"; badge.classList.add('badge-admin'); switchAdminTab('tab-users', document.getElementById('tab-btn-users')); loadUsersAdmin();
+            }
+            else if(currentUser.role === 'leader') { badge.innerText = "Leader";
+                badge.classList.add('badge-leader'); switchAdminTab('tab-users', document.getElementById('tab-btn-users')); loadUsersAdmin(); }
+            else if(currentUser.role === 'quality') { badge.innerText = "Quality";
+                badge.classList.add('badge-quality'); switchAdminTab('tab-quizzes', document.getElementById('tab-btn-quizzes')); loadQuizzesAdminSection(); }
+            switchView('admin-dashboard');
+        } else {
+            badge.innerText = "Agent"; badge.style.background = "var(--success)";
+            document.getElementById('agent-welcome-name').innerText = currentUser.fullName;
+            document.getElementById('nav-profile-btn').style.display = "inline-block";
+            switchView('agent-hub');
+        }
+    }
+
+    function loadUsersAdmin() {
+        if(currentUser.role !== 'admin' && currentUser.role !== 'leader') return;
+        const filterAcc = document.getElementById('filter-account').value.trim().toLowerCase();
+        const filterStatus = document.getElementById('filter-status').value;
+
+        fetch(`${firebaseBaseUrl}/users.json`).then(res => res.json()).then(users => {
+            globalUsersList = users || {};
+            const tbody = document.getElementById('admin-users-list'); tbody.innerHTML = '';
+            if(!users) { tbody.innerHTML = '<tr><td colspan="6">No users found.</td></tr>'; return; }
+            
+            Object.keys(users).forEach(uKey => {
+       
+                let u = users[uKey];
+                if (!u) return; 
+                let accMatch = !filterAcc || (u.accountName && u.accountName.toLowerCase().includes(filterAcc));
+                let statusMatch = filterStatus === 'all' || u.status === filterStatus;
+                
+    
+                if(accMatch && statusMatch) {
+                    let statusHtml = u.status === 'pending' ? '<span class="badge badge-pending">Pending</span>' : '<span class="badge" style="background:var(--success)">Active</span>';
+                    let actionsHtml = '';
                     
-                    if (currentSelectedTicketId === ticketId) {
-                        renderActiveTicketWorkspace();
-                        rebuildTicketsSidebarUI();
-                    }
+         
+                    if(u.status === 'pending' && (currentUser.role === 'admin' ||
+                        currentUser.role === 'leader')) {
+                        actionsHtml += `<button class="view-btn" style="background:var(--success); margin-bottom:5px;"
+                            onclick="approveUser('${u.username}')">Approve ✔️</button>`;
+                        if(currentUser.role === 'admin') actionsHtml += `<button class="view-btn" style="background:var(--danger);" onclick="deleteUser('${u.username}')">Reject & Delete ❌</button>`;
+                    } else if(currentUser.role === 'admin') {
+                        actionsHtml += `<div class="action-inline"><button class="view-btn" style="background:var(--primary)" onclick="openEditUserModal('${u.username}')">Edit <i class="fa-solid fa-pen"></i></button><button class="view-btn" style="background:var(--danger)" onclick="deleteUser('${u.username}')">Delete <i class="fa-solid fa-trash"></i></button></div>`;
+                    } else { actionsHtml += `<span style="color:#94a3b8; font-size:11px;">Admin Only</span>`; }
+
+                    tbody.innerHTML += `<tr><td><b>${u.fullName ||
+                        'No Name'}</b><br><small style="color:#64748b;">HR ID: ${u.hrId || 'Not Set'} | ${u.phone||'No Phone'} | ${u.email||'No Email'}</small></td><td><code>${u.username}</code></td><td>${u.accountName || '-'}</td><td><span class="badge" style="background:#64748b; text-transform:capitalize;">${u.role}</span></td><td>${statusHtml}</td><td>${actionsHtml}</td></tr>`;
                 }
-            }, 4000);
-        }
-
-        // إنشاء تذكرة أو طلب مستقل جديد وتحديد الموجه إليه والمسؤول بمرونة كاملة وبأعداد لانهائية
-        function launchNewTicketCreationFlow() {
-            let title = prompt("أدخل موضوع أو عنوان طلبك الحالي بالتفصيل:");
-            if (!title) return;
-            let targetPerson = prompt("إلى من تود توجيه هذا الطلب؟ (مثال: محمد إيهاب، قسم الجودة، الموارد البشرية):", "محمد إيهاب");
-            if (!targetPerson) return;
-
-            let tickets = JSON.parse(localStorage.getItem('quatro_tickets'));
-            let newId = "TK-" + Math.floor(1000 + Math.random() * 9000);
-
-            tickets.push({
-                id: newId,
-                title: title,
-                assignedTo: targetPerson,
-                createdBy: currentUser.username,
-                creatorName: currentUser.fullName,
-                unreadForAdmin: true,
-                unreadForAgent: false,
-                messages: [
-                    {
-                        senderName: currentUser.fullName,
-                        roleType: currentUser.role,
-                        text: `تم فتح وتدشين هذا الطلب الجديد والموجه رسمياً لسيادة [${targetPerson}] بخصوص موضوع: ${title}`,
-                        time: "الآن",
-                        attachedFile: null,
-                        fileData: null
-                    }
-                ]
             });
+        });
+    }
 
-            localStorage.setItem('quatro_tickets', JSON.stringify(tickets));
-            currentSelectedTicketId = newId;
-            rebuildTicketsSidebarUI();
+    function addConfirmedUser() {
+        const name = document.getElementById('dir-name').value.trim();
+        const user = document.getElementById('dir-user').value.trim().toLowerCase();
+        const pass = document.getElementById('dir-pass').value.trim();
+        const acc = document.getElementById('dir-acc').value.trim();
+        const role = document.getElementById('dir-role').value;
+        const hrid = document.getElementById('dir-hrid').value.trim();
+        if(!name || !user || !pass || !acc) return alert('Please complete all basic fields!');
+        let newUserData = { fullName: name, username: user, password: pass, role: role, accountName: acc, status: "approved", phone: "", email: "", hrId: hrid };
+        fetch(`${firebaseBaseUrl}/users/${user}.json`, { method: 'PUT', body: JSON.stringify(newUserData) })
+        .then(() => { 
+            alert('User added and activated successfully!'); 
+            document.getElementById('dir-name').value = ''; document.getElementById('dir-user').value = ''; document.getElementById('dir-pass').value = ''; document.getElementById('dir-acc').value = ''; document.getElementById('dir-hrid').value = '';
+            loadUsersAdmin(); loadDropdownTargets();
+        });
+    }
+
+    function approveUser(username) { fetch(`${firebaseBaseUrl}/users/${username}/status.json`, { method: 'PUT', body: JSON.stringify("approved") }).then(() => { alert('Account approved successfully!'); loadUsersAdmin(); loadDropdownTargets(); });
+    }
+    function deleteUser(username) { if(confirm(`Are you sure you want to permanently delete user [ ${username} ]?`)) { fetch(`${firebaseBaseUrl}/users/${username}.json`, { method: 'DELETE' }).then(() => { alert('Account deleted!'); loadUsersAdmin(); loadDropdownTargets(); });
+    } }
+
+    function openEditUserModal(username) {
+        const u = globalUsersList[username];
+        if(!u) return;
+        document.getElementById('edit-orig-username').value = username; document.getElementById('edit-fullname').value = u.fullName || ''; document.getElementById('edit-hrid').value = u.hrId || ''; document.getElementById('edit-account').value = u.accountName || '';
+        document.getElementById('edit-role').value = u.role || 'agent'; document.getElementById('edit-phone').value = u.phone || ''; document.getElementById('edit-email').value = u.email || ''; document.getElementById('edit-password').value = u.password || '';
+        document.getElementById('edit-user-modal').classList.remove('hidden');
+    }
+    function closeEditUserModal() { document.getElementById('edit-user-modal').classList.add('hidden'); }
+
+    function saveUserEdit() {
+        const username = document.getElementById('edit-orig-username').value;
+        const u = globalUsersList[username];
+        const passVal = document.getElementById('edit-password').value.trim();
+        if(!passVal) return alert('Password field cannot be empty!');
+        let updatedData = { ...u, fullName: document.getElementById('edit-fullname').value.trim(), hrId: document.getElementById('edit-hrid').value.trim(), accountName: document.getElementById('edit-account').value.trim(), role: document.getElementById('edit-role').value, phone: document.getElementById('edit-phone').value.trim(), email: document.getElementById('edit-email').value.trim(), password: passVal };
+        fetch(`${firebaseBaseUrl}/users/${username}.json`, { method: 'PUT', body: JSON.stringify(updatedData) }).then(() => { alert('User profile updated successfully!'); closeEditUserModal(); loadUsersAdmin(); });
+    }
+
+    function loadDropdownTargets() {
+        fetch(`${firebaseBaseUrl}/users.json`).then(res => res.json()).then(users => {
+            const selectMain = document.getElementById('q-target-select');
+            const selectFast = document.getElementById('fast-change-target-select');
+            let optionsHtml = '<option value="draft">Hidden Draft ❌</option><option value="all">All Employees</option>';
+            let accounts = new Set();
+            if(users) {
+   
+                Object.values(users).forEach(u => { if(u && u.accountName) accounts.add(u.accountName); });
+                if(accounts.size > 0) {
+                    optionsHtml += `<optgroup label="By Account / Campaign">`;
+                    accounts.forEach(acc => optionsHtml += `<option value="ACC_${acc}">Campaign: ${acc}</option>`);
+         
+                    optionsHtml += `</optgroup>`;
+                }
+            }
+            if(selectMain) selectMain.innerHTML = optionsHtml;
+            if(selectFast) selectFast.innerHTML = optionsHtml;
+        });
+    }
+
+    function addQuizQuestionAdmin() {
+        const quizName = document.getElementById('q-quizname').value.trim();
+        const target = document.getElementById('q-target-select').value;
+        const txt = document.getElementById('q-text').value.trim();
+        const o1 = document.getElementById('q-opt1').value.trim();
+        const o2 = document.getElementById('q-opt2').value.trim();
+        const o3 = document.getElementById('q-opt3').value.trim();
+        const o4 = document.getElementById('q-opt4').value.trim();
+        const corr = document.getElementById('q-correct').value.trim();
+        if(!quizName || !txt || !o1 || !o2 || !corr) return alert('Please enter Quiz name and first question details completely!');
+        let data = { question: txt, opts: [o1, o2, o3, o4], correct: parseInt(corr) };
+        fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions.json`, { method: 'POST', body: JSON.stringify(data) })
+        .then(() => fetch(`${firebaseBaseUrl}/quizzes/${quizName}/target.json`, { method: 'PUT', body: JSON.stringify(target) }))
+        .then(() => { alert('Quiz saved!'); ['q-text','q-opt1','q-opt2','q-opt3','q-opt4','q-correct'].forEach(id => document.getElementById(id).value = ''); loadQuizzesAdminSection(); });
+    }
+
+    function loadQuizzesAdminSection() {
+        fetch(`${firebaseBaseUrl}/quizzes.json`).then(res => res.json()).then(quizzes => {
+            const tbody = document.getElementById('admin-quizzes-control-list'); tbody.innerHTML = '';
+            if(!quizzes) { tbody.innerHTML = '<tr><td colspan="3">No quizzes created yet.</td></tr>'; return; }
+            Object.keys(quizzes).forEach(name => {
+                let q = quizzes[name]; if (!q) return; 
+     
+                let tgtDisplay = q.target === 'draft' ? 'Draft ❌' : q.target === 'all' ? 'All' : q.target.startsWith('ACC_') ? `Camp: ${q.target.replace('ACC_','')}` : `User: ${q.target}`;
+                tbody.innerHTML += `<tr><td><b>${name}</b></td><td><span class="badge" style="background:var(--primary)">${tgtDisplay}</span></td><td><div class="action-inline"><button class="view-btn" style="background:#d946ef" onclick="viewQuizQuestions('${name}')"><i class="fa-solid fa-eye"></i> View</button><button class="view-btn" style="background:#16a34a" onclick="openQuestionsEditor('${name}')"><i class="fa-solid fa-pen"></i> Edit</button><button class="view-btn" style="background:var(--danger)" onclick="deleteQuizCompletely('${name}')">Delete</button></div></td></tr>`;
+            });
+        });
+    }
+
+    function viewQuizQuestions(quizName) {
+        document.getElementById('view-quiz-title').innerText = quizName;
+        const container = document.getElementById('viewer-questions-list'); container.innerHTML = '<p>Loading...</p>';
+        document.getElementById('quiz-viewer-container').classList.remove('hidden'); document.getElementById('questions-editor-container').classList.add('hidden');
+        fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions.json`).then(res => res.json()).then(qs => {
+            container.innerHTML = ''; if(!qs) { container.innerHTML = '<p>No questions found.</p>'; return; }
+            Object.values(qs).forEach((q, idx) => {
+                if (!q) return; let optsHtml = '';
+                if(q.opts) { q.opts.forEach((o, i) => { let isCorrect = (i+1) == 
+                    q.correct; optsHtml += `<div style="padding:6px; margin:4px 0; border-radius:4px; font-size:14px; ${isCorrect ? 'background:#d1fae5; color:#065f46; font-weight:bold; border:1px solid #10b981;' : 'background:#f1f5f9; color:#64748b;'}">${i+1}. ${o} ${isCorrect ? '✔️ Correct' : ''}</div>`; }); }
+                container.innerHTML += `<div class="viewer-q"><p style="margin:0 0 10px 0; color:var(--text); font-weight:bold; font-size:16px;">Q${idx+1}: ${q.question}</p>${optsHtml}</div>`;
+            });
+        });
+    }
+
+    function openQuestionsEditor(quizName) {
+        currentEditingQuizName = quizName; document.getElementById('current-editing-quiz-title').innerText = quizName;
+        const container = document.getElementById('individual-questions-list'); container.innerHTML = '<p>Loading...</p>';
+        document.getElementById('questions-editor-container').classList.remove('hidden'); document.getElementById('quiz-viewer-container').classList.add('hidden');
+        fetch(`${firebaseBaseUrl}/quizzes/${quizName}/target.json`).then(res => res.json()).then(target => { if(target) document.getElementById('fast-change-target-select').value = target; });
+        fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions.json`).then(res => res.json()).then(questions => {
+            container.innerHTML = ''; if(!questions) return;
+            Object.keys(questions).forEach(qKey => {
+                let q = questions[qKey]; if (!q) return;
+                container.innerHTML += `<div class="question-edit-row"><label style="font-size:12px; color:var(--primary)">Question Text:</label><input type="text" id="edit_txt_${qKey}" value="${q.question}" style="margin-bottom:5px;"><div style="display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:5px;"><input type="text" id="edit_opt1_${qKey}" value="${q.opts ? (q.opts[0] || '') : ''}"><input type="text" id="edit_opt2_${qKey}" value="${q.opts 
+                    ? (q.opts[1] || '') : ''}"><input type="text" id="edit_opt3_${qKey}" value="${q.opts ? (q.opts[2] || '') : ''}"><input type="text" id="edit_opt4_${qKey}" value="${q.opts ? (q.opts[3] || '') : ''}"></div><div style="display:flex; justify-content:space-between;
+                    align-items:center;"><div><label style="display:inline; font-size:12px;">Correct (1-4): </label><input type="number" id="edit_corr_${qKey}" value="${q.correct || 1}" min="1" max="4" style="width:50px; padding:4px;
+                    display:inline;"></div><div><button class="view-btn" style="background:var(--success);" onclick="saveSingleQuestionChanges('${quizName}', '${qKey}')">Save</button> <button class="view-btn" style="background:var(--danger);" onclick="deleteSingleQuestion('${quizName}', '${qKey}')">Delete</button></div></div></div>`;
+            });
+        });
+    }
+
+    function updateQuizTargetFromEditor() {
+        const newTarget = document.getElementById('fast-change-target-select').value;
+        fetch(`${firebaseBaseUrl}/quizzes/${currentEditingQuizName}/target.json`, { method: 'PUT', body: JSON.stringify(newTarget) }).then(() => { alert('🟢 Target updated successfully!'); loadQuizzesAdminSection(); });
+    }
+
+    function addSingleQuestionFast() {
+        const txt = document.getElementById('fast-q-text').value.trim(); const o1 = document.getElementById('fast-q-opt1').value.trim(); const o2 
+            = document.getElementById('fast-q-opt2').value.trim(); const o3 = document.getElementById('fast-q-opt3').value.trim(); const o4 = document.getElementById('fast-q-opt4').value.trim(); const corr = document.getElementById('fast-q-correct').value.trim();
+        if(!txt || !o1 || !o2 || !corr) return alert('Please complete basic question info!');
+        let newQ = { question: txt, opts: [o1, o2, o3, o4], correct: parseInt(corr) };
+        fetch(`${firebaseBaseUrl}/quizzes/${currentEditingQuizName}/questions.json`, { method: 'POST', body: JSON.stringify(newQ) }).then(() => { alert('⚡ Question inserted successfully!'); ['fast-q-text','fast-q-opt1','fast-q-opt2','fast-q-opt3','fast-q-opt4','fast-q-correct'].forEach(id => document.getElementById(id).value = ''); openQuestionsEditor(currentEditingQuizName); });
+    }
+
+    function saveSingleQuestionChanges(quizName, qKey) {
+        let updatedQ = { question: document.getElementById(`edit_txt_${qKey}`).value.trim(), opts: [ document.getElementById(`edit_opt1_${qKey}`).value.trim(), document.getElementById(`edit_opt2_${qKey}`).value.trim(), document.getElementById(`edit_opt3_${qKey}`).value.trim(), document.getElementById(`edit_opt4_${qKey}`).value.trim() ], correct: parseInt(document.getElementById(`edit_corr_${qKey}`).value.trim()) };
+        fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions/${qKey}.json`, { method: 'PUT', body: JSON.stringify(updatedQ) }).then(() => { alert('🟢 Saved!'); openQuestionsEditor(quizName); });
+    }
+
+    function deleteSingleQuestion(quizName, qKey) { if(confirm('Delete this question permanently?')) fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions/${qKey}.json`, { method: 'DELETE' }).then(() => openQuestionsEditor(quizName));
+    }
+
+    function deleteQuizCompletely(name) {
+        if(confirm(`⚠️ Delete quiz [ ${name} ] entirely?`)) { fetch(`${firebaseBaseUrl}/quizzes/${name}.json`, { method: 'DELETE' }).then(() => loadQuizzesAdminSection());
         }
-    </script>
+    }
+
+    // -----------------------------------------------------------------------------
+    // AGENT HUB: SCHEDULE/BREAK/KPI (LIVE) & QUIZZES
+    // -----------------------------------------------------------------------------
+    function viewAgentSchedule() {
+        switchView('info-display-box');
+        document.getElementById('info-box-title').innerText = "🗓️ Your Weekly Schedule (Live from Sheet)";
+        let nameKey = currentUser.fullName.trim().toLowerCase();
+        if(!liveSchedules[nameKey]) { document.getElementById('info-content-area').innerHTML = `<div class="info-card" style="color:var(--danger)">No schedule found for [ ${currentUser.fullName} ] in the live Google Sheet.
+            Or the sheet is not linked yet.</div>`; return; }
+        
+        let s = liveSchedules[nameKey];
+        const todayStr = daysMap[new Date().getDay()]; 
+        document.getElementById('info-content-area').innerHTML = `
+            <table class="data-table" style="width:100%">
+                <thead><tr><th>Sunday</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th><th>Saturday</th></tr></thead>
+                <tbody><tr>
+                    <td class="${s.sunday.toLowerCase().includes('off')?'off-day':'work-day'} ${todayStr==='sunday'?'current-day-highlight':''}">${s.sunday}</td>
+                    <td class="${s.monday.toLowerCase().includes('off')?'off-day':'work-day'} ${todayStr==='monday'?'current-day-highlight':''}">${s.monday}</td>
+   
+                 <td class="${s.tuesday.toLowerCase().includes('off')?'off-day':'work-day'} ${todayStr==='tuesday'?'current-day-highlight':''}">${s.tuesday}</td>
+                    <td class="${s.wednesday.toLowerCase().includes('off')?'off-day':'work-day'} ${todayStr==='wednesday'?'current-day-highlight':''}">${s.wednesday}</td>
+                    <td class="${s.thursday.toLowerCase().includes('off')?'off-day':'work-day'} ${todayStr==='thursday'?'current-day-highlight':''}">${s.thursday}</td>
+                    <td class="${s.friday.toLowerCase().includes('off')?'off-day':'work-day'} ${todayStr==='friday'?'current-day-highlight':''}">${s.friday}</td>
+               
+     <td class="${s.saturday.toLowerCase().includes('off')?'off-day':'work-day'} ${todayStr==='saturday'?'current-day-highlight':''}">${s.saturday}</td>
+                </tr></tbody>
+            </table><p style="text-align:center;
+            margin-top:10px; font-size:12px; color:#854d0e;">(Current day is highlighted in yellow 🌟)</p>`;
+    }
+
+    function viewAgentBreaks() {
+        switchView('info-display-box'); document.getElementById('info-box-title').innerText = "Your Scheduled Break Time (Live)";
+        let nameKey = currentUser.fullName.trim().toLowerCase(); let b = liveBreaks[nameKey];
+        document.getElementById('info-content-area').innerHTML = b ? `<div class="info-card" style="color:var(--success)"><i class="fa-solid fa-mug-hot"></i> <b>Break Time:</b> ${b}</div>` : '<div class="info-card">No break time assigned for your name in Sheet 2 yet.</div>';
+    }
+
+    function loadQuizzesForAgent() {
+        switchView('quiz-dashboard'); document.getElementById('active-quiz-area').classList.add('hidden');
+ 
+        fetch(`${firebaseBaseUrl}/quizzes.json`).then(res => res.json()).then(quizzes => {
+            const list = document.getElementById('available-quizzes-list'); list.innerHTML = '';
+            if(!quizzes) { list.innerHTML = 'No quizzes available for you currently.';
+                return; }
+            Object.keys(quizzes).forEach(name => {
+                let q = quizzes[name]; if (!q) return;
+                let tgt = q.target;
+                if(tgt === 'all' || tgt === currentUser.username || tgt === `ACC_${currentUser.accountName}`) {
+                 
+                    list.innerHTML += `<div class="info-card" style="margin-bottom:10px; text-align:left; display:flex; justify-content:space-between; align-items:center;"><span style="font-weight:bold; color:var(--primary);"><i class="fa-solid fa-file-pen"></i> ${name}</span><button onclick="startQuizForAgent('${name}')" style="width:auto; margin:0; padding:8px 15px;">Start Quiz 🚀</button></div>`;
+                }
+            });
+        });
+    }
+
+    function startQuizForAgent(name) {
+        activeQuizName = name;
+        fetch(`${firebaseBaseUrl}/quizzes/${name}/questions.json`).then(res => res.json()).then(qs => {
+            if(!qs) return alert('This quiz is empty!');
+            activeQuizQuestions = Object.values(qs);
+            document.getElementById('active-quiz-title').innerText = name;
+            const container = document.getElementById('quiz-questions-container'); container.innerHTML = '';
+            document.getElementById('submit-quiz-btn').style.display = 'block'; document.getElementById('close-quiz-btn').classList.add('hidden');
+
+            activeQuizQuestions.forEach((q, i) => {
+   
+                if (!q) return;
+                let h = `<div style="background:white; padding:15px; margin-bottom:15px; border-radius:8px; border:2px solid #e2e8f0;"><p style="margin-top:0; font-size:16px; color:var(--text); font-weight:bold;">Q${i+1}: ${q.question}</p>`;
+                if(q.opts) { q.opts.forEach((o, oi) => { if(o) h += `<label class="option-label" id="label_${i}_${oi+1}"><input type="radio" name="q_${i}" value="${oi+1}"> ${o}</label>`;
+                }); }
+                container.innerHTML += h + `</div>`;
+            });
+            document.getElementById('active-quiz-area').classList.remove('hidden');
+        });
+    }
+
+    function submitQuizAnswers() {
+        let score = 0;
+        let detailsArr = [];
+        activeQuizQuestions.forEach((q, i) => {
+            if (!q) return;
+            const sel = document.querySelector(`input[name="q_${i}"]:checked`);
+            let safeText = q.question.replace(/\|/g, '-').replace(/\./g, ' '); 
+            if(sel && sel.value == q.correct) { score++; detailsArr.push(`${safeText} : Correct ✅`); } 
+            else { detailsArr.push(`${safeText} : ${sel ? 'Wrong ❌' : 
+                'Not Answered ⚠️'}`); }
+            document.querySelectorAll(`input[name="q_${i}"]`).forEach(el => el.disabled = true);
+        });
+        let res = `${score} / ${activeQuizQuestions.length}`;
+        let scorePayload = { username: currentUser.fullName || currentUser.username, hrId: currentUser.hrId ||
+            'Not Set', account: currentUser.accountName || '-', quizName: activeQuizName, score: res, details: detailsArr.join(" | "), timestamp: new Date().toLocaleString() };
+        fetch(`${firebaseBaseUrl}/scores.json`, { method: 'POST', body: JSON.stringify(scorePayload) })
+        .then(() => { alert(`Quiz Submitted! Score: ${res}`); document.getElementById('submit-quiz-btn').style.display = 'none'; document.getElementById('close-quiz-btn').classList.remove('hidden'); });
+    }
+
+    // -----------------------------------------------------------------------------
+    // RESULTS & EXPORT
+    // -----------------------------------------------------------------------------
+    function loadScoresAdmin() {
+        fetch(`${firebaseBaseUrl}/scores.json`).then(res => res.json()).then(scores => {
+            globalScoresData = scores;
+            const filterSelect = document.getElementById('admin-quiz-filter');
+            if (filterSelect) {
+                let uniqueQuizzes = new Set();
+  
+                if(scores) { Object.values(scores).forEach(s => { if(s && s.quizName) uniqueQuizzes.add(s.quizName); }); }
+                let opts = `<option value="ALL_QUIZZES">All Quizzes</option>`;
+                uniqueQuizzes.forEach(q => { opts += `<option value="${q.replace(/"/g, '&quot;')}">${q}</option>`; });
+                filterSelect.innerHTML = opts;
+            }
+ 
+            filterScoresTable();
+        });
+    }
+
+    function filterScoresTable() {
+        const tbody = document.getElementById('admin-scores-list');
+        tbody.innerHTML = '';
+        if(!globalScoresData) { tbody.innerHTML = '<tr><td colspan="8">No results recorded yet.</td></tr>'; return;
+        }
+        
+        const filterVal = document.getElementById('admin-quiz-filter').value ||
+            "ALL_QUIZZES";
+        let hasData = false;
+        Object.keys(globalScoresData).forEach(id => {
+            let score = globalScoresData[id]; if (!score) return; 
+            if(filterVal === "ALL_QUIZZES" || score.quizName === filterVal) {
+                hasData = true;
+                let detailsHtml = score.details ? score.details.split(' | ').map(p => `<div class="details-row">${p}</div>`).join('') : 'No details';
+        
+                tbody.innerHTML += `<tr><td><b>${score.username}</b></td><td>${score.hrId}</td><td>${score.account}</td><td>${score.quizName}</td><td><span class="badge-score">${score.score}</span></td><td><button class="view-btn" onclick="document.getElementById('det_${id}').classList.toggle('hidden')">View Details</button><div id="det_${id}" class="details-container hidden">${detailsHtml}</div><span style="display:none;" class="excel-details-export">${score.details||''}</span></td><td><small>${score.timestamp}</small></td><td><button class="view-btn" style="background:var(--danger);" onclick="deleteScoreFromSystem('${id}')">Delete</button></td></tr>`;
+            }
+        });
+        if(!hasData) tbody.innerHTML = `<tr><td colspan="8">No matching records found.</td></tr>`;
+    }
+
+    function deleteScoreFromSystem(id) { if(confirm('Delete this score?')) fetch(`${firebaseBaseUrl}/scores/${id}.json`, { method: 'DELETE' }).then(() => loadScoresAdmin());
+    }
+
+    function loadAgentScoresArchive() {
+        switchView('quiz-dashboard'); document.getElementById('active-quiz-area').classList.add('hidden');
+        fetch(`${firebaseBaseUrl}/scores.json`).then(res => res.json()).then(scores => {
+            const list = document.getElementById('available-quizzes-list'); list.innerHTML = '';
+            if(!scores) { list.innerHTML = 'Your archive is empty.'; return; }
+            let h = `<table class="data-table" style="width:100%"><thead><tr><th>Quiz Name</th><th>Score</th><th>Date</th></tr></thead><tbody>`;
+            let hasArchive = false;
+            Object.keys(scores).forEach(id => {
+          
+                let s = scores[id];
+                if (s && (s.username === currentUser.fullName || s.username === currentUser.username)) {
+                    hasArchive = true; h += `<tr><td>${s.quizName}</td><td><span class="badge-score">${s.score}</span></td><td>${s.timestamp}</td></tr>`;
+                }
+            });
+           
+            list.innerHTML = hasArchive ? h + `</tbody></table>` : 'No completed quiz history found.';
+        });
+    }
+
+    function triggerExcelExport() {
+        let tableClone = document.getElementById('admin-scores-table').cloneNode(true);
+        let detailCells = tableClone.querySelectorAll('td:nth-child(6)');
+        detailCells.forEach(cell => { let exportSpan = cell.querySelector('.excel-details-export'); if(exportSpan) cell.innerText = exportSpan.innerText; });
+        tableClone.querySelectorAll('tr').forEach(row => { if(row.children.length > 7) row.removeChild(row.children[7]); });
+        const wb = XLSX.utils.table_to_book(tableClone, { sheet: "Results" });
+        XLSX.writeFile(wb, "HydePark_Results.xlsx");
+    }
+</script>
 </body>
 </html>
