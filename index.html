@@ -1,422 +1,920 @@
+bash
+
+cat > /mnt/user-data/outputs/quatro_ops.html << 'HTMLEOF'
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <title>Quatro Operations ⚡</title>
+    <title>Quatro Operations</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { 
-            --primary: #2563eb;
-            --success: #10b981; --danger: #ef4444; 
-            --warning: #f59e0b; --bg: #f8fafc; --text: #0f172a;
+        :root {
+            --gold: #C8A96E;
+            --gold-light: #E8D4A8;
+            --gold-dark: #9A7A45;
+            --black: #0A0A0A;
+            --off-black: #111111;
+            --charcoal: #1A1A1A;
+            --dark-surface: #1E1E1E;
+            --mid-surface: #242424;
+            --light-surface: #2E2E2E;
+            --border: rgba(200, 169, 110, 0.2);
+            --border-strong: rgba(200, 169, 110, 0.5);
+            --text-primary: #F5F0E8;
+            --text-secondary: #A89880;
+            --text-muted: #6B6055;
+            --success: #4CAF7D;
+            --danger: #E05C5C;
+            --warning: #D4A843;
+            --info: #5B9BD5;
         }
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--bg); color: var(--text); margin: 0; padding: 10px; 
-            min-height: 100vh; box-sizing: border-box; display: flex; flex-direction: column;
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--black);
+            color: var(--text-primary);
+            min-height: 100vh;
         }
-        .container { 
-            background: #ffffff;
-            padding: 25px; border-radius: 16px; 
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); width: 100%; max-width: 1150px; 
-            box-sizing: border-box;
-            margin: 80px auto 20px auto; flex: 1; 
+
+        /* NAVBAR */
+        .navbar {
+            display: none;
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            height: 64px;
+            background: rgba(10,10,10,0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
         }
-        h2, h3, h4, h5 { text-align: center;
-            color: var(--primary); margin-top: 0; }
-        .form-group { margin-bottom: 16px; text-align: left;
+        .nav-left { display: flex; align-items: center; gap: 12px; }
+        .nav-right { display: flex; align-items: center; gap: 10px; }
+
+        .nav-logo-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 3px;
+            text-transform: uppercase;
         }
-        label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px;
+
+        .nav-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 7px 14px;
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex; align-items: center; gap: 6px;
+            transition: all 0.2s;
+            width: auto;
         }
-        input, select, textarea { 
+        .nav-btn:hover { border-color: var(--gold); color: var(--gold); background: rgba(200,169,110,0.08); }
+        .nav-btn.nav-logout { border-color: rgba(224,92,92,0.3); color: #E05C5C; }
+        .nav-btn.nav-logout:hover { background: rgba(224,92,92,0.1); border-color: #E05C5C; }
+
+        .role-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+        .badge-admin { background: rgba(200,169,110,0.15); color: var(--gold); border: 1px solid var(--border-strong); }
+        .badge-leader { background: rgba(91,155,213,0.15); color: #5B9BD5; border: 1px solid rgba(91,155,213,0.4); }
+        .badge-quality { background: rgba(180,100,200,0.15); color: #C878E0; border: 1px solid rgba(180,100,200,0.4); }
+        .badge-agent { background: rgba(76,175,125,0.15); color: #4CAF7D; border: 1px solid rgba(76,175,125,0.4); }
+
+        /* MAIN CONTAINER */
+        .container {
+            max-width: 1180px;
+            margin: 80px auto 40px;
+            padding: 0 24px;
+        }
+
+        .hidden { display: none !important; }
+
+        /* AUTH PAGE */
+        #auth-box {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            background: radial-gradient(ellipse at 50% 0%, rgba(200,169,110,0.08) 0%, transparent 70%);
+        }
+
+        .auth-logo-wrap {
+            margin-bottom: 32px;
+            display: flex; flex-direction: column; align-items: center; gap: 16px;
+        }
+        .auth-logo-img {
+            height: 64px;
+            filter: brightness(0) invert(1);
+            opacity: 0.9;
+        }
+        .auth-logo-sub {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+
+        .auth-card {
             width: 100%;
-            padding: 12px; border: 1px solid #cbd5e1; 
-            border-radius: 8px; box-sizing: border-box; font-size: 15px; font-family: inherit;
+            max-width: 420px;
+            background: var(--dark-surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px 36px;
         }
-        input[readonly] { background-color: #f1f5f9; color: #64748b; cursor: not-allowed; border-color: #e2e8f0;
+        .auth-card h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+            text-align: left;
         }
-        button { 
+        .auth-card .auth-sub {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 28px;
+        }
+
+        .form-group { margin-bottom: 18px; }
+        label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        input, select, textarea {
             width: 100%;
-            padding: 12px; background: var(--primary); color: white; 
-            border: none; border-radius: 8px; font-size: 16px; cursor: pointer; 
-            font-weight: bold; margin-top: 10px;
-            transition: all 0.2s; 
+            padding: 12px 14px;
+            background: var(--charcoal);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--gold);
+            background: var(--mid-surface);
+        }
+        input[readonly] {
+            background: var(--off-black);
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+        select { cursor: pointer; }
+        select option { background: var(--charcoal); }
+
+        .btn {
+            width: 100%;
+            padding: 13px 20px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
             display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: all 0.2s;
+            letter-spacing: 0.3px;
         }
-        button:hover { opacity: 0.9; transform: translateY(-1px);
+        .btn-primary { background: var(--gold); color: var(--black); }
+        .btn-primary:hover { background: var(--gold-light); }
+        .btn-secondary { background: var(--mid-surface); color: var(--text-secondary); border: 1px solid var(--border); }
+        .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+        .btn-success { background: rgba(76,175,125,0.15); color: var(--success); border: 1px solid rgba(76,175,125,0.3); }
+        .btn-success:hover { background: rgba(76,175,125,0.25); }
+        .btn-danger { background: rgba(224,92,92,0.15); color: var(--danger); border: 1px solid rgba(224,92,92,0.3); }
+        .btn-danger:hover { background: rgba(224,92,92,0.25); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .auth-toggle {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 13px;
+            color: var(--text-muted);
         }
-        button:disabled { background: #94a3b8 !important; cursor: not-allowed; opacity: 0.7;
+        .auth-toggle a { color: var(--gold); cursor: pointer; text-decoration: none; font-weight: 500; }
+        .auth-toggle a:hover { color: var(--gold-light); }
+
+        /* SECTION HEADINGS */
+        .section-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 26px;
+            font-weight: 600;
+            color: var(--gold);
+            margin-bottom: 6px;
         }
-        .hidden { display: none !important;
-        }
-        
-        .navbar { 
-            position: fixed;
-            top: 0; left: 0; right: 0; height: 60px; 
-            background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
-            display: flex; justify-content: space-between;
-            align-items: center; 
-            padding: 0 20px; z-index: 1000; box-sizing: border-box; 
-        }
-        .nav-btn { 
-            background: #f1f5f9;
-            color: var(--text); padding: 8px 14px; 
-            border-radius: 6px; font-size: 14px; border: 1px solid #cbd5e1; 
-            font-weight: 600; cursor: pointer; width: auto;
-            margin: 0; 
-        }
-        .logout-btn { background: var(--danger); color: white; border: none;
+        .section-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 28px;
         }
 
-        .menu-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 20px;
+        /* AGENT HUB */
+        #agent-hub { padding-top: 8px; }
+        .welcome-banner {
+            background: linear-gradient(135deg, var(--dark-surface), var(--mid-surface));
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--gold);
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 28px;
+            display: flex; align-items: center; gap: 16px;
         }
-        @media(min-width: 500px) { .menu-grid { grid-template-columns: 1fr 1fr;
-        } }
-        .menu-btn { 
+        .welcome-avatar {
+            width: 46px; height: 46px; border-radius: 50%;
+            background: rgba(200,169,110,0.15);
+            border: 1px solid var(--border-strong);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; color: var(--gold); flex-shrink: 0;
+        }
+        .welcome-text h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 20px; color: var(--text-primary); margin-bottom: 2px;
+        }
+        .welcome-text p { font-size: 12px; color: var(--text-muted); }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+        }
+        .menu-card {
+            background: var(--dark-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px 20px;
+            cursor: pointer;
+            transition: all 0.25s;
+            text-align: center;
+            display: flex; flex-direction: column; align-items: center; gap: 12px;
+        }
+        .menu-card:hover {
+            border-color: var(--gold);
+            background: var(--mid-surface);
+            transform: translateY(-2px);
+        }
+        .menu-card i { font-size: 26px; color: var(--gold); }
+        .menu-card span { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+        .menu-card small { font-size: 11px; color: var(--text-muted); }
+
+        /* DIVIDER */
+        .gold-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
+            margin: 28px 0;
+        }
+
+        /* ADMIN TABS */
+        .admin-tabs {
+            display: flex; gap: 6px; margin-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0; overflow-x: auto; flex-wrap: nowrap;
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            padding: 10px 16px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+            width: auto; margin: 0;
+            border-radius: 0;
+        }
+        .tab-btn:hover { color: var(--text-secondary); }
+        .tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+        /* DATA TABLE */
+        .table-wrap { overflow-x: auto; }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .data-table th {
+            background: var(--mid-surface);
+            color: var(--text-secondary);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 12px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        .data-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid rgba(200,169,110,0.08);
+            color: var(--text-primary);
+            vertical-align: middle;
+        }
+        .data-table tr:hover td { background: rgba(200,169,110,0.04); }
+
+        /* STATUS BADGES */
+        .status-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 4px 10px; border-radius: 20px;
+            font-size: 11px; font-weight: 600; letter-spacing: 0.5px;
+        }
+        .status-active { background: rgba(76,175,125,0.12); color: var(--success); border: 1px solid rgba(76,175,125,0.25); }
+        .status-pending { background: rgba(212,168,67,0.12); color: var(--warning); border: 1px solid rgba(212,168,67,0.25); }
+        .status-draft { background: rgba(107,96,85,0.2); color: var(--text-muted); border: 1px solid var(--border); }
+
+        /* ACTION BUTTONS (small) */
+        .action-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 5px 11px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+            width: auto; margin: 0;
+            display: inline-flex; align-items: center; gap: 4px;
+        }
+        .action-btn:hover { border-color: var(--gold); color: var(--gold); }
+        .action-btn.a-success:hover { border-color: var(--success); color: var(--success); }
+        .action-btn.a-danger:hover { border-color: var(--danger); color: var(--danger); }
+        .action-btn.a-purple:hover { border-color: #C878E0; color: #C878E0; }
+
+        /* CARDS */
+        .card {
+            background: var(--dark-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px 24px;
+        }
+        .card-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            color: var(--gold);
+            margin-bottom: 16px;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        /* INFO CARD */
+        .info-card {
+            background: var(--mid-surface);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--gold);
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+        }
+
+        /* CHAT */
+        .chat-wrap {
+            height: 220px; overflow-y: auto;
+            background: var(--off-black);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            display: flex; flex-direction: column; gap: 8px;
+            margin-bottom: 12px;
+        }
+        .chat-bubble {
+            max-width: 78%;
+            padding: 9px 13px;
+            border-radius: 10px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .chat-bubble.agent {
+            background: rgba(200,169,110,0.12);
+            border: 1px solid var(--border);
+            margin-left: auto;
+            color: var(--text-primary);
+        }
+        .chat-bubble.management {
+            background: var(--mid-surface);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        .chat-meta { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
+
+        .chat-input-row { display: flex; gap: 8px; }
+        .chat-input-row input { flex: 1; }
+        .chat-input-row .btn { width: auto; padding: 10px 18px; }
+
+        /* SCHEDULE TABLE */
+        .off-day { color: var(--danger); font-weight: 600; font-size: 12px; }
+        .work-day { color: var(--success); font-weight: 600; font-size: 12px; }
+        .current-day-highlight {
+            background: rgba(200,169,110,0.12) !important;
+            color: var(--gold) !important;
+            font-weight: 700 !important;
+            border: 1px solid var(--border-strong) !important;
+        }
+
+        /* QUIZ OPTIONS */
+        .option-label {
+            display: block;
+            padding: 12px 16px;
+            margin: 7px 0;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        .option-label:hover { border-color: var(--gold); color: var(--text-primary); background: rgba(200,169,110,0.05); }
+        .correct-ans { background: rgba(76,175,125,0.12) !important; border-color: var(--success) !important; color: var(--success) !important; font-weight: 600; }
+        .wrong-ans { background: rgba(224,92,92,0.12) !important; border-color: var(--danger) !important; color: var(--danger) !important; }
+
+        /* QUIZ CARD IN LIST */
+        .quiz-list-item {
+            background: var(--dark-surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .quiz-list-item:hover { border-color: var(--border-strong); }
+
+        /* SCORE BADGE */
+        .score-badge {
+            display: inline-flex; align-items: center; justify-content: center;
+            background: rgba(200,169,110,0.12);
+            border: 1px solid var(--border-strong);
+            color: var(--gold);
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        /* MODALS */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 2000;
+        }
+        .modal-content {
+            background: var(--dark-surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 30px;
+            width: 90%; max-width: 480px;
+            max-height: 90vh; overflow-y: auto;
+        }
+        .modal-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 22px; color: var(--gold); margin-bottom: 20px;
+        }
+        .modal-actions { display: flex; gap: 10px; margin-top: 24px; }
+
+        /* ADMIN ADD USER BOX */
+        .add-user-panel {
+            background: var(--mid-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
             padding: 20px;
-            font-size: 16px; border-radius: 12px; 
-            border: 2px solid var(--primary); background: #fff; color: var(--primary); 
-            cursor: pointer; font-weight: bold; text-align: center; flex-direction: column;
-            display: flex; align-items: center; justify-content: center; gap: 10px; 
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
         }
-        
-        .admin-tabs { display: flex;
-            gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
-        .tab-btn { 
-            background: #e2e8f0;
-            color: var(--text); padding: 8px 12px; 
-            border-radius: 6px; border: none; font-weight: bold; cursor: pointer; 
-            font-size: 13px; white-space: nowrap; width: auto;
-            margin: 0; 
-        }
-        .tab-btn.active { background: var(--primary); color: white;
-        }
-        
-        .data-table { width: 100%;
-            border-collapse: collapse; margin-top: 15px; font-size: 13px; text-align: left; }
-        .data-table th, .data-table td { border: 1px solid #cbd5e1;
-            padding: 10px; text-align: center; vertical-align: middle; }
-        .data-table th { background: #1e293b;
-            color: white; font-weight: bold; } 
-        
-        .info-card { background: #f1f5f9;
-            padding: 20px; border-radius: 12px; border: 1px solid #cbd5e1; text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 15px; border-left: 4px solid var(--primary);
-        }
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; color: white;
-            font-weight: bold; display: inline-block; }
-        .badge-admin { background: #7c3aed;
-        } 
-        .badge-leader { background: #2563eb;
-        } 
-        .badge-quality { background: #db2777;
-        } 
-        .badge-pending { background: var(--warning); color: #000;
-        }
-        .badge-score { background: #1e293b; color: #f8fafc; padding: 6px 12px; font-size: 14px;
-            border-radius: 8px; letter-spacing: 1px; }
-        
-        .option-label { display: block;
-            padding: 10px; margin: 6px 0; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: normal; cursor: pointer; transition: all 0.3s; text-align: left;
-        }
-        .correct-ans { background: #d1fae5 !important; border-color: #10b981 !important; color: #065f46 !important;
-            font-weight: bold; }
-        .wrong-ans { background: #fee2e2 !important; border-color: #ef4444 !important;
-            color: #991b1b !important; font-weight: bold; }
-
-        .footer-credits { text-align: center; font-size: 12px;
-            color: #64748b; padding: 15px 0; font-family: 'Courier New', Courier, monospace;
-            font-weight: bold;}
-        .view-btn { background: #4f46e5; color: white; padding: 6px 12px; border-radius: 4px;
-            font-size: 12px; cursor: pointer; border: none; font-weight: bold; width: auto; margin: 0;
-        }
-        .off-day { background: #fee2e2; color: #ef4444; font-weight: bold;
-        }
-        .work-day { background: #e0f2fe; color: #0369a1; font-weight: bold;
-        }
-        .current-day-highlight { background-color: #fef08a !important; color: #854d0e !important; font-weight: 900;
-            border: 3px solid #eab308 !important; box-shadow: inset 0 0 10px rgba(234, 179, 8, 0.5);
-        }
-        .action-inline { display: flex; gap: 4px; justify-content: center; align-items: center; flex-wrap: wrap;
-        }
-        .input-mini { padding: 6px; font-size: 13px; width: 100%; box-sizing: border-box; border-radius: 4px;
-            border: 1px solid #cbd5e1; }
-        
-        .admin-add-user-box { background: #f1f5f9;
-            padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #cbd5e1; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;
-        }
-        .admin-add-user-box h5 { grid-column: 1 / -1; margin: 0 0 10px 0;
-            color: var(--text); }
-        .filter-bar { display: flex; gap: 10px; background: #e2e8f0; padding: 10px;
-            border-radius: 8px; margin-bottom: 10px; flex-wrap: wrap;}
-        
-        .viewer-box { background: #fdf4ff;
-            border: 1px solid #e879f9; padding: 15px; border-radius: 8px; margin-top: 15px;
-        }
-        .viewer-q { background: white; padding: 10px; border-left: 4px solid #d946ef; margin-bottom: 10px;
-            border-radius: 4px; text-align: left; }
-
-        .questions-editor-box { background: #f0fdf4; border: 2px solid #16a34a;
-            padding: 15px; border-radius: 12px; margin-top: 20px; text-align: left; }
-        .question-edit-row { background: white;
-            padding: 12px; border: 1px solid #bbf7d0; border-radius: 8px; margin-bottom: 10px;
-        }
-        .add-fast-question-box { background: #e0f2fe; border: 1px dashed #0284c7; padding: 12px; border-radius: 8px;
-            margin-top: 15px; }
-
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0;
-            bottom: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 2000;
-        }
-        .modal-content { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 500px;
-            max-height: 90vh; overflow-y: auto; }
-        .details-container { margin-top: 10px; text-align: left; background: #f8fafc;
-            padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 12px;
+        .add-user-panel h5 {
+            grid-column: 1 / -1;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 17px; color: var(--gold); margin-bottom: 4px;
+            text-align: left;
         }
 
-        /* Chat Styles */
-        .chat-bubble { padding: 8px 12px;
-            border-radius: 8px; margin-bottom: 8px; max-width: 80%; word-wrap: break-word; font-size: 14px;
+        /* FILTER BAR */
+        .filter-bar {
+            display: flex; gap: 10px;
+            background: var(--mid-surface);
+            border: 1px solid var(--border);
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
         }
-        .chat-bubble.agent { background: #e0f2fe; color: #0369a1; margin-left: auto; text-align: right; border-bottom-right-radius: 0;
+        .filter-bar input, .filter-bar select { flex: 1; min-width: 140px; }
+
+        /* KPI TABLE */
+        .kpi-table {
+            width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px;
         }
-        .chat-bubble.management { background: #f1f5f9; color: #334155; margin-right: auto; text-align: left; border-bottom-left-radius: 0;
-            border: 1px solid #cbd5e1; }
-        .chat-meta { font-size: 10px; color: #64748b; margin-top: 4px;
+        .kpi-table th {
+            background: var(--mid-surface);
+            color: var(--text-secondary);
+            font-size: 11px; letter-spacing: 0.8px; text-transform: uppercase;
+            padding: 10px 14px; text-align: center;
+            border: 1px solid var(--border);
+        }
+        .kpi-table td {
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            text-align: center;
+            font-weight: 600;
+        }
+        .text-success { color: var(--success); }
+        .text-danger { color: var(--danger); }
+
+        /* QUESTIONS EDITOR */
+        .q-edit-row {
+            background: var(--mid-surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        .q-fast-add {
+            background: rgba(91,155,213,0.05);
+            border: 1px dashed rgba(91,155,213,0.3);
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+        .q-fast-add h4 {
+            font-size: 14px; color: var(--info); margin-bottom: 14px;
         }
 
-        /* KPI Styles */
-        .kpi-card { background: var(--bg);
-            padding: 15px; border-radius: 8px; border: 1px solid #cbd5e1; margin-top: 15px; overflow-x: auto;
+        /* VIEWER BOX */
+        .viewer-box {
+            background: rgba(180,100,200,0.05);
+            border: 1px solid rgba(180,100,200,0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
         }
-        .kpi-table { width: 100%; border-collapse: collapse; text-align: center; margin-top: 10px; font-size: 14px;
-            background: white;}
-        .kpi-table th { background: var(--primary); color: white; padding: 10px; white-space: nowrap;
-            border: 1px solid #e2e8f0;}
-        .kpi-table td { padding: 10px; border: 1px solid #e2e8f0;
-            font-weight: bold;}
-        .text-danger { color: var(--danger); font-weight: bold;
+        .viewer-q {
+            background: var(--mid-surface);
+            border-left: 3px solid #C878E0;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            border-radius: 6px;
         }
-        .text-success { color: var(--success); font-weight: bold;
+
+        /* GEMINI */
+        .gemini-box {
+            height: 320px; overflow-y: auto;
+            background: var(--off-black);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            display: flex; flex-direction: column; gap: 10px;
+            margin-bottom: 12px;
         }
-        .admin-kpi-section { background: #e0f2fe; padding: 15px; border-radius: 8px; margin-bottom: 20px;
-            border: 1px dashed var(--primary); }
+
+        /* DETAIL CONTAINER */
+        .details-container {
+            margin-top: 8px;
+            background: var(--off-black);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px 14px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* PROFILE */
+        .profile-section {
+            background: var(--dark-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 16px;
+        }
+        .profile-section h4 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gold);
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        /* ADMIN KPI SECTION */
+        .kpi-link-section {
+            background: var(--mid-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        .kpi-link-section h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 20px; color: var(--gold); margin-bottom: 10px;
+        }
+        .inline-form { display: flex; gap: 10px; }
+        .inline-form input { flex: 1; }
+        .inline-form .btn { width: auto; padding: 10px 20px; white-space: nowrap; }
+
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 11px;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border-top: 1px solid var(--border);
+            margin-top: 40px;
+        }
+
+        /* SCROLL */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: var(--off-black); }
+        ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 2px; }
     </style>
 </head>
 <body>
 
-<div class="navbar" id="top-navbar" style="display: none;">
-    <div>
+<!-- NAVBAR -->
+<nav class="navbar" id="top-navbar">
+    <div class="nav-left">
         <button class="nav-btn" onclick="goHome()"><i class="fa-solid fa-house"></i> Home</button>
-        <button class="nav-btn" id="nav-profile-btn" onclick="switchView('agent-profile')" style="display:none;"><i class="fa-solid fa-user"></i> Profile / Chat</button>
+        <button class="nav-btn" id="nav-profile-btn" onclick="switchView('agent-profile')" style="display:none;"><i class="fa-solid fa-user"></i> Profile</button>
     </div>
-    <div style="display: flex; align-items: center; gap: 10px;">
-        <span id="user-role-badge" class="badge"></span>
-        <button class="nav-btn logout-btn" onclick="logout()"><i class="fa-solid fa-door-open"></i> Logout</button>
+    <div class="nav-right">
+        <span id="user-role-badge" class="role-badge"></span>
+        <button class="nav-btn nav-logout" onclick="logout()"><i class="fa-solid fa-door-open"></i> Logout</button>
     </div>
-</div>
+</nav>
 
-<div class="container">
-    <div id="auth-box">
-      
-        <h2>Hyde Park Operations ⚡</h2>
+<!-- AUTH -->
+<div id="auth-box">
+    <div class="auth-logo-wrap">
+        <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCABBAHUDASIAAhEBAxEB/8QAHAABAQACAwEBAAAAAAAAAAAAAAgEBwEFBgID/8QAQhAAAQIFAQUDCAYHCQAAAAAAAgMEAAEFBhIHCBETIjJCUmIJFCFHcoKFxBUxQUNhkhYjJDRRorIlN1N1k7PC4eL/xAAZAQEBAQEBAQAAAAAAAAAAAAAAAgMEAQX/xAAhEQEAAgEEAgMBAAAAAAAAAAAAAQIDBBESIUFhIjGhsf/aAAwDAQACEQMRAD8AsuEIQCEIQCNY6wayWppokLWoGtUKuaeadPblLLH6slC6Ux9H/Ue2vKuI23adVuBwGSdOaKOSH+OAzLdEqbNVqNr8rly6p36A1MWa5KCkqOSajjHiERD3UxxER6fywGYe1Leyy4uGlgs/MilkMiJwoRD7Qju/ljZ2kG0Ha1+1BKjPUFaDWVp4ooqqCoiuXdTUl2vCQj70RvcN216vXUtdTipO0agstxm6iKhD5sP3Yp90RHEY3frHbTC79C6JrJT2ibCupoIq1Y2wcMV+bhkpiP3gqbiy7u/wwFg+iOY8JoTctQurTGk1CtCQ1YE+A9yl1KD2veHEvej3UoitotG9RzCEIsIQhARn5TT1ffEvlYQ8pp6vviXysICzIQhAIQhAeR1ho7m4dLblo7MCN07pqwIiP2qYzxH826NBbGlXa1WwLvsbMQqCs1HSKZcpGmoiKZflIR/MMVXEv6w6IXPSLynqDpGsoi9msThZgkYpqJKF1EjlykJdpMu97sBNFKtitPma30e188WZfq3TZIv2hHHlLJPqx9nKKXrpToexUzt5xu+kX7FNPgTLnTFZxxCKY+ESjUFQXvA70KuVTSlyVxEpxFFEWLxEVlv8QkR5ci7XZLux72g6aX3dFTVvO+Kc5o1PTRISaLuP2hxkXKIp9KIiXN/xjg1F9Rira0bcY79ujHGO81jy3ls8lJOyZJqpqJLruVlZCUt2SYlw0y94UxjZ27dvnGIxZoNExkgkmBYCE9w7umXojM3b410eK2PFFLeEZrRe/KHMIQjqZEIQgIz8pp6vviXysIeU09X3xL5WEBV1+3AnalnVW41W5Ohp7cluEJbiPd2Y8vq5qpRdPWjEFG61Vq9UnIadTWpDxF5z3DlMuyORCOUdrqNTapWmzKjNW6KtMeL8Oo5ehQEx5xIfwyER96JUbVT9JdqezpuVuKm2+jUREuySbUVCH/UIoCpam/v5naM6uFHo7uqpDxlaUispLId2U001vtU+zpxKMXTbVe1L3s5zcjVyTBJiP9oou+UmnLlzeHxR77d6JSiIdLjNjqdqlRaf+5uqTWG/DHp5VsU/6v5oi+SKVm1vqFVra07Qsi2blt+5myzi36yyqiKJ8NRRosKgiXdyGPpvcFGWZv3iVSbqIU5Qk3aki5UCHqEvZjTOwt/dA+/zpb/ZRja1GWJFlWyCQzUKprAmM+0RYiMXE7pfrbV52ncyqyNvXFTaqoiOakmjgVMJfjjHWL6kabKtVJr3pbht8+GZTfJ4ZfXj1dUTnpw3daabSFyafouvNWtdbrNmKqnSJEJKNS93Ik4ydsG1qNZulFmW9QWooMmrxYZd4y4PMoRdoi70BSNVvyzKU6FpUropDNwSQrCku6FMppl0luL7Ix3Go1hIU5vUlryoSbJyRJoOJvk+GZD1CJZY5S3jE83wO/a407y5smNP/pWjE2wLQp1nWtT2tIBNCnVCvOKgm2AcRQUJuIqCPhIhyx8RQFQzu22BqzekK15ghUHIyNBqqsKaiw+ES6vdjKrVcpNDQRVq9UasZKnw0ZLKiJKl3Rl9ZF+AxN+1WhO8UbJta3kRdVtFQZmrNSSQtuImIpiShdORYl3uWMPSR0+u7avqLm4HRv1LaZuG7TOe8UyRIW+Qj3iIlC9ooCmaZcNFqT9zTWVTbKvm37w2kpuWS/Ek58wyjuIl7bPcr2neFkX1RDm1q7fzhOayf3gJ8MhEu8PMoOPiil6a6F5T2rwRxk4SFSUv4ZDlAR75TT1ffEvlYQ8pp6vviXysICzImO+tFLjoilAvW0E0alcdEqKjhwzFTGTtHzpRRPEi7Qplw8e7Pw81OQgNavNQnAIoOGdOfGThP9yd09dBw0Ux+83jjjl/5yjXOjWlhUBrV3tWqaL6sXJLgk5QTIRQHiEooIiXN1YlFGyn+O+OsqDI3FYpzsTEU2s1JmM+1kOMo+dnwXmPjae/H99/remSInuGmtnlF9p41r9n1+gVxsP0kTtk5Bioui6ExESkJpyIZcw9JY9UbAt905G5EKY7pL9Ga0nFTUWm3KbdMyLFNGanTxOGREUe6GE5x30rxrxY2nlO6atri07ieXhad12ZQ6nUayyykqTJsSkgFNQVESIvayj52safcd96f2k5oNqVxd2ayjhdkLJTjNv1M5YqD2ebl8UUxCKeJcuu3ridbS9kXA2tytKUlk1YpunfmR8NEpCpvy9nIcu7Hdba9u3Dc1AtxrbtBqNXVQdrKKi0QmpgM08eaKJhASttXWBXK2raNz2tRKo+qgtPN3QtW0yUR4eKiahd0hIijH0mpF60XV9LUWoWlWm7Gsio3rqPmZCozcKYkSgp9SiJKDlkOWORCXTzVjCAn7Wuyq3q3qRb1Hb0900tajSJWoVJdPAVSUIck0RLmIsU8cukcvDG/U0xSTFNMcQGW4Rl9kfpCAjPymnq++JfKwh5TT1ffEvlYQEZwhCAQhCAQhCAQhCAQhCAQhCAQhCAQhCA/9k=" 
+             class="auth-logo-img" alt="Quatro Logo">
+        <div class="auth-logo-sub">Operations Platform</div>
+    </div>
+
+    <div class="auth-card">
+        <h2>Welcome Back</h2>
+        <p class="auth-sub">Sign in to your account to continue</p>
+
         <form onsubmit="handleAuth(event)">
-            <div id="signup-fields" style="display: none;">
+            <div id="signup-fields" style="display:none;">
                 <div class="form-group">
-                    <label>Full Name (Must match Excel exactly)</label>
-                    <input type="text" id="auth-fullname" placeholder="e.g. John Doe">
+                    <label>Full Name</label>
+                    <input type="text" id="auth-fullname" placeholder="As it appears in Excel">
                 </div>
                 <div class="form-group">
                     <label>Account / Campaign</label>
-                    <input type="text" id="auth-account" placeholder="e.g. Hyde Park, Vodafone...">
+                    <input type="text" id="auth-account" placeholder="e.g. Quatro, Vodafone...">
                 </div>
             </div>
             <div class="form-group">
                 <label>Username</label>
-                <input type="text" id="auth-username" required placeholder="Enter username">
+                <input type="text" id="auth-username" required placeholder="Enter your username">
             </div>
-        
             <div class="form-group">
                 <label>Password</label>
                 <input type="password" id="auth-password" required placeholder="••••••••">
             </div>
-            <button type="submit" id="auth-btn">Login to Platform</button>
+            <button type="submit" id="auth-btn" class="btn btn-primary" style="margin-top: 6px;">Sign In</button>
         </form>
-        <div style="text-align: center; margin-top: 20px;">
-            <a id="toggle-auth-btn" style="color:var(--primary); cursor:pointer; font-weight:bold;" onclick="toggleAuthMode()">Don't have an account? Register now (Requires Approval)</a>
+
+        <div class="auth-toggle">
+            <a id="toggle-auth-btn" onclick="toggleAuthMode()">Don't have an account? Register (Requires Approval)</a>
         </div>
     </div>
+</div>
 
+<!-- MAIN CONTAINER (all views after auth) -->
+<div class="container" style="display:none;" id="main-container">
+
+    <!-- AGENT HUB -->
     <div id="agent-hub" class="hidden">
-        <h2>Welcome 👋 <br><span id="agent-welcome-name" style="color:var(--primary)"></span></h2>
+        <div class="welcome-banner">
+            <div class="welcome-avatar"><i class="fa-solid fa-user"></i></div>
+            <div class="welcome-text">
+                <h3 id="agent-welcome-name">Agent Name</h3>
+                <p>Quatro Call Center — Agent Portal</p>
+            </div>
+        </div>
         <div class="menu-grid">
-            <button class="menu-btn" onclick="viewKPIScorecard()"><i class="fa-solid fa-chart-simple fa-2x"></i> KPI Scorecard 📊</button>
-            <button class="menu-btn" onclick="loadQuizzesForAgent()"><i class="fa-solid fa-trophy fa-2x"></i> Available Quizzes 🚀</button>
-            <button class="menu-btn" onclick="loadAgentScoresArchive()"><i class="fa-solid fa-box-archive fa-2x"></i> Results Archive 📊</button>
-            <button class="menu-btn" onclick="viewAgentSchedule()"><i class="fa-solid fa-calendar-days fa-2x"></i> Weekly Schedule 📅</button>
-            <button class="menu-btn" onclick="viewAgentBreaks()"><i class="fa-solid fa-mug-hot fa-2x"></i> Break Times ☕</button>
+            <div class="menu-card" onclick="viewKPIScorecard()">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>KPI Scorecard</span>
+                <small>Monthly metrics</small>
+            </div>
+            <div class="menu-card" onclick="loadQuizzesForAgent()">
+                <i class="fa-solid fa-trophy"></i>
+                <span>Available Quizzes</span>
+                <small>Take a test</small>
+            </div>
+            <div class="menu-card" onclick="loadAgentScoresArchive()">
+                <i class="fa-solid fa-box-archive"></i>
+                <span>Results Archive</span>
+                <small>Your history</small>
+            </div>
+            <div class="menu-card" onclick="viewAgentSchedule()">
+                <i class="fa-solid fa-calendar-days"></i>
+                <span>Weekly Schedule</span>
+                <small>Live from sheet</small>
+            </div>
+            <div class="menu-card" onclick="viewAgentBreaks()">
+                <i class="fa-solid fa-mug-hot"></i>
+                <span>Break Times</span>
+                <small>Your assigned break</small>
+            </div>
         </div>
     </div>
 
+    <!-- INFO DISPLAY -->
     <div id="info-display-box" class="hidden">
-        <h2 id="info-box-title">Details</h2>
-        <div id="info-content-area" style="overflow-x: auto;">Loading...</div>
-        <button onclick="goHome()" style="background:#64748b; margin-top: 15px;"><i class="fa-solid fa-arrow-left"></i> Back to Home</button>
+        <h2 id="info-box-title" class="section-title">Details</h2>
+        <div class="gold-divider"></div>
+        <div id="info-content-area">Loading...</div>
+        <button class="btn btn-secondary" onclick="goHome()" style="margin-top: 20px; max-width: 160px;"><i class="fa-solid fa-arrow-left"></i> Back</button>
     </div>
 
+    <!-- AGENT PROFILE -->
     <div id="agent-profile" class="hidden">
-        <h2>👤 Personal Profile & Chat</h2>
-        <div class="info-card" style="text-align: left; font-size:15px; font-weight:normal;">
-            <p><strong>Name:</strong> <span id="prof-name"></span></p>
-            <p><strong>Username:</strong> <span id="prof-user"></span></p>
-            <p><strong>Account:</strong> <span id="prof-account"></span></p>
-        </div>
-        
-        <div style="background: #e0f2fe; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 2px solid #38bdf8;">
-            <h4 style="margin-top: 0; color:#0369a1; text-align: left;">Contact Info</h4>
-            <p id="prof-mandatory-msg" style="font-size:12px; color:#475569; text-align:left;">You cannot use the platform until this is filled.</p>
-            <div class="form-group">
-                <label>Phone Number</label>
-                <input type="text" id="prof-phone" placeholder="010XXXXXXXX">
+        <h2 class="section-title">Personal Profile</h2>
+        <p class="section-subtitle">Manage your contact information and communicate with management</p>
+
+        <div class="profile-section">
+            <h4><i class="fa-solid fa-id-card"></i> Account Details</h4>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+                <div><label>Full Name</label><input type="text" id="prof-name" readonly></div>
+                <div><label>Username</label><input type="text" id="prof-user" readonly></div>
+                <div><label>Account</label><input type="text" id="prof-account" readonly></div>
             </div>
-            <div class="form-group">
-                <label>Email Address</label>
-                <input type="email" id="prof-email" placeholder="example@gmail.com">
-            </div>
-            <button id="save-profile-btn" onclick="saveProfileData()" style="background:var(--success);">Save Data 💾</button>
         </div>
 
-        <div style="background: #fff; border: 1px solid #cbd5e1; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-            <h4 style="margin-top: 0; color:var(--primary);"><i class="fa-solid fa-comments"></i> Support Chat / Requests</h4>
-            <p style="font-size: 12px; color: #64748b; margin-top: 0;">Need to edit your data or ask a question? Chat with management here.</p>
-            
+        <div class="profile-section" style="border-left: 3px solid var(--info);">
+            <h4 style="color: var(--info);"><i class="fa-solid fa-phone"></i> Contact Information</h4>
+            <p id="prof-mandatory-msg" style="font-size:12px; color:var(--warning); margin-bottom:14px;">Complete your contact info to access all platform features.</p>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+                <div><label>Phone Number</label><input type="text" id="prof-phone" placeholder="010XXXXXXXX"></div>
+                <div><label>Email Address</label><input type="email" id="prof-email" placeholder="you@email.com"></div>
+            </div>
+            <button id="save-profile-btn" class="btn btn-success" onclick="saveProfileData()" style="max-width: 180px;"><i class="fa-solid fa-floppy-disk"></i> Save Data</button>
+        </div>
+
+        <div class="profile-section">
+            <h4><i class="fa-solid fa-comments"></i> Support Chat</h4>
             <div class="form-group">
-                <select id="chat-recipient" style="padding: 8px;">
-                    <option value="all">To: All Management (الكل)</option>
-                    <option value="admin">To: Admin Only</option>
-                    <option value="leader">To: My Leader</option>
-                    <option value="quality">To: Quality Team</option>
+                <label>Send To</label>
+                <select id="chat-recipient">
+                    <option value="all">All Management</option>
+                    <option value="admin">Admin Only</option>
+                    <option value="leader">My Leader</option>
+                    <option value="quality">Quality Team</option>
                 </select>
             </div>
-            
-            <div id="agent-chat-history" style="height: 200px; overflow-y: auto; background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; margin-bottom: 10px; display: flex; flex-direction: column;"></div>
+            <div class="chat-wrap" id="agent-chat-history"></div>
+            <div class="chat-input-row">
+                <input type="text" id="agent-chat-msg" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendAgentChat()">
+                <button class="btn btn-primary" onclick="sendAgentChat()"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+        <button class="btn btn-secondary" onclick="goHome()" style="max-width:160px; margin-top:6px;"><i class="fa-solid fa-arrow-left"></i> Home</button>
+    </div>
 
-            <div style="display: flex; gap: 5px;">
-                <input type="text" id="agent-chat-msg" placeholder="Type your message..." style="flex: 1;" onkeydown="if(event.key === 'Enter') sendAgentChat()">
-                <button onclick="sendAgentChat()" style="width: auto; margin: 0; padding: 0 20px;"><i class="fa-solid fa-paper-plane"></i> Send</button>
+    <!-- QUIZ DASHBOARD -->
+    <div id="quiz-dashboard" class="hidden">
+        <h2 id="quiz-section-title" class="section-title">Quizzes</h2>
+        <div class="gold-divider"></div>
+        <div id="available-quizzes-list"></div>
+
+        <div id="active-quiz-area" class="hidden" style="border-top: 1px solid var(--border); margin-top: 24px; padding-top: 24px;">
+            <h3 id="active-quiz-title" style="font-family:'Cormorant Garamond',serif; font-size:22px; color:var(--success); margin-bottom:20px;"></h3>
+            <div id="quiz-questions-container"></div>
+            <div style="display:flex; gap:10px; margin-top:16px;">
+                <button id="submit-quiz-btn" class="btn btn-primary" onclick="submitQuizAnswers()" style="max-width:200px;"><i class="fa-solid fa-flag-checkered"></i> Submit</button>
+                <button id="close-quiz-btn" class="btn btn-secondary hidden" onclick="loadQuizzesForAgent()" style="max-width:200px;"><i class="fa-solid fa-xmark"></i> Close Quiz</button>
+            </div>
+        </div>
+        <button class="btn btn-secondary" onclick="goHome()" style="max-width:160px; margin-top:20px;"><i class="fa-solid fa-arrow-left"></i> Home</button>
+    </div>
+
+    <!-- ADMIN DASHBOARD -->
+    <div id="admin-dashboard" class="hidden">
+        <div style="display:flex; align-items:center; gap:16px; margin-bottom:24px;">
+            <div>
+                <h2 class="section-title">Control Panel</h2>
+                <p class="section-subtitle">Quatro Operations Management</p>
             </div>
         </div>
 
-        <button onclick="goHome()" style="background:#94a3b8; margin-top:10px;">Return Home</button>
-    </div>
-
-    <div id="quiz-dashboard" class="hidden">
-        <h2 id="quiz-section-title">Available Quizzes:</h2>
-        <div id="available-quizzes-list">Loading quizzes...</div>
-        
-        <div id="active-quiz-area" class="hidden" style="border-top: 2px dashed #cbd5e1; margin-top: 20px; padding-top: 20px;">
-            <h3 id="active-quiz-title" style="color:var(--success)"></h3>
-            <div id="quiz-questions-container"></div>
-            <button id="submit-quiz-btn" onclick="submitQuizAnswers()" style="background:var(--success); margin-top:15px;">Submit Answers 🏁</button>
-            <button id="close-quiz-btn" class="hidden" onclick="loadQuizzesForAgent()" style="background:#64748b; margin-top:15px;">Close Quiz ✖️</button>
-        </div>
-        <button onclick="goHome()" style="background:#64748b; margin-top: 15px;">Back to Home ↩️</button>
-    </div>
-
-    <div id="admin-dashboard" class="hidden">
-        <h2>Master Control Panel 👑</h2>
-        
         <div class="admin-tabs" id="admin-tabs-container">
-            <button class="tab-btn" id="tab-btn-users" onclick="switchAdminTab('tab-users', this); loadUsersAdmin();">👥 Users & Accounts</button>
-            <button class="tab-btn" id="tab-btn-chats" onclick="switchAdminTab('tab-chats', this); loadAdminChats();">💬 Communications</button>
-            <button class="tab-btn" id="tab-btn-schedules" onclick="switchAdminTab('tab-schedules', this); loadSheetSettings();">📅 Schedules & Breaks Link</button>
-            <button class="tab-btn" id="tab-btn-kpi" onclick="switchAdminTab('tab-kpi', this);">📈 KPI Scorecard Link</button>
-            <button class="tab-btn" id="tab-btn-quizzes" onclick="switchAdminTab('tab-quizzes', this); loadQuizzesAdminSection();">📝 Quizzes</button>
-            <button class="tab-btn" id="tab-btn-results" onclick="switchAdminTab('tab-results', this); loadScoresAdmin();">📊 Results</button>
-            <button class="tab-btn" id="tab-btn-gemini" onclick="switchAdminTab('tab-gemini', this);">🤖 Gemini AI</button>
+            <button class="tab-btn" id="tab-btn-users" onclick="switchAdminTab('tab-users',this); loadUsersAdmin();">👥 Users</button>
+            <button class="tab-btn" id="tab-btn-chats" onclick="switchAdminTab('tab-chats',this); loadAdminChats();">💬 Communications</button>
+            <button class="tab-btn" id="tab-btn-schedules" onclick="switchAdminTab('tab-schedules',this); loadSheetSettings();">📅 Schedules</button>
+            <button class="tab-btn" id="tab-btn-kpi" onclick="switchAdminTab('tab-kpi',this);">📈 KPI Link</button>
+            <button class="tab-btn" id="tab-btn-quizzes" onclick="switchAdminTab('tab-quizzes',this); loadQuizzesAdminSection();">📝 Quizzes</button>
+            <button class="tab-btn" id="tab-btn-results" onclick="switchAdminTab('tab-results',this); loadScoresAdmin();">📊 Results</button>
+            <button class="tab-btn" id="tab-btn-gemini" onclick="switchAdminTab('tab-gemini',this);">🤖 AI Assistant</button>
         </div>
 
+        <!-- USERS TAB -->
         <div id="tab-users" class="admin-tab-content hidden">
-            <h4>👥 System Users Management</h4>
-            <div id="admin-only-add-user" class="admin-add-user-box hidden">
-                <h5>Add Employee Directly (Instantly Approved)</h5>
-            
+            <div id="admin-only-add-user" class="add-user-panel hidden">
+                <h5><i class="fa-solid fa-user-plus"></i> Add Employee Directly</h5>
                 <input type="text" id="dir-name" placeholder="Full Name" class="input-mini">
                 <input type="text" id="dir-user" placeholder="Username" class="input-mini">
                 <input type="password" id="dir-pass" placeholder="Password" class="input-mini">
                 <input type="text" id="dir-acc" placeholder="Account / Campaign" class="input-mini">
                 <input type="text" id="dir-hrid" placeholder="HR ID (Optional)" class="input-mini">
-       
-                 <select id="dir-role" class="input-mini">
+                <select id="dir-role">
                     <option value="agent">Agent</option>
                     <option value="leader">Leader</option>
                     <option value="quality">Quality</option>
                     <option value="admin">Admin</option>
-                 </select>
-                <button class="view-btn" style="background:var(--success); width:100%; grid-column: 1 / -1; padding:10px; font-size:14px;" onclick="addConfirmedUser()">Add & Activate Instantly ⚡</button>
+                </select>
+                <button class="btn btn-success" style="grid-column:1/-1;" onclick="addConfirmedUser()"><i class="fa-solid fa-bolt"></i> Add & Activate</button>
             </div>
             <div class="filter-bar">
-                <input type="text" id="filter-account" placeholder="Filter by Account (e.g. Hyde Park)" onkeyup="loadUsersAdmin()" style="flex:1;">
-                <select id="filter-status" onchange="loadUsersAdmin()" style="flex:1;">
-                   
+                <input type="text" id="filter-account" placeholder="Filter by account..." onkeyup="loadUsersAdmin()">
+                <select id="filter-status" onchange="loadUsersAdmin()">
                     <option value="all">All Statuses</option>
-                    <option value="pending">Pending Registration Approval</option>
-                    <option value="approved">Approved Accounts</option>
+                    <option value="pending">Pending Approval</option>
+                    <option value="approved">Approved</option>
                 </select>
             </div>
-            <div style="overflow-x:auto;">
-           
+            <div class="table-wrap">
                 <table class="data-table">
                     <thead><tr><th>Name & Contact</th><th>Username</th><th>Account</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
-                    <tbody id="admin-users-list"><tr><td colspan="6">Fetching users...</td></tr></tbody>
+                    <tbody id="admin-users-list"><tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Loading...</td></tr></tbody>
                 </table>
             </div>
         </div>
 
+        <!-- CHATS TAB -->
         <div id="tab-chats" class="admin-tab-content hidden">
-            <h4>💬 Communications & Edit Requests</h4>
-            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-                <div style="flex: 1; min-width: 300px; background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 15px;">
-                    <h5>Active Agent Chats</h5>
-                    <div id="admin-chat-list" style="display: flex; flex-direction: column; gap: 10px; max-height: 400px; overflow-y: auto;">Loading chats...</div>
+            <div style="display:flex; gap:20px; flex-wrap:wrap;">
+                <div style="flex:1; min-width:260px; background:var(--dark-surface); border:1px solid var(--border); border-radius:12px; padding:18px;">
+                    <h4 style="font-size:13px; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px; margin-bottom:14px;">Agent Chats</h4>
+                    <div id="admin-chat-list" style="display:flex; flex-direction:column; gap:8px; max-height:400px; overflow-y:auto;"></div>
                 </div>
-                <div style="flex: 2; min-width: 300px; background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 15px;">
-                    <h5 id="admin-chat-header">Select a chat to view</h5>
-                    <div id="admin-chat-messages" style="height: 300px; overflow-y: auto; background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; margin-bottom: 10px; display: flex; flex-direction: column;"></div>
-                    <div style="display: flex; gap: 5px;">
-                        <input type="text" id="admin-chat-input" placeholder="Type your reply..." style="flex: 1;" onkeydown="if(event.key === 'Enter') sendAdminReply()" disabled>
-                        <button id="admin-chat-send-btn" onclick="sendAdminReply()" style="width: auto; margin: 0; padding: 0 20px;" disabled>Reply</button>
-                        <button id="admin-chat-delete-btn" onclick="deleteActiveChat()" style="width: auto; margin: 0; padding: 0 20px; background: var(--danger);" disabled><i class="fa-solid fa-trash"></i> Delete Chat</button>
+                <div style="flex:2; min-width:300px; background:var(--dark-surface); border:1px solid var(--border); border-radius:12px; padding:18px;">
+                    <h5 id="admin-chat-header" style="font-size:13px; color:var(--gold); margin-bottom:14px;">Select a chat to view</h5>
+                    <div class="chat-wrap" id="admin-chat-messages" style="height:300px;"></div>
+                    <div class="chat-input-row">
+                        <input type="text" id="admin-chat-input" placeholder="Type reply..." disabled onkeydown="if(event.key==='Enter') sendAdminReply()">
+                        <button id="admin-chat-send-btn" class="btn btn-primary" onclick="sendAdminReply()" disabled style="width:auto; padding:10px 16px;">Reply</button>
+                        <button id="admin-chat-delete-btn" class="btn btn-danger" onclick="deleteActiveChat()" disabled style="width:auto; padding:10px 14px;"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- SCHEDULES TAB -->
         <div id="tab-schedules" class="admin-tab-content hidden">
-            <h4>📅 Live Data Synchronization (Google Sheets)</h4>
-            <div style="background: #e0f2fe; border: 1px solid #38bdf8; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                <h5 style="margin-top:0; color:#0369a1;"><i class="fa-solid fa-link"></i> Master Google Sheet Link</h5>
-                <p style="font-size:13px; color:#475569; margin-bottom: 15px;">
-                    Paste the link to your Google Sheet. The system will automatically read <b>Sheet 1</b> for Schedules and <b>Sheet 2</b> for Breaks in real-time.<br>
-                    <b style="color:var(--danger)">Note:</b> Ensure the Sheet is shared as <b>"Anyone with the link can view"</b>.
-                </p>
-                <div style="display: flex; gap: 10px;">
-                    <input type="text" id="master-sheet-url" placeholder="https://docs.google.com/spreadsheets/d/........" style="flex: 1;">
-                    <button onclick="saveAndSyncSheetUrl()" style="width: auto; margin: 0; padding: 0 20px; background: var(--success);"><i class="fa-solid fa-rotate"></i> Save & Sync Now</button>
+            <div class="kpi-link-section">
+                <h3><i class="fa-solid fa-link"></i> Master Google Sheet</h3>
+                <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">Sheet 1 = Schedules · Sheet 2 = Breaks. Must be shared as "Anyone with the link can view".</p>
+                <div class="inline-form">
+                    <input type="text" id="master-sheet-url" placeholder="https://docs.google.com/spreadsheets/d/...">
+                    <button class="btn btn-success" onclick="saveAndSyncSheetUrl()"><i class="fa-solid fa-rotate"></i> Save & Sync</button>
                 </div>
             </div>
-            
-            <h5>👀 Live Preview: Schedules (Sheet 1)</h5>
-            <div style="overflow-x:auto;">
+            <h4 style="font-size:13px; color:var(--text-secondary); letter-spacing:1px; text-transform:uppercase; margin-bottom:12px;">Schedules Preview</h4>
+            <div class="table-wrap">
                 <table class="data-table">
-                    <thead><tr><th>Employee</th><th>Sunday</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th><th>Saturday</th></tr></thead>
+                    <thead><tr><th>Employee</th><th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th></tr></thead>
                     <tbody id="admin-schedule-list"></tbody>
                 </table>
             </div>
-
-            <h5 style="margin-top: 30px;">☕ Live Preview: Breaks (Sheet 2)</h5>
-            <div style="overflow-x:auto;">
+            <h4 style="font-size:13px; color:var(--text-secondary); letter-spacing:1px; text-transform:uppercase; margin:24px 0 12px;">Breaks Preview</h4>
+            <div class="table-wrap">
                 <table class="data-table">
                     <thead><tr><th>Employee</th><th>Break Time</th></tr></thead>
                     <tbody id="admin-breaks-list"></tbody>
@@ -424,1142 +922,377 @@
             </div>
         </div>
 
+        <!-- KPI TAB -->
         <div id="tab-kpi" class="admin-tab-content hidden">
-            <h4>📈 Live KPI Scorecard Link</h4>
-            <div class="admin-kpi-section">
-                <h3 style="color: var(--primary); margin-top:0;"><i class="fa-solid fa-link"></i> Set Live KPI Google Sheet Link</h3>
-                <p style="font-size: 14px; margin-bottom: 15px; color: #475569;">
-                    Paste the link to the KPI Google Sheet. The sheet must contain exactly these 3 sheet names: <b>Quality</b>, <b>Mistakes</b>, <b>Performance</b>.<br>
-                    <b style="color:var(--danger)">Note:</b> Ensure the Sheet is shared as <b>"Anyone with the link can view"</b>.
-                </p>
-                <div style="display: flex; gap: 10px;">
-                    <input type="text" id="kpi-sheet-url" placeholder="https://docs.google.com/spreadsheets/d/........" style="flex: 1; padding: 8px;">
-                    <button onclick="saveAndSyncKPIUrl()" style="width: auto; margin: 0; padding: 0 20px; background: var(--success);"><i class="fa-solid fa-rotate"></i> Save & Sync KPI</button>
+            <div class="kpi-link-section">
+                <h3><i class="fa-solid fa-chart-line"></i> Live KPI Sheet Link</h3>
+                <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">Sheet must have exactly 3 tabs: <strong style="color:var(--gold)">Quality</strong>, <strong style="color:var(--gold)">Mistakes</strong>, <strong style="color:var(--gold)">Performance</strong>.</p>
+                <div class="inline-form">
+                    <input type="text" id="kpi-sheet-url" placeholder="https://docs.google.com/spreadsheets/d/...">
+                    <button class="btn btn-success" onclick="saveAndSyncKPIUrl()"><i class="fa-solid fa-rotate"></i> Sync KPI</button>
                 </div>
             </div>
         </div>
 
+        <!-- QUIZZES TAB -->
         <div id="tab-quizzes" class="admin-tab-content hidden">
-            <h4>📝 Create & Edit Quizzes</h4>
-            <div class="form-group"><label>New Quiz Name:</label><input type="text" id="q-quizname" placeholder="e.g. Quality Test - May"></div>
-            <div class="form-group">
-                <label>Target Audience:</label>
-                <select id="q-target-select"><option value="draft">Hidden Draft ❌</option><option value="all">All Employees</option></select>
+            <div class="card" style="margin-bottom:20px;">
+                <div class="card-title"><i class="fa-solid fa-plus-circle"></i> Create New Quiz</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+                    <div class="form-group" style="margin:0;"><label>Quiz Name</label><input type="text" id="q-quizname" placeholder="e.g. Quality Test – May"></div>
+                    <div class="form-group" style="margin:0;"><label>Target Audience</label><select id="q-target-select"><option value="draft">Hidden Draft</option><option value="all">All Employees</option></select></div>
+                </div>
+                <div style="background:var(--mid-surface); border:1px solid var(--border); border-radius:10px; padding:16px; margin-bottom:14px;">
+                    <div class="form-group"><label>Question Text</label><input type="text" id="q-text"></div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+                        <input type="text" id="q-opt1" placeholder="Option 1">
+                        <input type="text" id="q-opt2" placeholder="Option 2">
+                        <input type="text" id="q-opt3" placeholder="Option 3">
+                        <input type="text" id="q-opt4" placeholder="Option 4">
+                    </div>
+                    <div class="form-group" style="margin:0;"><label>Correct Option (1–4)</label><input type="number" id="q-correct" min="1" max="4" style="max-width:100px;"></div>
+                </div>
+                <button class="btn btn-success" onclick="addQuizQuestionAdmin()" style="max-width:240px;"><i class="fa-solid fa-rocket"></i> Save & Create Quiz</button>
             </div>
-            <div style="background:#f8fafc; padding:15px; border-radius:10px; border:1px solid #cbd5e1; margin-top:15px;">
-                <div class="form-group"><label>Question Text:</label><input type="text" id="q-text"></div>
-                <div class="form-group"><label>Option 1:</label><input type="text" id="q-opt1"></div>
-                <div class="form-group"><label>Option 2:</label><input type="text" id="q-opt2"></div>
-                <div class="form-group"><label>Option 3:</label><input type="text" id="q-opt3"></div>
-               
-                <div class="form-group"><label>Option 4:</label><input type="text" id="q-opt4"></div>
-                <div class="form-group"><label>Correct Option Number (1-4):</label><input type="number" id="q-correct" min="1" max="4"></div>
-            </div>
-            <button onclick="addQuizQuestionAdmin()" style="background:var(--success);">Save Question & Create Quiz 🚀</button>
 
-            <h4 style="margin-top: 30px; color: var(--primary);">📋 Current Quizzes List</h4>
-            <table class="data-table">
-                <thead><tr><th>Quiz Name</th><th>Current Target</th><th>Actions</th></tr></thead>
-                <tbody id="admin-quizzes-control-list"></tbody>
-            </table>
+            <h4 style="font-size:13px; color:var(--text-secondary); letter-spacing:1px; text-transform:uppercase; margin-bottom:12px;">Current Quizzes</h4>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>Quiz Name</th><th>Target</th><th>Actions</th></tr></thead>
+                    <tbody id="admin-quizzes-control-list"></tbody>
+                </table>
+            </div>
 
             <div id="quiz-viewer-container" class="viewer-box hidden">
-                <h3 style="color:#d946ef; margin-top:0; text-align: left;"><i class="fa-solid fa-eye"></i> Viewing Quiz: <span id="view-quiz-title"></span></h3>
+                <h3 style="color:#C878E0; font-family:'Cormorant Garamond',serif; font-size:20px; margin-bottom:16px;"><i class="fa-solid fa-eye"></i> Viewing: <span id="view-quiz-title"></span></h3>
                 <div id="viewer-questions-list"></div>
-                <button onclick="document.getElementById('quiz-viewer-container').classList.add('hidden')" style="background:#64748b; margin-top:10px; width:100%;">Close Viewer ✖️</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('quiz-viewer-container').classList.add('hidden')" style="max-width:160px; margin-top:12px;">Close</button>
             </div>
 
-            <div id="questions-editor-container" class="questions-editor-box hidden">
-                <h3 style="color:#16a34a; text-align:left;"><i class="fa-solid fa-pen-to-square"></i> Editing: <span id="current-editing-quiz-title"></span></h3>
-                
-                <div class="form-group" style="background: #e0f2fe; padding: 10px; border-radius: 8px; border: 1px solid #7dd3fc;">
-                    <label style="font-size: 13px; color: var(--primary);">Change target for this quiz:</label>
-                    <div style="display: flex; gap: 8px;">
-                        <select id="fast-change-target-select" style="padding: 6px; font-size: 13px; flex:1;">
-                            <option value="draft">Hidden Draft ❌</option>
-                            <option value="all">All Employees</option>
-                        </select>
-             
-                        <button class="view-btn" style="background:var(--success); width: auto; margin:0; padding: 0 15px;" onclick="updateQuizTargetFromEditor()">Update Target</button>
+            <div id="questions-editor-container" class="hidden" style="background:rgba(76,175,125,0.04); border:1px solid rgba(76,175,125,0.2); border-radius:12px; padding:20px; margin-top:20px;">
+                <h3 style="color:var(--success); font-family:'Cormorant Garamond',serif; font-size:20px; margin-bottom:16px;"><i class="fa-solid fa-pen-to-square"></i> Editing: <span id="current-editing-quiz-title"></span></h3>
+                <div style="background:var(--mid-surface); border:1px solid var(--border); border-radius:8px; padding:14px; margin-bottom:16px;">
+                    <label>Change Quiz Target</label>
+                    <div style="display:flex; gap:10px;">
+                        <select id="fast-change-target-select" style="flex:1;"><option value="draft">Hidden Draft</option><option value="all">All Employees</option></select>
+                        <button class="btn btn-success" onclick="updateQuizTargetFromEditor()" style="width:auto; padding:10px 18px;">Update</button>
                     </div>
                 </div>
-
                 <div id="individual-questions-list"></div>
-                
-                <div class="add-fast-question-box">
-          
-                    <h4 style="color:#0284c7; text-align:left; margin-top:0;"><i class="fa-solid fa-plus-circle"></i> Add New Question Instantly:</h4>
-                    <div class="form-group"><label style="font-size:12px;">Question Text:</label><input type="text" id="fast-q-text"></div>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:5px;">
+                <div class="q-fast-add">
+                    <h4><i class="fa-solid fa-bolt"></i> Add Question Instantly</h4>
+                    <div class="form-group"><label>Question Text</label><input type="text" id="fast-q-text"></div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px;">
                         <input type="text" id="fast-q-opt1" placeholder="Option 1">
                         <input type="text" id="fast-q-opt2" placeholder="Option 2">
                         <input type="text" id="fast-q-opt3" placeholder="Option 3">
-             
                         <input type="text" id="fast-q-opt4" placeholder="Option 4">
                     </div>
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
-                        <div>
-                            <label style="display:inline; font-size:12px;">Correct Answer (1-4): </label>
-                            <input type="number" id="fast-q-correct" min="1" max="4" style="width:55px; padding:5px; display:inline;">
-                        </div>
-                        <button class="view-btn" style="background:#0284c7; padding:8px 16px;" onclick="addSingleQuestionFast()">Insert Question ⚡</button>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div><label style="display:inline; font-size:12px;">Correct (1-4): </label><input type="number" id="fast-q-correct" min="1" max="4" style="width:60px; display:inline; padding:6px;"></div>
+                        <button class="action-btn" style="border-color:var(--info); color:var(--info);" onclick="addSingleQuestionFast()"><i class="fa-solid fa-bolt"></i> Insert</button>
                     </div>
                 </div>
-
-                <button onclick="document.getElementById('questions-editor-container').classList.add('hidden')" style="background:#64748b; margin-top:15px; width:100%;">Close Editor ✖️</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('questions-editor-container').classList.add('hidden')" style="max-width:160px; margin-top:14px;">Close Editor</button>
             </div>
         </div>
 
+        <!-- RESULTS TAB -->
         <div id="tab-results" class="admin-tab-content hidden">
-            <h4>📊 Employee Results & Grades</h4>
-            <div style="display: flex; gap: 15px; margin-bottom: 15px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
-                <div class="filter-container">
-                    <label style="margin:0; font-size:14px; color:var(--primary); font-weight:bold;"><i class="fa-solid fa-filter"></i> Filter by Quiz:</label>
-                    <select id="admin-quiz-filter" onchange="filterScoresTable()" style="padding: 6px; border-radius: 6px; border: 1px solid #cbd5e1; min-width: 180px;"><option value="ALL_QUIZZES">All Quizzes</option></select>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <label style="font-size:12px; color:var(--text-muted); letter-spacing:0.8px; text-transform:uppercase; white-space:nowrap;">Filter Quiz</label>
+                    <select id="admin-quiz-filter" onchange="filterScoresTable()" style="width:auto; min-width:180px;"></select>
                 </div>
-                <button onclick="triggerExcelExport()" style="background:var(--success); width: auto; margin: 0;"><i class="fa-solid fa-file-excel"></i> Export Filtered to Excel</button>
+                <button class="btn btn-success" onclick="triggerExcelExport()" style="width:auto; padding:10px 20px;"><i class="fa-solid fa-file-excel"></i> Export Excel</button>
             </div>
-            <div style="overflow-x:auto;">
+            <div class="table-wrap">
                 <table class="data-table" id="admin-scores-table">
-                    <thead><tr><th>Employee</th><th>HR ID</th><th>Account</th><th>Quiz Name</th><th>Score</th><th>Details</th><th>Date & Time</th><th>Action</th></tr></thead>
+                    <thead><tr><th>Employee</th><th>HR ID</th><th>Account</th><th>Quiz</th><th>Score</th><th>Details</th><th>Date</th><th>Action</th></tr></thead>
                     <tbody id="admin-scores-list"></tbody>
-   
                 </table>
             </div>
         </div>
 
+        <!-- GEMINI TAB -->
         <div id="tab-gemini" class="admin-tab-content hidden">
-            <h4>🤖 Gemini AI Assistant (Management Only)</h4>
-            <p style="font-size: 13px; color: #64748b;">اسأل جيميناي عن كيفية إدارة الموظفين، تحليل البيانات، أو أي استفسار.</p>
-            <div id="gemini-chat-box" style="height: 300px; overflow-y: auto; background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; margin-bottom: 10px; display: flex; flex-direction: column;">
-                <div class="chat-bubble management">أهلاً بك! أنا جيميناي. كيف يمكنني مساعدتك في إدارة النظام اليوم؟</div>
-            </div>
-            <div style="display: flex; gap: 5px;">
-                <input type="text" id="gemini-input" placeholder="Type your question for Gemini AI..." style="flex: 1;" onkeydown="if(event.key === 'Enter') askGemini()">
-                <button onclick="askGemini()" style="width: auto; margin: 0; padding: 0 20px;"><i class="fa-solid fa-brain"></i> Ask AI</button>
+            <div class="card">
+                <div class="card-title"><i class="fa-solid fa-brain"></i> AI Management Assistant</div>
+                <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">Ask questions about workforce management, data analysis, or any operational inquiry.</p>
+                <div class="gemini-box" id="gemini-chat-box">
+                    <div class="chat-bubble management"><strong>AI Assistant</strong><br>Hello! How can I assist you with operations management today?</div>
+                </div>
+                <div class="chat-input-row">
+                    <input type="text" id="gemini-input" placeholder="Ask the AI assistant..." onkeydown="if(event.key==='Enter') askGemini()">
+                    <button class="btn btn-primary" onclick="askGemini()" style="width:auto; padding:10px 20px;"><i class="fa-solid fa-brain"></i> Ask</button>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- EDIT USER MODAL -->
 <div id="edit-user-modal" class="modal-overlay hidden">
     <div class="modal-content">
-        <h3 style="margin-top:0; color:var(--primary); text-align:left;">Edit User Profile</h3>
+        <h3 class="modal-title"><i class="fa-solid fa-pen"></i> Edit User Profile</h3>
         <input type="hidden" id="edit-orig-username">
         <div class="form-group"><label>Full Name</label><input type="text" id="edit-fullname"></div>
-        <div class="form-group"><label>HR ID (Admin/Leader only)</label><input type="text" id="edit-hrid"></div>
+        <div class="form-group"><label>HR ID</label><input type="text" id="edit-hrid"></div>
         <div class="form-group"><label>Account</label><input type="text" id="edit-account"></div>
-        <div class="form-group">
-            <label>Role</label>
-            <select id="edit-role"><option value="agent">Agent</option><option value="leader">Leader</option><option value="quality">Quality</option><option value="admin">Admin</option></select>
-        </div>
-    
+        <div class="form-group"><label>Role</label><select id="edit-role"><option value="agent">Agent</option><option value="leader">Leader</option><option value="quality">Quality</option><option value="admin">Admin</option></select></div>
         <div class="form-group"><label>Phone</label><input type="text" id="edit-phone"></div>
         <div class="form-group"><label>Email</label><input type="text" id="edit-email"></div>
-        <div class="form-group" style="border-top: 1px solid #ccc; padding-top:10px; margin-top:10px;">
-            <label style="color:var(--primary); font-weight: bold;">User Password</label>
-            <input type="text" id="edit-password">
-        </div>
-        <div style="display:flex; gap:10px; margin-top:20px;">
-            <button onclick="saveUserEdit()" style="background:var(--success); margin:0;">Save Changes</button>
-            <button onclick="closeEditUserModal()" style="background:#64748b; margin:0;">Cancel</button>
+        <div class="form-group" style="border-top:1px solid var(--border); padding-top:14px; margin-top:4px;"><label>Password</label><input type="text" id="edit-password"></div>
+        <div class="modal-actions">
+            <button class="btn btn-success" onclick="saveUserEdit()">Save Changes</button>
+            <button class="btn btn-secondary" onclick="closeEditUserModal()">Cancel</button>
         </div>
     </div>
 </div>
 
-<div class="footer-credits">Developed By Mohamed Nasser</div>
+<footer class="footer">Developed by Mohamed Nasser · Quatro Operations</footer>
 
 <script>
-    // ⚠️ رابط قاعدة البيانات الأساسي (Firebase) للنظام
     const firebaseBaseUrl = "https://agent-system-01-default-rtdb.firebaseio.com";
-    
-    // متغيرات حفظ الشيتات لايف
-    let liveSchedules = {};
-    let liveBreaks = {};
-    let liveKPIData = {}; // متغير جديد لشيت الـ KPI
-    
-    let isSignUpMode = false; 
-    let currentUser = null; 
-  
-    let activeQuizQuestions = []; 
-    let activeQuizName = ""; 
-    let currentEditingQuizName = "";
-    let globalScoresData = null; 
-    let globalUsersList = {};
-    const daysMap = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-
-    let activeAdminChatUser = null;
-    let agentChatInterval = null;
-    let adminChatInterval = null;
+    let liveSchedules = {}, liveBreaks = {}, liveKPIData = {};
+    let isSignUpMode = false, currentUser = null;
+    let activeQuizQuestions = [], activeQuizName = "", currentEditingQuizName = "";
+    let globalScoresData = null, globalUsersList = {};
+    const daysMap = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+    let activeAdminChatUser = null, agentChatInterval = null, adminChatInterval = null;
 
     window.addEventListener('DOMContentLoaded', () => {
         initLiveSheetSync();
         const savedUser = localStorage.getItem('currentUser');
-        if (savedUser) {
-            currentUser = JSON.parse(savedUser);
-            setupDashboardPermissions();
-        }
+        if (savedUser) { currentUser = JSON.parse(savedUser); setupDashboardPermissions(); }
     });
 
-    // -----------------------------------------------------------------------------
-    // LIVE GOOGLE SHEET SYNC (البريكات والجدول والـ KPI أونلاين على طول)
-    // -----------------------------------------------------------------------------
-    function initLiveSheetSync(forceUpdatePreview = false) {
-        // سحب لينك البريكات والجدول
-        fetch(`${firebaseBaseUrl}/settings/sheetUrl.json`).then(res => res.json()).then(url => {
-            if(url) {
-                if(document.getElementById('master-sheet-url')) document.getElementById('master-sheet-url').value = url;
-                fetchLiveExcelData(url, forceUpdatePreview);
-            }
+    function initLiveSheetSync(forceUpdatePreview=false) {
+        fetch(`${firebaseBaseUrl}/settings/sheetUrl.json`).then(r=>r.json()).then(url=>{
+            if(url){if(document.getElementById('master-sheet-url'))document.getElementById('master-sheet-url').value=url; fetchLiveExcelData(url,forceUpdatePreview);}
         });
-        // سحب لينك الـ KPI
-        fetch(`${firebaseBaseUrl}/settings/kpiSheetUrl.json`).then(res => res.json()).then(url => {
-            if(url) {
-                if(document.getElementById('kpi-sheet-url')) document.getElementById('kpi-sheet-url').value = url;
-                fetchLiveKPIExcelData(url, false);
-            }
+        fetch(`${firebaseBaseUrl}/settings/kpiSheetUrl.json`).then(r=>r.json()).then(url=>{
+            if(url){if(document.getElementById('kpi-sheet-url'))document.getElementById('kpi-sheet-url').value=url; fetchLiveKPIExcelData(url,false);}
         });
     }
 
-    function saveAndSyncSheetUrl() {
-        const url = document.getElementById('master-sheet-url').value.trim();
-        if(!url) return alert("Please enter a valid Google Sheet URL.");
-        fetch(`${firebaseBaseUrl}/settings/sheetUrl.json`, { method: 'PUT', body: JSON.stringify(url) })
-        .then(() => {
-            alert("URL Saved! Syncing live Schedule and Break data...");
-            fetchLiveExcelData(url, true);
-        });
+    function saveAndSyncSheetUrl(){const url=document.getElementById('master-sheet-url').value.trim();if(!url)return alert("Enter a valid URL.");fetch(`${firebaseBaseUrl}/settings/sheetUrl.json`,{method:'PUT',body:JSON.stringify(url)}).then(()=>{alert("Saved! Syncing..."); fetchLiveExcelData(url,true);});}
+
+    function fetchLiveExcelData(url,updateAdminPreview=false){
+        const match=url.match(/\/d\/([a-zA-Z0-9-_]+)/);if(!match)return;
+        const sheetId=match[1];
+        fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/export?format=xlsx`).then(r=>{if(!r.ok)throw new Error("Check share settings.");return r.arrayBuffer();}).then(data=>{
+            const wb=XLSX.read(data,{type:'array'});
+            liveSchedules={};
+            if(wb.SheetNames.length>0){const ws=wb.Sheets[wb.SheetNames[0]];XLSX.utils.sheet_to_json(ws).forEach(row=>{const keys=Object.keys(row);const empKey=keys.find(k=>k.toLowerCase().includes('emp')||k.toLowerCase().includes('name'))||keys[0];let name=row[empKey];if(!name)return;name=name.toString().toLowerCase().trim();liveSchedules[name]={sunday:row['Sunday']||row['sunday']||row['الأحد']||"OFF",monday:row['Monday']||row['monday']||row['الإثنين']||"OFF",tuesday:row['Tuesday']||row['tuesday']||row['الثلاثاء']||"OFF",wednesday:row['Wednesday']||row['wednesday']||row['الأربعاء']||"OFF",thursday:row['Thursday']||row['thursday']||row['الخميس']||"OFF",friday:row['Friday']||row['friday']||row['الجمعة']||"OFF",saturday:row['Saturday']||row['saturday']||row['السبت']||"OFF"};});}
+            liveBreaks={};
+            if(wb.SheetNames.length>1){const ws2=wb.Sheets[wb.SheetNames[1]];XLSX.utils.sheet_to_json(ws2).forEach(row=>{const keys=Object.keys(row);const empKey=keys.find(k=>k.toLowerCase().includes('emp')||k.toLowerCase().includes('name'))||keys[0];const breakKey=keys.find(k=>k.toLowerCase().includes('break')||k.toLowerCase().includes('time'))||keys[1];let name=row[empKey];if(!name)return;liveBreaks[name.toString().toLowerCase().trim()]=row[breakKey];});}
+            if(updateAdminPreview)renderLiveAdminPreviews();
+        }).catch(err=>console.error("Sheet Sync Error:",err));
     }
 
-    function fetchLiveExcelData(url, updateAdminPreview = false) {
-        const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
-        if(!match) return;
-        const sheetId = match[1];
-        const exportUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=xlsx`;
-        fetch(exportUrl)
-        .then(res => {
-            if(!res.ok) throw new Error("Make sure the Google Sheet is shared as 'Anyone with the link can view'.");
-            return res.arrayBuffer();
-        })
-        .then(data => {
-            const workbook = XLSX.read(data, {type: 'array'});
-            
-            liveSchedules = {};
-            if(workbook.SheetNames.length > 0) {
-                const wsSched = workbook.Sheets[workbook.SheetNames[0]];
-                const rowsSched = XLSX.utils.sheet_to_json(wsSched);
-                rowsSched.forEach(row => {
-                    const keys = Object.keys(row);
-                    const empKey = keys.find(k => k.toLowerCase().includes('emp') || k.toLowerCase().includes('name')) || keys[0];
-                    let name = row[empKey];
-                    if(!name) return;
-                    name = name.toString().toLowerCase().trim();
-                    liveSchedules[name] = {
-                        sunday: row['Sunday'] || row['sunday'] || row['الأحد'] || "OFF",
-                        monday: row['Monday'] || row['monday'] || row['الإثنين'] || "OFF",
-                        tuesday: row['Tuesday'] || row['tuesday'] || row['الثلاثاء'] || "OFF",
-                        wednesday: row['Wednesday'] || row['wednesday'] || row['الأربعاء'] || "OFF",
-                        thursday: row['Thursday'] || row['thursday'] || row['الخميس'] || "OFF",
-                        friday: row['Friday'] || row['friday'] || row['الجمعة'] || "OFF",
-                        saturday: row['Saturday'] || row['saturday'] || row['السبت'] || "OFF"
-                    };
-                });
-            }
-
-            liveBreaks = {};
-            if(workbook.SheetNames.length > 1) {
-                const wsBreaks = workbook.Sheets[workbook.SheetNames[1]];
-                const rowsBreaks = XLSX.utils.sheet_to_json(wsBreaks);
-                rowsBreaks.forEach(row => {
-                    const keys = Object.keys(row);
-                    const empKey = keys.find(k => k.toLowerCase().includes('emp') || k.toLowerCase().includes('name')) || keys[0];
-                    const breakKey = keys.find(k => k.toLowerCase().includes('break') || k.toLowerCase().includes('بريك') || k.toLowerCase().includes('time')) || keys[1];
-           
-                    let name = row[empKey];
-                    if(!name) return;
-                    liveBreaks[name.toString().toLowerCase().trim()] = row[breakKey];
-                });
-            }
-
-            if(updateAdminPreview) renderLiveAdminPreviews();
-        })
-        .catch(err => { console.error("Live Sheet Sync Error:", err); });
+    function renderLiveAdminPreviews(){
+        const sb=document.getElementById('admin-schedule-list'),bb=document.getElementById('admin-breaks-list');
+        sb.innerHTML=''; bb.innerHTML='';
+        if(!Object.keys(liveSchedules).length){sb.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--text-muted)">No data in Sheet 1.</td></tr>';}
+        else{Object.keys(liveSchedules).forEach(name=>{let s=liveSchedules[name];sb.innerHTML+=`<tr><td><strong>${name.toUpperCase()}</strong></td><td class="${s.sunday.toLowerCase().includes('off')?'off-day':'work-day'}">${s.sunday}</td><td class="${s.monday.toLowerCase().includes('off')?'off-day':'work-day'}">${s.monday}</td><td class="${s.tuesday.toLowerCase().includes('off')?'off-day':'work-day'}">${s.tuesday}</td><td class="${s.wednesday.toLowerCase().includes('off')?'off-day':'work-day'}">${s.wednesday}</td><td class="${s.thursday.toLowerCase().includes('off')?'off-day':'work-day'}">${s.thursday}</td><td class="${s.friday.toLowerCase().includes('off')?'off-day':'work-day'}">${s.friday}</td><td class="${s.saturday.toLowerCase().includes('off')?'off-day':'work-day'}">${s.saturday}</td></tr>`;});}
+        if(!Object.keys(liveBreaks).length){bb.innerHTML='<tr><td colspan="2" style="text-align:center;color:var(--text-muted)">No data in Sheet 2.</td></tr>';}
+        else{Object.keys(liveBreaks).forEach(name=>{bb.innerHTML+=`<tr><td><strong>${name.toUpperCase()}</strong></td><td>${liveBreaks[name]}</td></tr>`;});}
     }
 
-    function renderLiveAdminPreviews() {
-        const schedBody = document.getElementById('admin-schedule-list');
-        const breakBody = document.getElementById('admin-breaks-list');
-        schedBody.innerHTML = ''; breakBody.innerHTML = '';
-        if(Object.keys(liveSchedules).length === 0) {
-            schedBody.innerHTML = '<tr><td colspan="8">No valid schedule data found in Sheet 1.</td></tr>';
-        } else {
-            Object.keys(liveSchedules).forEach(name => {
-                let s = liveSchedules[name];
-                schedBody.innerHTML += `<tr>
-                    <td><b>${name.toUpperCase()}</b></td>
-                    <td class="${s.sunday.toLowerCase().includes('off')?'off-day':''}">${s.sunday}</td>
-                    <td class="${s.monday.toLowerCase().includes('off')?'off-day':''}">${s.monday}</td>
-                    <td class="${s.tuesday.toLowerCase().includes('off')?'off-day':''}">${s.tuesday}</td>
-                    <td class="${s.wednesday.toLowerCase().includes('off')?'off-day':''}">${s.wednesday}</td>
-                    <td class="${s.thursday.toLowerCase().includes('off')?'off-day':''}">${s.thursday}</td>
-                    <td class="${s.friday.toLowerCase().includes('off')?'off-day':''}">${s.friday}</td>
-                    <td class="${s.saturday.toLowerCase().includes('off')?'off-day':''}">${s.saturday}</td>
-                </tr>`;
-            });
-        }
+    function loadSheetSettings(){renderLiveAdminPreviews();}
 
-        if(Object.keys(liveBreaks).length === 0) {
-            breakBody.innerHTML = '<tr><td colspan="2">No valid break data found in Sheet 2.</td></tr>';
-        } else {
-            Object.keys(liveBreaks).forEach(name => {
-                breakBody.innerHTML += `<tr><td><b>${name.toUpperCase()}</b></td><td>${liveBreaks[name]}</td></tr>`;
-            });
-        }
+    function cleanKPIName(name){return name?name.toString().trim().toLowerCase().replace(/\s+/g,'_').replace(/[.#$[\]]/g,''):'';}
+
+    function saveAndSyncKPIUrl(){const url=document.getElementById('kpi-sheet-url').value.trim();if(!url)return alert("Enter a valid URL.");fetch(`${firebaseBaseUrl}/settings/kpiSheetUrl.json`,{method:'PUT',body:JSON.stringify(url)}).then(()=>{alert("KPI URL Saved!");fetchLiveKPIExcelData(url,true);});}
+
+    function fetchLiveKPIExcelData(url,showAlert=false){
+        const match=url.match(/\/d\/([a-zA-Z0-9-_]+)/);if(!match)return;
+        const sheetId=match[1];
+        fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/export?format=xlsx`).then(r=>r.arrayBuffer()).then(data=>{
+            const wb=XLSX.read(data,{type:'array'});liveKPIData={};
+            if(wb.Sheets["Quality"]){const qRows=XLSX.utils.sheet_to_json(wb.Sheets["Quality"],{header:"A",defval:""});qRows.forEach(row=>{let agentName=row["K"];if(agentName&&typeof agentName==='string'){let cName=agentName.trim().toLowerCase();if(cName!==""&&!cName.includes("agent")&&!cName.includes("اسم")){let key=cleanKPIName(agentName);if(!liveKPIData[key])liveKPIData[key]={};liveKPIData[key].Quality={compliance:row["L"],endUser:row["M"],business:row["N"],softSkills:row["O"],total:row["P"]};}}});}
+            if(wb.Sheets["Mistakes"]){XLSX.utils.sheet_to_json(wb.Sheets["Mistakes"]).forEach(row=>{let n=row["Agent "]||row["Agent Name"]||row["Agent"];if(n){let key=cleanKPIName(n);if(!liveKPIData[key])liveKPIData[key]={};liveKPIData[key].Mistakes=row["Number of Mistakes"]||row["Mistakes"]||0;}});}
+            if(wb.Sheets["Performance"]){XLSX.utils.sheet_to_json(wb.Sheets["Performance"]).forEach(row=>{let n=row["Agent Name"]||row["Agent"];if(n){let key=cleanKPIName(n);if(!liveKPIData[key])liveKPIData[key]={};liveKPIData[key].Performance=row["Utilization "]||row["Utilization"]||row["Performance"]||0;}});}
+            if(showAlert)alert("✅ KPI Synced!");
+        }).catch(err=>{if(showAlert)alert("KPI Sync Error: "+err);});
     }
 
-    function loadSheetSettings() { renderLiveAdminPreviews();
-    }
-
-    // -----------------------------------------------------------------------------
-    // LIVE KPI SCORECARD LOGIC
-    // -----------------------------------------------------------------------------
-    function cleanKPIName(name) {
-        return name ? name.toString().trim().toLowerCase().replace(/\s+/g, '_').replace(/[.#$[\]]/g, '') : '';
-    }
-
-    function saveAndSyncKPIUrl() {
-        const url = document.getElementById('kpi-sheet-url').value.trim();
-        if(!url) return alert("Please enter a valid KPI Google Sheet URL.");
-        fetch(`${firebaseBaseUrl}/settings/kpiSheetUrl.json`, { method: 'PUT', body: JSON.stringify(url) })
-        .then(() => {
-            alert("KPI URL Saved! Syncing live KPI data...");
-            fetchLiveKPIExcelData(url, true);
-        });
-    }
-
-    function fetchLiveKPIExcelData(url, showAlert = false) {
-        const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
-        if(!match) return;
-        const sheetId = match[1];
-        const exportUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=xlsx`;
-        fetch(exportUrl)
-        .then(res => res.arrayBuffer())
-        .then(data => {
-            const workbook = XLSX.read(data, {type: 'array'});
-            liveKPIData = {};
-
-            // جلب البيانات من اليمين (بحثاً عن الاسم في عمود K واستخراج النسب اللي جنبه)
-            if (workbook.Sheets["Quality"]) {
-                const qRows = XLSX.utils.sheet_to_json(workbook.Sheets["Quality"], {header: "A", defval: ""});
-                qRows.forEach(row => {
-                    let agentName = row["K"]; // الاسم في العمود K
-                    if(agentName && typeof agentName === 'string') {
-                        let cName = agentName.trim().toLowerCase();
-                        if (cName !== "" && !cName.includes("agent") && !cName.includes("اسم")) {
-                            let key = cleanKPIName(agentName);
-                            if(!liveKPIData[key]) liveKPIData[key] = {};
-                            liveKPIData[key].Quality = {
-                                compliance: row["L"],     // اللي جنبه L
-                                endUser: row["M"],        // اللي بعده M
-                                business: row["N"],       // اللي بعده N
-                                softSkills: row["O"],     // اللي بعده O
-                                total: row["P"]           // اللي بعده P (لو في توتال جاهز)
-                            };
-                        }
-                    }
-                });
-            }
-
-            if (workbook.Sheets["Mistakes"]) {
-                const mRows = XLSX.utils.sheet_to_json(workbook.Sheets["Mistakes"]);
-                mRows.forEach(row => {
-                    let agentName = row["Agent "] || row["Agent Name"] || row["Agent"];
-                    if(agentName) {
-                        let key = cleanKPIName(agentName);
-                        if(!liveKPIData[key]) liveKPIData[key] = {};
-                        liveKPIData[key].Mistakes = row["Number of Mistakes"] || row["Mistakes"] || 0;
-                    }
-                });
-            }
-
-            if (workbook.Sheets["Performance"]) {
-                const pRows = XLSX.utils.sheet_to_json(workbook.Sheets["Performance"]);
-                pRows.forEach(row => {
-                    let agentName = row["Agent Name"] || row["Agent"];
-                    if(agentName) {
-                        let key = cleanKPIName(agentName);
-                        if(!liveKPIData[key]) liveKPIData[key] = {};
-                        liveKPIData[key].Performance = row["Utilization "] || row["Utilization"] || row["Performance"] || 0;
-                    }
-                });
-            }
-
-            if(showAlert) alert("✅ Live KPI Data Synced Successfully!");
-        })
-        .catch(err => { 
-            if(showAlert) alert("Error syncing KPI: " + err); 
-        });
-    }
-
-    function viewKPIScorecard() {
+    function viewKPIScorecard(){
         switchView('info-display-box');
-        document.getElementById('info-box-title').innerText = "📊 KPI Scorecard (Live)";
-        let container = document.getElementById('info-content-area');
-        
-        let cleanKey = cleanKPIName(currentUser.fullName);
-        let data = liveKPIData[cleanKey];
-        if (!data) {
-            container.innerHTML = `<div class="info-card" style="color:var(--warning)"><i class="fa-solid fa-circle-exclamation"></i> No KPI Scorecard found for your name [ ${currentUser.fullName} ] in the live sheet. Or the KPI link is not set yet.</div>`;
-            return;
-        }
-
-        // دالة مخصصة لضمان قراءة الأرقام المئوية صح (بتعالج مشكلة الـ 95 بدل 0.95 اللي بتعدي 100%)
-        const parseVal = (val) => {
-            if (val === undefined || val === null || val === "") return 0;
-            if (typeof val === 'number') return val;
-            let num = parseFloat(val.toString().replace(/%/g, '').trim());
-            if (isNaN(num)) return 0;
-            if (val.toString().includes('%')) return num / 100;
-            return num;
-        };
-
-        let comp = parseVal(data.Quality?.compliance);
-        let endUser = parseVal(data.Quality?.endUser);
-        let bus = parseVal(data.Quality?.business);
-        let soft = parseVal(data.Quality?.softSkills);
-        let util = parseVal(data.Performance);
-        let mistakes = parseInt(data.Mistakes ?? 0);
-
-        if (comp > 1 && comp <= 100) comp /= 100;
-        if (endUser > 1 && endUser <= 100) endUser /= 100;
-        if (bus > 1 && bus <= 100) bus /= 100;
-        if (soft > 1 && soft <= 100) soft /= 100;
-        if (util > 1 && util <= 100) util /= 100;
-
-        // دالة الألوان بناءً على التارجت اللي طلبته
-        const getFormat = (val, target) => {
-            let pct = (val * 100).toFixed(1) + '%';
-            if (val >= 1.0) return `<span style="color: #eab308; font-weight: bold;">${pct} 🌟</span>`; // ذهبي
-            if (val >= target) return `<span class="text-success">${pct}</span>`; // أخضر
-            return `<span class="text-danger">${pct}</span>`; // أحمر
-        };
-
-        const formatM = (val) => {
-            if (isNaN(val)) return '0';
-            return val > 0 ? `<span class="text-danger">${val}</span>` : `<span style="color: #eab308; font-weight: bold;">0 🌟</span>`;
-        };
-
-        let isAllPassed = (comp >= 1.0) && (endUser >= 0.98) && (bus >= 0.95) && (soft >= 0.90) && (util >= 0.86) && (mistakes === 0);
-
-        // التوتال بيقراه لو جاهز، لو لأ بيجمعه ويظبطه بجد
-        let totalQuality = parseVal(data.Quality?.total);
-        if (totalQuality > 1 && totalQuality <= 100) totalQuality /= 100;
-        if (totalQuality === 0) {
-            totalQuality = (comp + endUser + bus + soft) / 4; 
-        }
-
-        let totalPct = (totalQuality * 100).toFixed(1);
-        let totalHtml = '';
-        if (isAllPassed) {
-            totalHtml = `<span class="text-success" style="font-size:20px; font-weight:bold;">${totalPct}% <br> <span style="font-size: 16px;">(عاش جداً يا بطل! 🏆🔥 كل مؤشراتك ممتازة)</span></span>`;
-        } else {
-            totalHtml = `<span style="color: var(--primary); font-size:22px; font-weight:bold;">${totalPct}%</span>`;
-        }
-
-        container.innerHTML = `
-        <div class="kpi-card">
-            <h3 style="margin-top:0; color: var(--primary); text-align:center;"><i class="fa-solid fa-chart-line"></i> Monthly KPI Metrics</h3>
-            <table class="kpi-table">
-                <thead>
-                    <tr>
-                        <th>Compliance Critical (100%)</th>
-                        <th>End User Critical (98%)</th>
-                        <th>Business Critical (95%)</th>
-                        <th>Soft Skills (90%)</th>
-                        <th>Utilization (>86%)</th>
-                        <th>Total Mistakes (0)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>${getFormat(comp, 1.0)}</td>
-                        <td>${getFormat(endUser, 0.98)}</td>
-                        <td>${getFormat(bus, 0.95)}</td>
-                        <td>${getFormat(soft, 0.90)}</td>
-                        <td>${getFormat(util, 0.86)}</td>
-                        <td>${formatM(mistakes)}</td>
-                    </tr>
-                </tbody>
-            </table>
-            
-            <div style="background: #f1f5f9; padding: 15px; margin-top: 15px; border-radius: 8px; text-align: center; border: 2px solid var(--primary);">
-                <h4 style="margin:0 0 10px 0;">Total Quality Score</h4>
-                ${totalHtml}
-            </div>
-            <p style="text-align:center; font-size:12px; color:#64748b; margin-top:15px;">Metrics below target thresholds are highlighted in red. 100% targets are highlighted in gold 🌟.</p>
-        </div>`;
+        document.getElementById('info-box-title').innerText="📊 KPI Scorecard (Live)";
+        let container=document.getElementById('info-content-area');
+        let cleanKey=cleanKPIName(currentUser.fullName);
+        let data=liveKPIData[cleanKey];
+        if(!data){container.innerHTML=`<div class="info-card" style="border-left-color:var(--warning);"><i class="fa-solid fa-circle-exclamation" style="color:var(--warning)"></i> No KPI data found for <strong>${currentUser.fullName}</strong>. Check if the KPI link is set and your name matches.</div>`;return;}
+        const parseVal=(val)=>{if(val===undefined||val===null||val==="")return 0;if(typeof val==='number')return val;let num=parseFloat(val.toString().replace(/%/g,'').trim());if(isNaN(num))return 0;if(val.toString().includes('%'))return num/100;return num;};
+        let comp=parseVal(data.Quality?.compliance),endUser=parseVal(data.Quality?.endUser),bus=parseVal(data.Quality?.business),soft=parseVal(data.Quality?.softSkills),util=parseVal(data.Performance),mistakes=parseInt(data.Mistakes??0);
+        if(comp>1&&comp<=100)comp/=100;if(endUser>1&&endUser<=100)endUser/=100;if(bus>1&&bus<=100)bus/=100;if(soft>1&&soft<=100)soft/=100;if(util>1&&util<=100)util/=100;
+        const getFormat=(val,target)=>{let pct=(val*100).toFixed(1)+'%';if(val>=1.0)return`<span style="color:var(--gold);font-weight:700;">${pct} 🌟</span>`;if(val>=target)return`<span class="text-success">${pct}</span>`;return`<span class="text-danger">${pct}</span>`;};
+        const formatM=(val)=>isNaN(val)?'0':val>0?`<span class="text-danger">${val}</span>`:`<span style="color:var(--gold);font-weight:700;">0 🌟</span>`;
+        let totalQuality=parseVal(data.Quality?.total);if(totalQuality>1&&totalQuality<=100)totalQuality/=100;if(totalQuality===0)totalQuality=(comp+endUser+bus+soft)/4;
+        let isAllPassed=(comp>=1.0)&&(endUser>=0.98)&&(bus>=0.95)&&(soft>=0.90)&&(util>=0.86)&&(mistakes===0);
+        container.innerHTML=`<div class="card"><div style="overflow-x:auto;"><table class="kpi-table"><thead><tr><th>Compliance (100%)</th><th>End User (98%)</th><th>Business (95%)</th><th>Soft Skills (90%)</th><th>Utilization (86%)</th><th>Mistakes (0)</th></tr></thead><tbody><tr><td>${getFormat(comp,1.0)}</td><td>${getFormat(endUser,0.98)}</td><td>${getFormat(bus,0.95)}</td><td>${getFormat(soft,0.90)}</td><td>${getFormat(util,0.86)}</td><td>${formatM(mistakes)}</td></tr></tbody></table></div><div style="background:var(--mid-surface);border:1px solid var(--border);border-radius:10px;padding:18px;margin-top:16px;text-align:center;"><p style="font-size:11px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Total Quality Score</p>${isAllPassed?`<span style="color:var(--success);font-size:24px;font-weight:700;">${(totalQuality*100).toFixed(1)}% <br><span style="font-size:14px;">All targets achieved! 🏆</span></span>`:`<span style="color:var(--gold);font-size:28px;font-weight:700;">${(totalQuality*100).toFixed(1)}%</span>`}</div></div>`;
     }
 
-    // -----------------------------------------------------------------------------
-    // NAVIGATION & AUTH
-    // -----------------------------------------------------------------------------
-    function switchView(viewId) {
-        ['auth-box', 'agent-hub', 'info-display-box', 'quiz-dashboard', 'admin-dashboard', 'agent-profile'].forEach(id => {
-            const el = document.getElementById(id); if(el) el.classList.add('hidden');
-        });
+    function switchView(viewId){
+        ['auth-box','agent-hub','info-display-box','quiz-dashboard','admin-dashboard','agent-profile'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.add('hidden');});
         document.getElementById(viewId).classList.remove('hidden');
-        document.getElementById('top-navbar').style.display = 
-            (viewId === 'auth-box') ? 'none' : 'flex';
-        
-        if(agentChatInterval) clearInterval(agentChatInterval);
-
-        if(viewId === 'agent-profile' && currentUser) {
-            document.getElementById('prof-name').innerText = currentUser.fullName || '';
-            document.getElementById('prof-user').innerText = currentUser.username ||
-                '';
-            document.getElementById('prof-account').innerText = currentUser.accountName || 'Not Set';
-            
-            document.getElementById('prof-phone').value = currentUser.phone || '';
-            document.getElementById('prof-email').value = currentUser.email || '';
-            if(currentUser.phone && currentUser.email) {
-                document.getElementById('prof-phone').readOnly = true;
-                document.getElementById('prof-email').readOnly = true;
-                document.getElementById('save-profile-btn').classList.add('hidden');
-                document.getElementById('prof-mandatory-msg').classList.add('hidden');
-            } else {
-                document.getElementById('prof-phone').readOnly = false;
-                document.getElementById('prof-email').readOnly = false;
-                document.getElementById('save-profile-btn').classList.remove('hidden');
-                document.getElementById('prof-mandatory-msg').classList.remove('hidden');
-            }
-            loadAgentChat();
-            agentChatInterval = setInterval(loadAgentChat, 5000);
+        const isAuth=(viewId==='auth-box');
+        document.getElementById('top-navbar').style.display=isAuth?'none':'flex';
+        document.getElementById('main-container').style.display=isAuth?'none':'block';
+        document.getElementById('auth-box').style.display=isAuth?'flex':'none';
+        if(agentChatInterval)clearInterval(agentChatInterval);
+        if(viewId==='agent-profile'&&currentUser){
+            document.getElementById('prof-name').value=currentUser.fullName||'';
+            document.getElementById('prof-user').value=currentUser.username||'';
+            document.getElementById('prof-account').value=currentUser.accountName||'Not Set';
+            document.getElementById('prof-phone').value=currentUser.phone||'';
+            document.getElementById('prof-email').value=currentUser.email||'';
+            if(currentUser.phone&&currentUser.email){document.getElementById('prof-phone').readOnly=true;document.getElementById('prof-email').readOnly=true;document.getElementById('save-profile-btn').classList.add('hidden');document.getElementById('prof-mandatory-msg').classList.add('hidden');}
+            else{document.getElementById('prof-phone').readOnly=false;document.getElementById('prof-email').readOnly=false;document.getElementById('save-profile-btn').classList.remove('hidden');document.getElementById('prof-mandatory-msg').classList.remove('hidden');}
+            loadAgentChat();agentChatInterval=setInterval(loadAgentChat,5000);
         }
     }
 
-    function goHome() { 
-        if(!currentUser) return switchView('auth-box');
-        if(!currentUser.phone || !currentUser.email) {
-            alert("You must complete your profile data (Phone and Email) first to use the platform.");
-            return switchView('agent-profile');
-        }
-
-        if(currentUser.role === 'admin' || currentUser.role === 'leader' || currentUser.role === 'quality') {
-            switchView('admin-dashboard');
-        } else {
-            switchView('agent-hub');
-        }
+    function goHome(){
+        if(!currentUser)return switchView('auth-box');
+        if(!currentUser.phone||!currentUser.email){alert("Please complete your profile (Phone and Email) first.");return switchView('agent-profile');}
+        if(currentUser.role==='admin'||currentUser.role==='leader'||currentUser.role==='quality')switchView('admin-dashboard');
+        else switchView('agent-hub');
     }
 
-    function logout() { 
-        localStorage.removeItem('currentUser');
-        currentUser = null; 
-        if(agentChatInterval) clearInterval(agentChatInterval);
-        if(adminChatInterval) clearInterval(adminChatInterval);
-        switchView('auth-box'); 
-    }
+    function logout(){localStorage.removeItem('currentUser');currentUser=null;if(agentChatInterval)clearInterval(agentChatInterval);if(adminChatInterval)clearInterval(adminChatInterval);document.getElementById('main-container').style.display='none';document.getElementById('auth-box').style.display='flex';document.getElementById('top-navbar').style.display='none';['agent-hub','info-display-box','quiz-dashboard','admin-dashboard','agent-profile'].forEach(id=>document.getElementById(id).classList.add('hidden'));}
 
-    function switchAdminTab(tabId, btn) {
-        document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.add('hidden'));
-        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-        document.getElementById(tabId).classList.remove('hidden');
-        if(btn) btn.classList.add('active');
-        if(adminChatInterval) clearInterval(adminChatInterval);
-    }
+    function switchAdminTab(tabId,btn){document.querySelectorAll('.admin-tab-content').forEach(el=>el.classList.add('hidden'));document.querySelectorAll('.tab-btn').forEach(el=>el.classList.remove('active'));document.getElementById(tabId).classList.remove('hidden');if(btn)btn.classList.add('active');if(adminChatInterval)clearInterval(adminChatInterval);}
 
-    function toggleAuthMode() {
-        isSignUpMode = !isSignUpMode;
-        document.getElementById('signup-fields').style.display = isSignUpMode ? "block" : "none";
-        document.getElementById('auth-btn').innerText = isSignUpMode ? "Register Account (Pending)" : "Login to Platform";
-        document.getElementById('toggle-auth-btn').innerText = isSignUpMode ? "Already have an account? Login here" : "Don't have an account? Register now (Requires Approval)";
-    }
+    function toggleAuthMode(){isSignUpMode=!isSignUpMode;document.getElementById('signup-fields').style.display=isSignUpMode?"block":"none";document.getElementById('auth-btn').innerHTML=isSignUpMode?'<i class="fa-solid fa-user-plus"></i> Register Account':'<i class="fa-solid fa-right-to-bracket"></i> Sign In';document.getElementById('toggle-auth-btn').innerText=isSignUpMode?"Already have an account? Sign in":"Don't have an account? Register (Requires Approval)";}
 
-    function handleAuth(event) {
+    function handleAuth(event){
         event.preventDefault();
-        const user = document.getElementById('auth-username').value.trim().toLowerCase();
-        const pass = document.getElementById('auth-password').value.trim();
-        
-        if (user === "mohamed nasser" && pass === "592005") {
-            currentUser = { username: "mohamed nasser", fullName: "Mohamed Nasser", role: "admin", status: "approved", accountName: "Hyde Park", phone: "01000000000", email: "admin@hydepark.com", hrId: "ADMIN-01" };
-            setupDashboardPermissions(); return;
-        }
-
-        if (isSignUpMode) {
-            const name = document.getElementById('auth-fullname').value.trim();
-            const acc = document.getElementById('auth-account').value.trim();
-            if(!name || !acc) return alert('Please complete Name and Account fields');
-            let newUserData = { fullName: name, username: user, password: pass, role: "agent", accountName: acc, status: "pending", phone: "", email: "", hrId: "" };
-            fetch(`${firebaseBaseUrl}/users/${user}.json`, { method: 'PUT', body: JSON.stringify(newUserData) })
-            .then(() => { alert('Request registered successfully! Please wait for admin approval.'); toggleAuthMode(); });
-        } else {
-            fetch(`${firebaseBaseUrl}/users/${user}.json`).then(res => res.json()).then(userData => {
-                if(userData && userData.password === pass) {
-                    if(userData.status === 'pending') return alert('Sorry, your account is still pending approval from management.');
-                    currentUser = userData; setupDashboardPermissions();
-      
-                } else { alert("Incorrect username or password!"); }
-            });
-        }
+        const user=document.getElementById('auth-username').value.trim().toLowerCase();
+        const pass=document.getElementById('auth-password').value.trim();
+        if(user==="mohamed nasser"&&pass==="592005"){currentUser={username:"mohamed nasser",fullName:"Mohamed Nasser",role:"admin",status:"approved",accountName:"Quatro",phone:"01000000000",email:"admin@quatro.com",hrId:"ADMIN-01"};setupDashboardPermissions();return;}
+        if(isSignUpMode){const name=document.getElementById('auth-fullname').value.trim();const acc=document.getElementById('auth-account').value.trim();if(!name||!acc)return alert('Please complete all fields.');fetch(`${firebaseBaseUrl}/users/${user}.json`,{method:'PUT',body:JSON.stringify({fullName:name,username:user,password:pass,role:"agent",accountName:acc,status:"pending",phone:"",email:"",hrId:""})}).then(()=>{alert('Registration submitted! Awaiting admin approval.');toggleAuthMode();});}
+        else{fetch(`${firebaseBaseUrl}/users/${user}.json`).then(r=>r.json()).then(userData=>{if(userData&&userData.password===pass){if(userData.status==='pending')return alert('Account pending approval.');currentUser=userData;setupDashboardPermissions();}else alert("Incorrect username or password.");});}
     }
 
-    function saveProfileData() {
-        const phone = document.getElementById('prof-phone').value.trim();
-        const email = document.getElementById('prof-email').value.trim();
-        if(!phone || !email) return alert('Phone and Email are mandatory!');
-        
-        currentUser.phone = phone; currentUser.email = email;
-        fetch(`${firebaseBaseUrl}/users/${currentUser.username}/phone.json`, { method: 'PUT', body: JSON.stringify(phone) });
-        fetch(`${firebaseBaseUrl}/users/${currentUser.username}/email.json`, { method: 'PUT', body: JSON.stringify(email) })
-        .then(() => { localStorage.setItem('currentUser', JSON.stringify(currentUser)); alert('Data saved successfully!'); goHome(); });
-    }
+    function saveProfileData(){const phone=document.getElementById('prof-phone').value.trim();const email=document.getElementById('prof-email').value.trim();if(!phone||!email)return alert('Both fields are required!');currentUser.phone=phone;currentUser.email=email;fetch(`${firebaseBaseUrl}/users/${currentUser.username}/phone.json`,{method:'PUT',body:JSON.stringify(phone)});fetch(`${firebaseBaseUrl}/users/${currentUser.username}/email.json`,{method:'PUT',body:JSON.stringify(email)}).then(()=>{localStorage.setItem('currentUser',JSON.stringify(currentUser));alert('Saved!');goHome();});}
 
-    // -----------------------------------------------------------------------------
-    // CHAT SYSTEM
-    // -----------------------------------------------------------------------------
-    function sendAgentChat() {
-        const msg = document.getElementById('agent-chat-msg').value.trim();
-        const to = document.getElementById('chat-recipient').value;
-        if(!msg) return;
+    function sendAgentChat(){const msg=document.getElementById('agent-chat-msg').value.trim();const to=document.getElementById('chat-recipient').value;if(!msg)return;fetch(`${firebaseBaseUrl}/chats/${currentUser.username}.json`,{method:'POST',body:JSON.stringify({sender:currentUser.username,senderName:currentUser.fullName,role:currentUser.role,recipient:to,text:msg,timestamp:new Date().toLocaleString()})}).then(()=>{document.getElementById('agent-chat-msg').value='';loadAgentChat();});}
 
-        const chatData = {
-            sender: currentUser.username, senderName: currentUser.fullName,
-            role: currentUser.role, recipient: to, text: msg, timestamp: new Date().toLocaleString()
-        };
-        fetch(`${firebaseBaseUrl}/chats/${currentUser.username}.json`, { method: 'POST', body: JSON.stringify(chatData) })
-        .then(() => { document.getElementById('agent-chat-msg').value = ''; loadAgentChat(); });
-    }
+    function loadAgentChat(){fetch(`${firebaseBaseUrl}/chats/${currentUser.username}.json`).then(r=>r.json()).then(data=>{const c=document.getElementById('agent-chat-history');c.innerHTML='';if(!data){c.innerHTML='<p style="text-align:center;color:var(--text-muted);font-size:12px;margin:20px 0;">No messages yet.</p>';return;}Object.values(data).forEach(msg=>{const isMe=msg.sender===currentUser.username;c.innerHTML+=`<div class="chat-bubble ${isMe?'agent':'management'}"><strong>${msg.senderName}</strong>${msg.role!=='agent'?` <span style="font-size:10px;color:var(--text-muted)">[${msg.role.toUpperCase()}]</span>`:''}<br>${msg.text}${isMe?`<br><span style="font-size:10px;color:var(--text-muted);">→ ${msg.recipient.toUpperCase()}</span>`:''}<div class="chat-meta">${msg.timestamp}</div></div>`;});c.scrollTop=c.scrollHeight;});}
 
-    function loadAgentChat() {
-        fetch(`${firebaseBaseUrl}/chats/${currentUser.username}.json`).then(res => res.json()).then(data => {
-            const container = document.getElementById('agent-chat-history'); container.innerHTML = '';
-            if(!data) { container.innerHTML = '<p style="text-align:center; color:#64748b; font-size:12px; margin-top:20px;">No messages yet.</p>'; return; }
-            Object.values(data).forEach(msg => {
-                const isMe = msg.sender === currentUser.username;
-     
-                const bubbleClass = isMe ? 'agent' : 'management';
-                const roleBadge = msg.role !== 'agent' ? ` [${msg.role.toUpperCase()}]` : '';
-                const toText = isMe ? `<br><span style="font-size:10px; color:#94a3b8;">Sent to: ${msg.recipient.toUpperCase()}</span>` : '';
-                container.innerHTML += `<div class="chat-bubble ${bubbleClass}"><strong>${msg.senderName}${roleBadge}</strong><br>${msg.text}${toText}<div class="chat-meta">${msg.timestamp}</div></div>`;
-            });
-            container.scrollTop = container.scrollHeight;
-        });
-    }
+    function loadAdminChats(){fetch(`${firebaseBaseUrl}/chats.json`).then(r=>r.json()).then(data=>{const list=document.getElementById('admin-chat-list');list.innerHTML='';if(!data){list.innerHTML='<p style="color:var(--text-muted);font-size:13px;">No active chats.</p>';return;}Object.keys(data).forEach(user=>{const msgs=Object.values(data[user]);if(!msgs.length)return;let canSee=currentUser.role==='admin';if(!canSee)msgs.forEach(m=>{if(m.recipient==='all'||m.recipient===currentUser.role||m.sender!==user)canSee=true;});if(!canSee)return;const lastMsg=msgs[msgs.length-1];list.innerHTML+=`<div style="background:var(--mid-surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;cursor:pointer;transition:border-color 0.2s;" onclick="openAdminChat('${user}')" onmouseenter="this.style.borderColor='var(--border-strong)'" onmouseleave="this.style.borderColor='var(--border)'"><strong style="color:var(--gold);font-size:13px;">@${user}</strong><div style="font-size:12px;color:var(--text-muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${lastMsg.senderName}: ${lastMsg.text}</div></div>`;});});}
 
-    function loadAdminChats() {
-        fetch(`${firebaseBaseUrl}/chats.json`).then(res => res.json()).then(data => {
-            const list = document.getElementById('admin-chat-list'); list.innerHTML = '';
-            if(!data) { list.innerHTML = '<p>No active chats.</p>'; return; }
+    function openAdminChat(user){activeAdminChatUser=user;document.getElementById('admin-chat-header').innerText=`Chat with @${user}`;['admin-chat-input','admin-chat-send-btn','admin-chat-delete-btn'].forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=false;});if(adminChatInterval)clearInterval(adminChatInterval);const fetchChat=()=>{if(!activeAdminChatUser)return;fetch(`${firebaseBaseUrl}/chats/${activeAdminChatUser}.json`).then(r=>r.json()).then(data=>{const c=document.getElementById('admin-chat-messages');c.innerHTML='';if(!data)return;Object.values(data).forEach(msg=>{const isAgent=msg.sender===activeAdminChatUser;c.innerHTML+=`<div class="chat-bubble ${isAgent?'management':'agent'}" style="text-align:${isAgent?'left':'right'}; margin-${isAgent?'right':'left'}:auto;"><strong>${msg.senderName}</strong><br>${msg.text}${isAgent?`<br><span style="font-size:10px;color:var(--text-muted);">→ ${msg.recipient.toUpperCase()}</span>`:''}<div class="chat-meta">${msg.timestamp}</div></div>`;});c.scrollTop=c.scrollHeight;});};fetchChat();adminChatInterval=setInterval(fetchChat,5000);}
 
-            Object.keys(data).forEach(user => {
-                const msgs = Object.values(data[user]);
-      
-                if(msgs.length === 0) return;
-                
-                let canSee = false;
-                if (currentUser.role === 'admin') canSee = true;
-                else { msgs.forEach(m => { if (m.recipient === 'all' || m.recipient === currentUser.role || 
-                    m.sender !== user) canSee = true; }); }
+    function sendAdminReply(){if(!activeAdminChatUser)return;const msg=document.getElementById('admin-chat-input').value.trim();if(!msg)return;fetch(`${firebaseBaseUrl}/chats/${activeAdminChatUser}.json`,{method:'POST',body:JSON.stringify({sender:currentUser.username,senderName:currentUser.fullName,role:currentUser.role,recipient:activeAdminChatUser,text:msg,timestamp:new Date().toLocaleString()})}).then(()=>document.getElementById('admin-chat-input').value='');}
 
-                if(!canSee) return;
+    function deleteActiveChat(){if(!activeAdminChatUser)return;if(confirm(`Delete all chat history with @${activeAdminChatUser}?`)){fetch(`${firebaseBaseUrl}/chats/${activeAdminChatUser}.json`,{method:'DELETE'}).then(()=>{document.getElementById('admin-chat-messages').innerHTML='';document.getElementById('admin-chat-header').innerText='Select a chat to view';['admin-chat-input','admin-chat-send-btn','admin-chat-delete-btn'].forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=true;});activeAdminChatUser=null;if(adminChatInterval)clearInterval(adminChatInterval);loadAdminChats();});}}
 
-                const lastMsg = msgs[msgs.length - 1];
-                list.innerHTML += `
-                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; margin-bottom:5px; cursor: pointer;" onclick="openAdminChat('${user}')">
-   
-                        <strong style="color:var(--primary);">@${user}</strong>
-                        <div style="font-size: 12px;
-                            color: #64748b; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${lastMsg.senderName}: ${lastMsg.text}</div>
-                    </div>`;
-            });
-        });
-    }
+    function askGemini(){const input=document.getElementById('gemini-input');const query=input.value.trim();if(!query)return;const box=document.getElementById('gemini-chat-box');box.innerHTML+=`<div class="chat-bubble agent"><strong>You</strong><br>${query}</div>`;input.value='';box.scrollTop=box.scrollHeight;const apiKey="YOUR_GEMINI_API_KEY";if(apiKey==="YOUR_GEMINI_API_KEY"){setTimeout(()=>{box.innerHTML+=`<div class="chat-bubble management"><strong>AI Assistant</strong><br>To enable real AI responses, replace <code>YOUR_GEMINI_API_KEY</code> in the code with your actual Gemini API key.</div>`;box.scrollTop=box.scrollHeight;},800);return;}fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:`You are an AI assistant for Quatro Operations managers. Answer professionally and concisely: ${query}`}]}]})}).then(r=>r.json()).then(data=>{const reply=data.candidates[0].content.parts[0].text;box.innerHTML+=`<div class="chat-bubble management"><strong>AI Assistant</strong><br>${reply.replace(/\n/g,'<br>')}</div>`;box.scrollTop=box.scrollHeight;}).catch(()=>{box.innerHTML+=`<div class="chat-bubble management" style="border-color:var(--danger)"><strong>Error</strong><br>Failed to connect to AI service.</div>`;box.scrollTop=box.scrollHeight;});}
 
-    function openAdminChat(user) {
-        activeAdminChatUser = user;
-        document.getElementById('admin-chat-header').innerText = `Chatting with: @${user}`;
-        document.getElementById('admin-chat-input').disabled = false;
-        
-        document.getElementById('admin-chat-send-btn').disabled = false;
-        document.getElementById('admin-chat-delete-btn').disabled = false;
-        if(adminChatInterval) clearInterval(adminChatInterval);
-        
-        const fetchChat = () => {
-            if(!activeAdminChatUser) return;
-            fetch(`${firebaseBaseUrl}/chats/${activeAdminChatUser}.json`).then(res => res.json()).then(data => {
-                const container = document.getElementById('admin-chat-messages'); container.innerHTML = '';
-       
-                if(!data) return;
-                
-                Object.values(data).forEach(msg => {
-                    const isAgent = msg.sender === activeAdminChatUser;
-                    const bubbleClass = isAgent ? 'management' : 'agent'; 
-                    const roleBadge = msg.role !== 'agent' ? ` [${msg.role.toUpperCase()}]` : '';
-                    const toText = isAgent ? `<br><span style="font-size:10px; color:#94a3b8;">Sent to: ${msg.recipient.toUpperCase()}</span>` : '';
-                    container.innerHTML += `<div class="chat-bubble ${bubbleClass}" style="text-align: ${isAgent ? 'left' : 'right'}; margin-${isAgent ? 'right' : 'left'}: auto;"><strong>${msg.senderName}${roleBadge}</strong><br>${msg.text}${toText}<div class="chat-meta">${msg.timestamp}</div></div>`;
-                });
-                container.scrollTop = container.scrollHeight;
-            });
-        };
-        fetchChat(); adminChatInterval = setInterval(fetchChat, 5000);
-    }
-
-    function sendAdminReply() {
-        if(!activeAdminChatUser) return;
-        const msg = document.getElementById('admin-chat-input').value.trim();
-        if(!msg) return;
-
-        const chatData = {
-            sender: currentUser.username, senderName: currentUser.fullName, role: currentUser.role,
-            recipient: activeAdminChatUser, text: msg, timestamp: new Date().toLocaleString()
-        };
-        fetch(`${firebaseBaseUrl}/chats/${activeAdminChatUser}.json`, { method: 'POST', body: JSON.stringify(chatData) })
-        .then(() => { document.getElementById('admin-chat-input').value = ''; });
-    }
-
-    function deleteActiveChat() {
-        if(!activeAdminChatUser) return;
-        if(confirm(`Are you sure you want to permanently delete all chat history with @${activeAdminChatUser}?`)) {
-            fetch(`${firebaseBaseUrl}/chats/${activeAdminChatUser}.json`, { method: 'DELETE' }).then(() => {
-                document.getElementById('admin-chat-messages').innerHTML = ''; document.getElementById('admin-chat-header').innerText = 'Select a chat to view';
-                document.getElementById('admin-chat-input').disabled = true; document.getElementById('admin-chat-send-btn').disabled = true; document.getElementById('admin-chat-delete-btn').disabled = true;
-                activeAdminChatUser = null;
-  
-                if(adminChatInterval) clearInterval(adminChatInterval);
-                loadAdminChats();
-            });
-        }
-    }
-
-    // -----------------------------------------------------------------------------
-    // GEMINI AI
-    // -----------------------------------------------------------------------------
-    function askGemini() {
-        const input = document.getElementById('gemini-input');
-        const query = input.value.trim();
-        if(!query) return;
-
-        const box = document.getElementById('gemini-chat-box');
-        box.innerHTML += `<div class="chat-bubble agent"><strong>You:</strong><br>${query}</div>`;
-        input.value = '';
-        box.scrollTop = box.scrollHeight;
-
-        const apiKey = "YOUR_GEMINI_API_KEY"; 
-        if (apiKey === "YOUR_GEMINI_API_KEY") {
-            setTimeout(() => {
-                box.innerHTML += `<div class="chat-bubble management"><strong>🤖 Gemini:</strong><br>لكي يعمل الذكاء الاصطناعي بشكل حقيقي، يرجى استبدال <code>YOUR_GEMINI_API_KEY</code> في الكود بمفتاحك الحقيقي.</div>`;
-                box.scrollTop = box.scrollHeight;
-            }, 1000);
-            return;
-        }
-
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-        fetch(endpoint, {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ parts: [{ text: `أنت مساعد ذكاء اصطناعي لمديري نظام Hyde Park Operations. أجب بمهنية واختصار على: ${query}` }] }] })
-        })
-        .then(res => res.json())
-        .then(data => {
-            const reply = data.candidates[0].content.parts[0].text;
-   
-            box.innerHTML += `<div class="chat-bubble management"><strong>🤖 Gemini:</strong><br>${reply.replace(/\n/g, '<br>')}</div>`;
-            box.scrollTop = box.scrollHeight;
-        })
-        .catch(err => { box.innerHTML += `<div class="chat-bubble management" style="color:red;"><strong>🤖 Error:</strong><br>فشل الاتصال بـ Gemini.</div>`; box.scrollTop = box.scrollHeight; });
-    }
-
-    // -----------------------------------------------------------------------------
-    // ADMIN DASHBOARD (USERS, QUIZZES, RESULTS)
-    // -----------------------------------------------------------------------------
-    function setupDashboardPermissions() {
-        if (!currentUser) return;
-        localStorage.setItem('currentUser', JSON.stringify(currentUser));
-        const badge = document.getElementById('user-role-badge');
-        badge.className = "badge"; 
-        document.getElementById('nav-profile-btn').style.display = "none";
-        
+    function setupDashboardPermissions(){
+        if(!currentUser)return;
+        localStorage.setItem('currentUser',JSON.stringify(currentUser));
+        const badge=document.getElementById('user-role-badge');
+        badge.className='role-badge';
+        document.getElementById('nav-profile-btn').style.display='none';
         loadDropdownTargets();
-        
-        if(!currentUser.phone || !currentUser.email) { switchView('agent-profile'); return;
-        }
-
-        if(currentUser.role === 'admin' || currentUser.role === 'leader' || currentUser.role === 'quality') {
-            document.getElementById('tab-btn-users').style.display = (currentUser.role === 'admin' || currentUser.role === 'leader') ?
-                'block' : 'none';
-            document.getElementById('tab-btn-chats').style.display = 'block';
-            document.getElementById('tab-btn-schedules').style.display = (currentUser.role === 'admin' || currentUser.role === 'leader') ? 'block' : 'none';
-            document.getElementById('tab-btn-kpi').style.display = (currentUser.role === 'admin' || currentUser.role === 'leader') ? 'block' : 'none';
-            document.getElementById('tab-btn-quizzes').style.display = (currentUser.role === 'admin' || currentUser.role === 'quality') ? 'block' : 'none';
-            document.getElementById('tab-btn-results').style.display = (currentUser.role === 'admin' || currentUser.role === 'leader' || currentUser.role === 'quality') ? 'block' : 'none';
-            document.getElementById('tab-btn-gemini').style.display = 'block';
-            document.getElementById('admin-only-add-user').classList.toggle('hidden', currentUser.role !== 'admin');
-            
-            if(currentUser.role === 'admin') { badge.innerText = "Admin"; badge.classList.add('badge-admin'); switchAdminTab('tab-users', document.getElementById('tab-btn-users')); loadUsersAdmin();
-            }
-            else if(currentUser.role === 'leader') { badge.innerText = "Leader";
-                badge.classList.add('badge-leader'); switchAdminTab('tab-users', document.getElementById('tab-btn-users')); loadUsersAdmin(); }
-            else if(currentUser.role === 'quality') { badge.innerText = "Quality";
-                badge.classList.add('badge-quality'); switchAdminTab('tab-quizzes', document.getElementById('tab-btn-quizzes')); loadQuizzesAdminSection(); }
+        if(!currentUser.phone||!currentUser.email){switchView('agent-profile');return;}
+        if(currentUser.role==='admin'||currentUser.role==='leader'||currentUser.role==='quality'){
+            ['tab-btn-users','tab-btn-chats','tab-btn-schedules','tab-btn-kpi','tab-btn-quizzes','tab-btn-results','tab-btn-gemini'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+            if(currentUser.role==='admin'||currentUser.role==='leader'){['tab-btn-users','tab-btn-chats','tab-btn-schedules','tab-btn-kpi','tab-btn-results','tab-btn-gemini'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='block';});}
+            if(currentUser.role==='admin'||currentUser.role==='quality'){['tab-btn-quizzes','tab-btn-results','tab-btn-gemini','tab-btn-chats'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='block';});}
+            document.getElementById('admin-only-add-user').classList.toggle('hidden',currentUser.role!=='admin');
+            if(currentUser.role==='admin'){badge.innerText='Admin';badge.classList.add('badge-admin');switchAdminTab('tab-users',document.getElementById('tab-btn-users'));loadUsersAdmin();}
+            else if(currentUser.role==='leader'){badge.innerText='Leader';badge.classList.add('badge-leader');switchAdminTab('tab-users',document.getElementById('tab-btn-users'));loadUsersAdmin();}
+            else{badge.innerText='Quality';badge.classList.add('badge-quality');switchAdminTab('tab-quizzes',document.getElementById('tab-btn-quizzes'));loadQuizzesAdminSection();}
             switchView('admin-dashboard');
         } else {
-            badge.innerText = "Agent"; badge.style.background = "var(--success)";
-            document.getElementById('agent-welcome-name').innerText = currentUser.fullName;
-            document.getElementById('nav-profile-btn').style.display = "inline-block";
+            badge.innerText='Agent';badge.classList.add('badge-agent');
+            document.getElementById('agent-welcome-name').innerText=currentUser.fullName;
+            document.getElementById('nav-profile-btn').style.display='inline-flex';
             switchView('agent-hub');
         }
     }
 
-    function loadUsersAdmin() {
-        if(currentUser.role !== 'admin' && currentUser.role !== 'leader') return;
-        const filterAcc = document.getElementById('filter-account').value.trim().toLowerCase();
-        const filterStatus = document.getElementById('filter-status').value;
-
-        fetch(`${firebaseBaseUrl}/users.json`).then(res => res.json()).then(users => {
-            globalUsersList = users || {};
-            const tbody = document.getElementById('admin-users-list'); tbody.innerHTML = '';
-            if(!users) { tbody.innerHTML = '<tr><td colspan="6">No users found.</td></tr>'; return; }
-            
-            Object.keys(users).forEach(uKey => {
-       
-                let u = users[uKey];
-                if (!u) return; 
-                let accMatch = !filterAcc || (u.accountName && u.accountName.toLowerCase().includes(filterAcc));
-                let statusMatch = filterStatus === 'all' || u.status === filterStatus;
-                
-    
-                if(accMatch && statusMatch) {
-                    let statusHtml = u.status === 'pending' ? '<span class="badge badge-pending">Pending</span>' : '<span class="badge" style="background:var(--success)">Active</span>';
-                    let actionsHtml = '';
-                    
-         
-                    if(u.status === 'pending' && (currentUser.role === 'admin' ||
-                        currentUser.role === 'leader')) {
-                        actionsHtml += `<button class="view-btn" style="background:var(--success); margin-bottom:5px;"
-                            onclick="approveUser('${u.username}')">Approve ✔️</button>`;
-                        if(currentUser.role === 'admin') actionsHtml += `<button class="view-btn" style="background:var(--danger);" onclick="deleteUser('${u.username}')">Reject & Delete ❌</button>`;
-                    } else if(currentUser.role === 'admin') {
-                        actionsHtml += `<div class="action-inline"><button class="view-btn" style="background:var(--primary)" onclick="openEditUserModal('${u.username}')">Edit <i class="fa-solid fa-pen"></i></button><button class="view-btn" style="background:var(--danger)" onclick="deleteUser('${u.username}')">Delete <i class="fa-solid fa-trash"></i></button></div>`;
-                    } else { actionsHtml += `<span style="color:#94a3b8; font-size:11px;">Admin Only</span>`; }
-
-                    tbody.innerHTML += `<tr><td><b>${u.fullName ||
-                        'No Name'}</b><br><small style="color:#64748b;">HR ID: ${u.hrId || 'Not Set'} | ${u.phone||'No Phone'} | ${u.email||'No Email'}</small></td><td><code>${u.username}</code></td><td>${u.accountName || '-'}</td><td><span class="badge" style="background:#64748b; text-transform:capitalize;">${u.role}</span></td><td>${statusHtml}</td><td>${actionsHtml}</td></tr>`;
-                }
-            });
+    function loadUsersAdmin(){
+        if(currentUser.role!=='admin'&&currentUser.role!=='leader')return;
+        const filterAcc=document.getElementById('filter-account').value.trim().toLowerCase();
+        const filterStatus=document.getElementById('filter-status').value;
+        fetch(`${firebaseBaseUrl}/users.json`).then(r=>r.json()).then(users=>{
+            globalUsersList=users||{};const tbody=document.getElementById('admin-users-list');tbody.innerHTML='';
+            if(!users){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text-muted)">No users found.</td></tr>';return;}
+            Object.keys(users).forEach(uKey=>{let u=users[uKey];if(!u)return;let accMatch=!filterAcc||(u.accountName&&u.accountName.toLowerCase().includes(filterAcc));let statusMatch=filterStatus==='all'||u.status===filterStatus;
+            if(accMatch&&statusMatch){let statusHtml=u.status==='pending'?'<span class="status-badge status-pending">Pending</span>':'<span class="status-badge status-active">Active</span>';
+            let actionsHtml='';
+            if(u.status==='pending'&&(currentUser.role==='admin'||currentUser.role==='leader')){actionsHtml+=`<button class="action-btn a-success" onclick="approveUser('${u.username}')"><i class="fa-solid fa-check"></i> Approve</button> `;if(currentUser.role==='admin')actionsHtml+=`<button class="action-btn a-danger" onclick="deleteUser('${u.username}')"><i class="fa-solid fa-xmark"></i> Reject</button>`;}
+            else if(currentUser.role==='admin'){actionsHtml+=`<button class="action-btn" onclick="openEditUserModal('${u.username}')"><i class="fa-solid fa-pen"></i></button> <button class="action-btn a-danger" onclick="deleteUser('${u.username}')"><i class="fa-solid fa-trash"></i></button>`;}
+            else{actionsHtml='<span style="color:var(--text-muted);font-size:11px;">Admin only</span>';}
+            let roleBadgeClass={'admin':'badge-admin','leader':'badge-leader','quality':'badge-quality','agent':'badge-agent'}[u.role]||'';
+            tbody.innerHTML+=`<tr><td><strong>${u.fullName||'—'}</strong><br><small style="color:var(--text-muted);">HR: ${u.hrId||'—'} · ${u.phone||'No phone'} · ${u.email||'No email'}</small></td><td><code style="color:var(--gold);font-size:12px;">${u.username}</code></td><td>${u.accountName||'—'}</td><td><span class="status-badge ${roleBadgeClass}" style="text-transform:capitalize;">${u.role}</span></td><td>${statusHtml}</td><td>${actionsHtml}</td></tr>`;
+            }});
         });
     }
 
-    function addConfirmedUser() {
-        const name = document.getElementById('dir-name').value.trim();
-        const user = document.getElementById('dir-user').value.trim().toLowerCase();
-        const pass = document.getElementById('dir-pass').value.trim();
-        const acc = document.getElementById('dir-acc').value.trim();
-        const role = document.getElementById('dir-role').value;
-        const hrid = document.getElementById('dir-hrid').value.trim();
-        if(!name || !user || !pass || !acc) return alert('Please complete all basic fields!');
-        let newUserData = { fullName: name, username: user, password: pass, role: role, accountName: acc, status: "approved", phone: "", email: "", hrId: hrid };
-        fetch(`${firebaseBaseUrl}/users/${user}.json`, { method: 'PUT', body: JSON.stringify(newUserData) })
-        .then(() => { 
-            alert('User added and activated successfully!'); 
-            document.getElementById('dir-name').value = ''; document.getElementById('dir-user').value = ''; document.getElementById('dir-pass').value = ''; document.getElementById('dir-acc').value = ''; document.getElementById('dir-hrid').value = '';
-            loadUsersAdmin(); loadDropdownTargets();
-        });
+    function addConfirmedUser(){const name=document.getElementById('dir-name').value.trim();const user=document.getElementById('dir-user').value.trim().toLowerCase();const pass=document.getElementById('dir-pass').value.trim();const acc=document.getElementById('dir-acc').value.trim();const role=document.getElementById('dir-role').value;const hrid=document.getElementById('dir-hrid').value.trim();if(!name||!user||!pass||!acc)return alert('Complete all required fields!');fetch(`${firebaseBaseUrl}/users/${user}.json`,{method:'PUT',body:JSON.stringify({fullName:name,username:user,password:pass,role:role,accountName:acc,status:"approved",phone:"",email:"",hrId:hrid})}).then(()=>{alert('User added!');['dir-name','dir-user','dir-pass','dir-acc','dir-hrid'].forEach(id=>document.getElementById(id).value='');loadUsersAdmin();loadDropdownTargets();});}
+
+    function approveUser(username){fetch(`${firebaseBaseUrl}/users/${username}/status.json`,{method:'PUT',body:JSON.stringify("approved")}).then(()=>{loadUsersAdmin();loadDropdownTargets();});}
+    function deleteUser(username){if(confirm(`Delete user [${username}]?`))fetch(`${firebaseBaseUrl}/users/${username}.json`,{method:'DELETE'}).then(()=>{loadUsersAdmin();loadDropdownTargets();});}
+
+    function openEditUserModal(username){const u=globalUsersList[username];if(!u)return;document.getElementById('edit-orig-username').value=username;document.getElementById('edit-fullname').value=u.fullName||'';document.getElementById('edit-hrid').value=u.hrId||'';document.getElementById('edit-account').value=u.accountName||'';document.getElementById('edit-role').value=u.role||'agent';document.getElementById('edit-phone').value=u.phone||'';document.getElementById('edit-email').value=u.email||'';document.getElementById('edit-password').value=u.password||'';document.getElementById('edit-user-modal').classList.remove('hidden');}
+    function closeEditUserModal(){document.getElementById('edit-user-modal').classList.add('hidden');}
+    function saveUserEdit(){const username=document.getElementById('edit-orig-username').value;const u=globalUsersList[username];const passVal=document.getElementById('edit-password').value.trim();if(!passVal)return alert('Password cannot be empty!');let updatedData={...u,fullName:document.getElementById('edit-fullname').value.trim(),hrId:document.getElementById('edit-hrid').value.trim(),accountName:document.getElementById('edit-account').value.trim(),role:document.getElementById('edit-role').value,phone:document.getElementById('edit-phone').value.trim(),email:document.getElementById('edit-email').value.trim(),password:passVal};fetch(`${firebaseBaseUrl}/users/${username}.json`,{method:'PUT',body:JSON.stringify(updatedData)}).then(()=>{alert('Updated!');closeEditUserModal();loadUsersAdmin();});}
+
+    function loadDropdownTargets(){fetch(`${firebaseBaseUrl}/users.json`).then(r=>r.json()).then(users=>{const s1=document.getElementById('q-target-select'),s2=document.getElementById('fast-change-target-select');let opts='<option value="draft">Hidden Draft</option><option value="all">All Employees</option>';let accounts=new Set();if(users)Object.values(users).forEach(u=>{if(u&&u.accountName)accounts.add(u.accountName);});if(accounts.size){opts+=`<optgroup label="By Campaign">`;accounts.forEach(acc=>opts+=`<option value="ACC_${acc}">Campaign: ${acc}</option>`);opts+=`</optgroup>`;}if(s1)s1.innerHTML=opts;if(s2)s2.innerHTML=opts;});}
+
+    function addQuizQuestionAdmin(){const quizName=document.getElementById('q-quizname').value.trim();const target=document.getElementById('q-target-select').value;const txt=document.getElementById('q-text').value.trim();const o1=document.getElementById('q-opt1').value.trim();const o2=document.getElementById('q-opt2').value.trim();const o3=document.getElementById('q-opt3').value.trim();const o4=document.getElementById('q-opt4').value.trim();const corr=document.getElementById('q-correct').value.trim();if(!quizName||!txt||!o1||!o2||!corr)return alert('Please complete all required fields!');fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions.json`,{method:'POST',body:JSON.stringify({question:txt,opts:[o1,o2,o3,o4],correct:parseInt(corr)})}).then(()=>fetch(`${firebaseBaseUrl}/quizzes/${quizName}/target.json`,{method:'PUT',body:JSON.stringify(target)})).then(()=>{alert('Quiz saved!');['q-text','q-opt1','q-opt2','q-opt3','q-opt4','q-correct'].forEach(id=>document.getElementById(id).value='');loadQuizzesAdminSection();});}
+
+    function loadQuizzesAdminSection(){fetch(`${firebaseBaseUrl}/quizzes.json`).then(r=>r.json()).then(quizzes=>{const tbody=document.getElementById('admin-quizzes-control-list');tbody.innerHTML='';if(!quizzes){tbody.innerHTML='<tr><td colspan="3" style="text-align:center;color:var(--text-muted)">No quizzes yet.</td></tr>';return;}Object.keys(quizzes).forEach(name=>{let q=quizzes[name];if(!q)return;let tgtDisplay=q.target==='draft'?'<span class="status-badge status-draft">Draft</span>':q.target==='all'?'<span class="status-badge status-active">All Employees</span>':`<span class="status-badge status-active">${q.target.replace('ACC_','')}</span>`;tbody.innerHTML+=`<tr><td><strong>${name}</strong></td><td>${tgtDisplay}</td><td><button class="action-btn a-purple" onclick="viewQuizQuestions('${name}')"><i class="fa-solid fa-eye"></i></button> <button class="action-btn a-success" onclick="openQuestionsEditor('${name}')"><i class="fa-solid fa-pen"></i></button> <button class="action-btn a-danger" onclick="deleteQuizCompletely('${name}')"><i class="fa-solid fa-trash"></i></button></td></tr>`;});});}
+
+    function viewQuizQuestions(quizName){document.getElementById('view-quiz-title').innerText=quizName;const c=document.getElementById('viewer-questions-list');c.innerHTML='<p style="color:var(--text-muted)">Loading...</p>';document.getElementById('quiz-viewer-container').classList.remove('hidden');document.getElementById('questions-editor-container').classList.add('hidden');fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions.json`).then(r=>r.json()).then(qs=>{c.innerHTML='';if(!qs){c.innerHTML='<p style="color:var(--text-muted)">No questions.</p>';return;}Object.values(qs).forEach((q,idx)=>{if(!q)return;let optsHtml='';if(q.opts)q.opts.forEach((o,i)=>{let isCorrect=(i+1)==q.correct;optsHtml+=`<div style="padding:8px 12px;margin:5px 0;border-radius:6px;font-size:13px;${isCorrect?'background:rgba(76,175,125,0.1);color:var(--success);border:1px solid rgba(76,175,125,0.3);font-weight:600;':'background:var(--mid-surface);color:var(--text-muted);border:1px solid var(--border);'}">${i+1}. ${o}${isCorrect?' ✓':''}</div>`;});c.innerHTML+=`<div class="viewer-q"><p style="font-weight:600;color:var(--text-primary);margin:0 0 10px;">Q${idx+1}: ${q.question}</p>${optsHtml}</div>`;});});}
+
+    function openQuestionsEditor(quizName){currentEditingQuizName=quizName;document.getElementById('current-editing-quiz-title').innerText=quizName;const c=document.getElementById('individual-questions-list');c.innerHTML='<p style="color:var(--text-muted)">Loading...</p>';document.getElementById('questions-editor-container').classList.remove('hidden');document.getElementById('quiz-viewer-container').classList.add('hidden');fetch(`${firebaseBaseUrl}/quizzes/${quizName}/target.json`).then(r=>r.json()).then(target=>{if(target)document.getElementById('fast-change-target-select').value=target;});fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions.json`).then(r=>r.json()).then(questions=>{c.innerHTML='';if(!questions)return;Object.keys(questions).forEach(qKey=>{let q=questions[qKey];if(!q)return;c.innerHTML+=`<div class="q-edit-row"><label>Question</label><input type="text" id="edit_txt_${qKey}" value="${q.question}" style="margin-bottom:8px;"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;"><input type="text" id="edit_opt1_${qKey}" value="${q.opts?q.opts[0]||'':''}"><input type="text" id="edit_opt2_${qKey}" value="${q.opts?q.opts[1]||'':''}"><input type="text" id="edit_opt3_${qKey}" value="${q.opts?q.opts[2]||'':''}"><input type="text" id="edit_opt4_${qKey}" value="${q.opts?q.opts[3]||'':''}"></div><div style="display:flex;justify-content:space-between;align-items:center;"><div><label style="display:inline;font-size:11px;">Correct (1-4): </label><input type="number" id="edit_corr_${qKey}" value="${q.correct||1}" min="1" max="4" style="width:55px;display:inline;padding:6px;"></div><div><button class="action-btn a-success" onclick="saveSingleQuestionChanges('${quizName}','${qKey}')">Save</button> <button class="action-btn a-danger" onclick="deleteSingleQuestion('${quizName}','${qKey}')">Delete</button></div></div></div>`;});});}
+
+    function updateQuizTargetFromEditor(){const newTarget=document.getElementById('fast-change-target-select').value;fetch(`${firebaseBaseUrl}/quizzes/${currentEditingQuizName}/target.json`,{method:'PUT',body:JSON.stringify(newTarget)}).then(()=>{alert('Target updated!');loadQuizzesAdminSection();});}
+
+    function addSingleQuestionFast(){const txt=document.getElementById('fast-q-text').value.trim();const o1=document.getElementById('fast-q-opt1').value.trim();const o2=document.getElementById('fast-q-opt2').value.trim();const o3=document.getElementById('fast-q-opt3').value.trim();const o4=document.getElementById('fast-q-opt4').value.trim();const corr=document.getElementById('fast-q-correct').value.trim();if(!txt||!o1||!o2||!corr)return alert('Complete required fields!');fetch(`${firebaseBaseUrl}/quizzes/${currentEditingQuizName}/questions.json`,{method:'POST',body:JSON.stringify({question:txt,opts:[o1,o2,o3,o4],correct:parseInt(corr)})}).then(()=>{alert('Question added!');['fast-q-text','fast-q-opt1','fast-q-opt2','fast-q-opt3','fast-q-opt4','fast-q-correct'].forEach(id=>document.getElementById(id).value='');openQuestionsEditor(currentEditingQuizName);});}
+
+    function saveSingleQuestionChanges(quizName,qKey){let updatedQ={question:document.getElementById(`edit_txt_${qKey}`).value.trim(),opts:[document.getElementById(`edit_opt1_${qKey}`).value.trim(),document.getElementById(`edit_opt2_${qKey}`).value.trim(),document.getElementById(`edit_opt3_${qKey}`).value.trim(),document.getElementById(`edit_opt4_${qKey}`).value.trim()],correct:parseInt(document.getElementById(`edit_corr_${qKey}`).value.trim())};fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions/${qKey}.json`,{method:'PUT',body:JSON.stringify(updatedQ)}).then(()=>{alert('Saved!');openQuestionsEditor(quizName);});}
+
+    function deleteSingleQuestion(quizName,qKey){if(confirm('Delete this question?'))fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions/${qKey}.json`,{method:'DELETE'}).then(()=>openQuestionsEditor(quizName));}
+    function deleteQuizCompletely(name){if(confirm(`Delete quiz [${name}]?`))fetch(`${firebaseBaseUrl}/quizzes/${name}.json`,{method:'DELETE'}).then(()=>loadQuizzesAdminSection());}
+
+    function viewAgentSchedule(){
+        switchView('info-display-box');document.getElementById('info-box-title').innerText="Weekly Schedule (Live)";
+        let nameKey=currentUser.fullName.trim().toLowerCase();
+        if(!liveSchedules[nameKey]){document.getElementById('info-content-area').innerHTML=`<div class="info-card" style="border-left-color:var(--danger)"><i class="fa-solid fa-circle-exclamation" style="color:var(--danger)"></i> No schedule found for <strong>${currentUser.fullName}</strong> in the sheet.</div>`;return;}
+        let s=liveSchedules[nameKey];const todayStr=daysMap[new Date().getDay()];
+        document.getElementById('info-content-area').innerHTML=`<div class="table-wrap"><table class="data-table"><thead><tr><th>Sunday</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th><th>Saturday</th></tr></thead><tbody><tr><td class="${s.sunday.toLowerCase().includes('off')?'off-day':'work-day'}${todayStr==='sunday'?' current-day-highlight':''}">${s.sunday}</td><td class="${s.monday.toLowerCase().includes('off')?'off-day':'work-day'}${todayStr==='monday'?' current-day-highlight':''}">${s.monday}</td><td class="${s.tuesday.toLowerCase().includes('off')?'off-day':'work-day'}${todayStr==='tuesday'?' current-day-highlight':''}">${s.tuesday}</td><td class="${s.wednesday.toLowerCase().includes('off')?'off-day':'work-day'}${todayStr==='wednesday'?' current-day-highlight':''}">${s.wednesday}</td><td class="${s.thursday.toLowerCase().includes('off')?'off-day':'work-day'}${todayStr==='thursday'?' current-day-highlight':''}">${s.thursday}</td><td class="${s.friday.toLowerCase().includes('off')?'off-day':'work-day'}${todayStr==='friday'?' current-day-highlight':''}">${s.friday}</td><td class="${s.saturday.toLowerCase().includes('off')?'off-day':'work-day'}${todayStr==='saturday'?' current-day-highlight':''}">${s.saturday}</td></tr></tbody></table></div><p style="text-align:center;margin-top:12px;font-size:12px;color:var(--gold);">Today is highlighted in gold</p>`;
     }
 
-    function approveUser(username) { fetch(`${firebaseBaseUrl}/users/${username}/status.json`, { method: 'PUT', body: JSON.stringify("approved") }).then(() => { alert('Account approved successfully!'); loadUsersAdmin(); loadDropdownTargets(); });
-    }
-    function deleteUser(username) { if(confirm(`Are you sure you want to permanently delete user [ ${username} ]?`)) { fetch(`${firebaseBaseUrl}/users/${username}.json`, { method: 'DELETE' }).then(() => { alert('Account deleted!'); loadUsersAdmin(); loadDropdownTargets(); });
-    } }
+    function viewAgentBreaks(){switchView('info-display-box');document.getElementById('info-box-title').innerText="Break Time";let nameKey=currentUser.fullName.trim().toLowerCase();let b=liveBreaks[nameKey];document.getElementById('info-content-area').innerHTML=b?`<div class="info-card"><i class="fa-solid fa-mug-hot" style="color:var(--gold)"></i> <strong style="color:var(--gold)">Your Break Time:</strong> <span style="font-size:18px;">${b}</span></div>`:'<div class="info-card">No break time assigned yet.</div>';}
 
-    function openEditUserModal(username) {
-        const u = globalUsersList[username];
-        if(!u) return;
-        document.getElementById('edit-orig-username').value = username; document.getElementById('edit-fullname').value = u.fullName || ''; document.getElementById('edit-hrid').value = u.hrId || ''; document.getElementById('edit-account').value = u.accountName || '';
-        document.getElementById('edit-role').value = u.role || 'agent'; document.getElementById('edit-phone').value = u.phone || ''; document.getElementById('edit-email').value = u.email || ''; document.getElementById('edit-password').value = u.password || '';
-        document.getElementById('edit-user-modal').classList.remove('hidden');
-    }
-    function closeEditUserModal() { document.getElementById('edit-user-modal').classList.add('hidden'); }
-
-    function saveUserEdit() {
-        const username = document.getElementById('edit-orig-username').value;
-        const u = globalUsersList[username];
-        const passVal = document.getElementById('edit-password').value.trim();
-        if(!passVal) return alert('Password field cannot be empty!');
-        let updatedData = { ...u, fullName: document.getElementById('edit-fullname').value.trim(), hrId: document.getElementById('edit-hrid').value.trim(), accountName: document.getElementById('edit-account').value.trim(), role: document.getElementById('edit-role').value, phone: document.getElementById('edit-phone').value.trim(), email: document.getElementById('edit-email').value.trim(), password: passVal };
-        fetch(`${firebaseBaseUrl}/users/${username}.json`, { method: 'PUT', body: JSON.stringify(updatedData) }).then(() => { alert('User profile updated successfully!'); closeEditUserModal(); loadUsersAdmin(); });
+    function loadQuizzesForAgent(){
+        switchView('quiz-dashboard');document.getElementById('quiz-section-title').innerText="Available Quizzes";document.getElementById('active-quiz-area').classList.add('hidden');
+        fetch(`${firebaseBaseUrl}/quizzes.json`).then(r=>r.json()).then(quizzes=>{const list=document.getElementById('available-quizzes-list');list.innerHTML='';if(!quizzes){list.innerHTML='<div class="info-card">No quizzes available at this time.</div>';return;}let found=false;Object.keys(quizzes).forEach(name=>{let q=quizzes[name];if(!q)return;let tgt=q.target;if(tgt==='all'||tgt===currentUser.username||tgt===`ACC_${currentUser.accountName}`){found=true;list.innerHTML+=`<div class="quiz-list-item"><div><i class="fa-solid fa-file-pen" style="color:var(--gold);margin-right:8px;"></i><strong>${name}</strong></div><button class="btn btn-primary" onclick="startQuizForAgent('${name}')" style="width:auto;padding:8px 18px;"><i class="fa-solid fa-rocket"></i> Start</button></div>`;}});if(!found)list.innerHTML='<div class="info-card">No quizzes available for you currently.</div>';});
     }
 
-    function loadDropdownTargets() {
-        fetch(`${firebaseBaseUrl}/users.json`).then(res => res.json()).then(users => {
-            const selectMain = document.getElementById('q-target-select');
-            const selectFast = document.getElementById('fast-change-target-select');
-            let optionsHtml = '<option value="draft">Hidden Draft ❌</option><option value="all">All Employees</option>';
-            let accounts = new Set();
-            if(users) {
-   
-                Object.values(users).forEach(u => { if(u && u.accountName) accounts.add(u.accountName); });
-                if(accounts.size > 0) {
-                    optionsHtml += `<optgroup label="By Account / Campaign">`;
-                    accounts.forEach(acc => optionsHtml += `<option value="ACC_${acc}">Campaign: ${acc}</option>`);
-         
-                    optionsHtml += `</optgroup>`;
-                }
-            }
-            if(selectMain) selectMain.innerHTML = optionsHtml;
-            if(selectFast) selectFast.innerHTML = optionsHtml;
-        });
-    }
+    function startQuizForAgent(name){activeQuizName=name;fetch(`${firebaseBaseUrl}/quizzes/${name}/questions.json`).then(r=>r.json()).then(qs=>{if(!qs)return alert('This quiz is empty!');activeQuizQuestions=Object.values(qs);document.getElementById('active-quiz-title').innerText=name;const c=document.getElementById('quiz-questions-container');c.innerHTML='';document.getElementById('submit-quiz-btn').style.display='flex';document.getElementById('close-quiz-btn').classList.add('hidden');activeQuizQuestions.forEach((q,i)=>{if(!q)return;let h=`<div style="background:var(--dark-surface);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px;"><p style="font-weight:600;color:var(--text-primary);font-size:15px;margin-bottom:12px;">Q${i+1}: ${q.question}</p>`;if(q.opts)q.opts.forEach((o,oi)=>{if(o)h+=`<label class="option-label" id="label_${i}_${oi+1}"><input type="radio" name="q_${i}" value="${oi+1}" style="width:auto;margin-right:8px;"> ${o}</label>`;});c.innerHTML+=h+'</div>';});document.getElementById('active-quiz-area').classList.remove('hidden');});}
 
-    function addQuizQuestionAdmin() {
-        const quizName = document.getElementById('q-quizname').value.trim();
-        const target = document.getElementById('q-target-select').value;
-        const txt = document.getElementById('q-text').value.trim();
-        const o1 = document.getElementById('q-opt1').value.trim();
-        const o2 = document.getElementById('q-opt2').value.trim();
-        const o3 = document.getElementById('q-opt3').value.trim();
-        const o4 = document.getElementById('q-opt4').value.trim();
-        const corr = document.getElementById('q-correct').value.trim();
-        if(!quizName || !txt || !o1 || !o2 || !corr) return alert('Please enter Quiz name and first question details completely!');
-        let data = { question: txt, opts: [o1, o2, o3, o4], correct: parseInt(corr) };
-        fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions.json`, { method: 'POST', body: JSON.stringify(data) })
-        .then(() => fetch(`${firebaseBaseUrl}/quizzes/${quizName}/target.json`, { method: 'PUT', body: JSON.stringify(target) }))
-        .then(() => { alert('Quiz saved!'); ['q-text','q-opt1','q-opt2','q-opt3','q-opt4','q-correct'].forEach(id => document.getElementById(id).value = ''); loadQuizzesAdminSection(); });
-    }
+    function submitQuizAnswers(){let score=0;let detailsArr=[];activeQuizQuestions.forEach((q,i)=>{if(!q)return;const sel=document.querySelector(`input[name="q_${i}"]:checked`);let safeText=q.question.replace(/\|/g,'-').replace(/\./g,' ');if(sel&&sel.value==q.correct){score++;detailsArr.push(`${safeText} : Correct ✅`);}else{detailsArr.push(`${safeText} : ${sel?'Wrong ❌':'Not Answered ⚠️'}`);}document.querySelectorAll(`input[name="q_${i}"]`).forEach(el=>el.disabled=true);});let res=`${score} / ${activeQuizQuestions.length}`;fetch(`${firebaseBaseUrl}/scores.json`,{method:'POST',body:JSON.stringify({username:currentUser.fullName||currentUser.username,hrId:currentUser.hrId||'Not Set',account:currentUser.accountName||'-',quizName:activeQuizName,score:res,details:detailsArr.join(" | "),timestamp:new Date().toLocaleString()})}).then(()=>{alert(`Submitted! Score: ${res}`);document.getElementById('submit-quiz-btn').style.display='none';document.getElementById('close-quiz-btn').classList.remove('hidden');});}
 
-    function loadQuizzesAdminSection() {
-        fetch(`${firebaseBaseUrl}/quizzes.json`).then(res => res.json()).then(quizzes => {
-            const tbody = document.getElementById('admin-quizzes-control-list'); tbody.innerHTML = '';
-            if(!quizzes) { tbody.innerHTML = '<tr><td colspan="3">No quizzes created yet.</td></tr>'; return; }
-            Object.keys(quizzes).forEach(name => {
-                let q = quizzes[name]; if (!q) return; 
-     
-                let tgtDisplay = q.target === 'draft' ? 'Draft ❌' : q.target === 'all' ? 'All' : q.target.startsWith('ACC_') ? `Camp: ${q.target.replace('ACC_','')}` : `User: ${q.target}`;
-                tbody.innerHTML += `<tr><td><b>${name}</b></td><td><span class="badge" style="background:var(--primary)">${tgtDisplay}</span></td><td><div class="action-inline"><button class="view-btn" style="background:#d946ef" onclick="viewQuizQuestions('${name}')"><i class="fa-solid fa-eye"></i> View</button><button class="view-btn" style="background:#16a34a" onclick="openQuestionsEditor('${name}')"><i class="fa-solid fa-pen"></i> Edit</button><button class="view-btn" style="background:var(--danger)" onclick="deleteQuizCompletely('${name}')">Delete</button></div></td></tr>`;
-            });
-        });
-    }
+    function loadScoresAdmin(){fetch(`${firebaseBaseUrl}/scores.json`).then(r=>r.json()).then(scores=>{globalScoresData=scores;const filterSelect=document.getElementById('admin-quiz-filter');if(filterSelect){let uniqueQuizzes=new Set();if(scores)Object.values(scores).forEach(s=>{if(s&&s.quizName)uniqueQuizzes.add(s.quizName);});let opts=`<option value="ALL_QUIZZES">All Quizzes</option>`;uniqueQuizzes.forEach(q=>{opts+=`<option value="${q.replace(/"/g,'&quot;')}">${q}</option>`;});filterSelect.innerHTML=opts;}filterScoresTable();});}
 
-    function viewQuizQuestions(quizName) {
-        document.getElementById('view-quiz-title').innerText = quizName;
-        const container = document.getElementById('viewer-questions-list'); container.innerHTML = '<p>Loading...</p>';
-        document.getElementById('quiz-viewer-container').classList.remove('hidden'); document.getElementById('questions-editor-container').classList.add('hidden');
-        fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions.json`).then(res => res.json()).then(qs => {
-            container.innerHTML = ''; if(!qs) { container.innerHTML = '<p>No questions found.</p>'; return; }
-            Object.values(qs).forEach((q, idx) => {
-                if (!q) return; let optsHtml = '';
-                if(q.opts) { q.opts.forEach((o, i) => { let isCorrect = (i+1) == 
-                    q.correct; optsHtml += `<div style="padding:6px; margin:4px 0; border-radius:4px; font-size:14px; ${isCorrect ? 'background:#d1fae5; color:#065f46; font-weight:bold; border:1px solid #10b981;' : 'background:#f1f5f9; color:#64748b;'}">${i+1}. ${o} ${isCorrect ? '✔️ Correct' : ''}</div>`; }); }
-                container.innerHTML += `<div class="viewer-q"><p style="margin:0 0 10px 0; color:var(--text); font-weight:bold; font-size:16px;">Q${idx+1}: ${q.question}</p>${optsHtml}</div>`;
-            });
-        });
-    }
+    function filterScoresTable(){const tbody=document.getElementById('admin-scores-list');tbody.innerHTML='';if(!globalScoresData){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--text-muted)">No results yet.</td></tr>';return;}const filterVal=document.getElementById('admin-quiz-filter').value||"ALL_QUIZZES";let hasData=false;Object.keys(globalScoresData).forEach(id=>{let score=globalScoresData[id];if(!score)return;if(filterVal==="ALL_QUIZZES"||score.quizName===filterVal){hasData=true;let detailsHtml=score.details?score.details.split(' | ').map(p=>`<div style="margin:2px 0;">${p}</div>`).join(''):'No details';tbody.innerHTML+=`<tr><td><strong>${score.username}</strong></td><td style="color:var(--text-muted);">${score.hrId}</td><td>${score.account}</td><td>${score.quizName}</td><td><span class="score-badge">${score.score}</span></td><td><button class="action-btn" onclick="document.getElementById('det_${id}').classList.toggle('hidden')">Details</button><div id="det_${id}" class="details-container hidden">${detailsHtml}</div><span style="display:none" class="excel-details-export">${score.details||''}</span></td><td style="color:var(--text-muted);font-size:12px;">${score.timestamp}</td><td><button class="action-btn a-danger" onclick="deleteScoreFromSystem('${id}')"><i class="fa-solid fa-trash"></i></button></td></tr>`;}});if(!hasData)tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--text-muted)">No matching records.</td></tr>';}
 
-    function openQuestionsEditor(quizName) {
-        currentEditingQuizName = quizName; document.getElementById('current-editing-quiz-title').innerText = quizName;
-        const container = document.getElementById('individual-questions-list'); container.innerHTML = '<p>Loading...</p>';
-        document.getElementById('questions-editor-container').classList.remove('hidden'); document.getElementById('quiz-viewer-container').classList.add('hidden');
-        fetch(`${firebaseBaseUrl}/quizzes/${quizName}/target.json`).then(res => res.json()).then(target => { if(target) document.getElementById('fast-change-target-select').value = target; });
-        fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions.json`).then(res => res.json()).then(questions => {
-            container.innerHTML = ''; if(!questions) return;
-            Object.keys(questions).forEach(qKey => {
-                let q = questions[qKey]; if (!q) return;
-                container.innerHTML += `<div class="question-edit-row"><label style="font-size:12px; color:var(--primary)">Question Text:</label><input type="text" id="edit_txt_${qKey}" value="${q.question}" style="margin-bottom:5px;"><div style="display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:5px;"><input type="text" id="edit_opt1_${qKey}" value="${q.opts ? (q.opts[0] || '') : ''}"><input type="text" id="edit_opt2_${qKey}" value="${q.opts 
-                    ? (q.opts[1] || '') : ''}"><input type="text" id="edit_opt3_${qKey}" value="${q.opts ? (q.opts[2] || '') : ''}"><input type="text" id="edit_opt4_${qKey}" value="${q.opts ? (q.opts[3] || '') : ''}"></div><div style="display:flex; justify-content:space-between;
-                    align-items:center;"><div><label style="display:inline; font-size:12px;">Correct (1-4): </label><input type="number" id="edit_corr_${qKey}" value="${q.correct || 1}" min="1" max="4" style="width:50px; padding:4px;
-                    display:inline;"></div><div><button class="view-btn" style="background:var(--success);" onclick="saveSingleQuestionChanges('${quizName}', '${qKey}')">Save</button> <button class="view-btn" style="background:var(--danger);" onclick="deleteSingleQuestion('${quizName}', '${qKey}')">Delete</button></div></div></div>`;
-            });
-        });
-    }
+    function deleteScoreFromSystem(id){if(confirm('Delete this score?'))fetch(`${firebaseBaseUrl}/scores/${id}.json`,{method:'DELETE'}).then(()=>loadScoresAdmin());}
 
-    function updateQuizTargetFromEditor() {
-        const newTarget = document.getElementById('fast-change-target-select').value;
-        fetch(`${firebaseBaseUrl}/quizzes/${currentEditingQuizName}/target.json`, { method: 'PUT', body: JSON.stringify(newTarget) }).then(() => { alert('🟢 Target updated successfully!'); loadQuizzesAdminSection(); });
-    }
+    function loadAgentScoresArchive(){switchView('quiz-dashboard');document.getElementById('quiz-section-title').innerText="Results Archive";document.getElementById('active-quiz-area').classList.add('hidden');fetch(`${firebaseBaseUrl}/scores.json`).then(r=>r.json()).then(scores=>{const list=document.getElementById('available-quizzes-list');list.innerHTML='';if(!scores){list.innerHTML='<div class="info-card">Your archive is empty.</div>';return;}let h=`<div class="table-wrap"><table class="data-table"><thead><tr><th>Quiz</th><th>Score</th><th>Date</th></tr></thead><tbody>`;let hasArchive=false;Object.keys(scores).forEach(id=>{let s=scores[id];if(s&&(s.username===currentUser.fullName||s.username===currentUser.username)){hasArchive=true;h+=`<tr><td>${s.quizName}</td><td><span class="score-badge">${s.score}</span></td><td style="color:var(--text-muted);font-size:12px;">${s.timestamp}</td></tr>`;}});list.innerHTML=hasArchive?h+'</tbody></table></div>':'<div class="info-card">No completed quizzes found.</div>';});}
 
-    function addSingleQuestionFast() {
-        const txt = document.getElementById('fast-q-text').value.trim(); const o1 = document.getElementById('fast-q-opt1').value.trim(); const o2 
-            = document.getElementById('fast-q-opt2').value.trim(); const o3 = document.getElementById('fast-q-opt3').value.trim(); const o4 = document.getElementById('fast-q-opt4').value.trim(); const corr = document.getElementById('fast-q-correct').value.trim();
-        if(!txt || !o1 || !o2 || !corr) return alert('Please complete basic question info!');
-        let newQ = { question: txt, opts: [o1, o2, o3, o4], correct: parseInt(corr) };
-        fetch(`${firebaseBaseUrl}/quizzes/${currentEditingQuizName}/questions.json`, { method: 'POST', body: JSON.stringify(newQ) }).then(() => { alert('⚡ Question inserted successfully!'); ['fast-q-text','fast-q-opt1','fast-q-opt2','fast-q-opt3','fast-q-opt4','fast-q-correct'].forEach(id => document.getElementById(id).value = ''); openQuestionsEditor(currentEditingQuizName); });
-    }
-
-    function saveSingleQuestionChanges(quizName, qKey) {
-        let updatedQ = { question: document.getElementById(`edit_txt_${qKey}`).value.trim(), opts: [ document.getElementById(`edit_opt1_${qKey}`).value.trim(), document.getElementById(`edit_opt2_${qKey}`).value.trim(), document.getElementById(`edit_opt3_${qKey}`).value.trim(), document.getElementById(`edit_opt4_${qKey}`).value.trim() ], correct: parseInt(document.getElementById(`edit_corr_${qKey}`).value.trim()) };
-        fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions/${qKey}.json`, { method: 'PUT', body: JSON.stringify(updatedQ) }).then(() => { alert('🟢 Saved!'); openQuestionsEditor(quizName); });
-    }
-
-    function deleteSingleQuestion(quizName, qKey) { if(confirm('Delete this question permanently?')) fetch(`${firebaseBaseUrl}/quizzes/${quizName}/questions/${qKey}.json`, { method: 'DELETE' }).then(() => openQuestionsEditor(quizName));
-    }
-
-    function deleteQuizCompletely(name) {
-        if(confirm(`⚠️ Delete quiz [ ${name} ] entirely?`)) { fetch(`${firebaseBaseUrl}/quizzes/${name}.json`, { method: 'DELETE' }).then(() => loadQuizzesAdminSection());
-        }
-    }
-
-    // -----------------------------------------------------------------------------
-    // AGENT HUB: SCHEDULE/BREAK/KPI (LIVE) & QUIZZES
-    // -----------------------------------------------------------------------------
-    function viewAgentSchedule() {
-        switchView('info-display-box');
-        document.getElementById('info-box-title').innerText = "🗓️ Your Weekly Schedule (Live from Sheet)";
-        let nameKey = currentUser.fullName.trim().toLowerCase();
-        if(!liveSchedules[nameKey]) { document.getElementById('info-content-area').innerHTML = `<div class="info-card" style="color:var(--danger)">No schedule found for [ ${currentUser.fullName} ] in the live Google Sheet.
-            Or the sheet is not linked yet.</div>`; return; }
-        
-        let s = liveSchedules[nameKey];
-        const todayStr = daysMap[new Date().getDay()]; 
-        document.getElementById('info-content-area').innerHTML = `
-            <table class="data-table" style="width:100%">
-                <thead><tr><th>Sunday</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th><th>Saturday</th></tr></thead>
-                <tbody><tr>
-                    <td class="${s.sunday.toLowerCase().includes('off')?'off-day':'work-day'} ${todayStr==='sunday'?'current-day-highlight':''}">${s.sunday}</td>
-                    <td class="${s.monday.toLowerCase().includes('off')?'off-day':'work-day'} ${todayStr==='monday'?'current-day-highlight':''}">${s.monday}</td>
-   
-                 <td class="${s.tuesday.toLowerCase().includes('off')?'off-day':'work-day'} ${todayStr==='tuesday'?'current-day-highlight':''}">${s.tuesday}</td>
-                    <td class="${s.wednesday.toLowerCase().includes('off')?'off-day':'work-day'} ${todayStr==='wednesday'?'current-day-highlight':''}">${s.wednesday}</td>
-                    <td class="${s.thursday.toLowerCase().includes('off')?'off-day':'work-day'} ${todayStr==='thursday'?'current-day-highlight':''}">${s.thursday}</td>
-                    <td class="${s.friday.toLowerCase().includes('off')?'off-day':'work-day'} ${todayStr==='friday'?'current-day-highlight':''}">${s.friday}</td>
-               
-     <td class="${s.saturday.toLowerCase().includes('off')?'off-day':'work-day'} ${todayStr==='saturday'?'current-day-highlight':''}">${s.saturday}</td>
-                </tr></tbody>
-            </table><p style="text-align:center;
-            margin-top:10px; font-size:12px; color:#854d0e;">(Current day is highlighted in yellow 🌟)</p>`;
-    }
-
-    function viewAgentBreaks() {
-        switchView('info-display-box'); document.getElementById('info-box-title').innerText = "Your Scheduled Break Time (Live)";
-        let nameKey = currentUser.fullName.trim().toLowerCase(); let b = liveBreaks[nameKey];
-        document.getElementById('info-content-area').innerHTML = b ? `<div class="info-card" style="color:var(--success)"><i class="fa-solid fa-mug-hot"></i> <b>Break Time:</b> ${b}</div>` : '<div class="info-card">No break time assigned for your name in Sheet 2 yet.</div>';
-    }
-
-    function loadQuizzesForAgent() {
-        switchView('quiz-dashboard'); document.getElementById('active-quiz-area').classList.add('hidden');
- 
-        fetch(`${firebaseBaseUrl}/quizzes.json`).then(res => res.json()).then(quizzes => {
-            const list = document.getElementById('available-quizzes-list'); list.innerHTML = '';
-            if(!quizzes) { list.innerHTML = 'No quizzes available for you currently.';
-                return; }
-            Object.keys(quizzes).forEach(name => {
-                let q = quizzes[name]; if (!q) return;
-                let tgt = q.target;
-                if(tgt === 'all' || tgt === currentUser.username || tgt === `ACC_${currentUser.accountName}`) {
-                 
-                    list.innerHTML += `<div class="info-card" style="margin-bottom:10px; text-align:left; display:flex; justify-content:space-between; align-items:center;"><span style="font-weight:bold; color:var(--primary);"><i class="fa-solid fa-file-pen"></i> ${name}</span><button onclick="startQuizForAgent('${name}')" style="width:auto; margin:0; padding:8px 15px;">Start Quiz 🚀</button></div>`;
-                }
-            });
-        });
-    }
-
-    function startQuizForAgent(name) {
-        activeQuizName = name;
-        fetch(`${firebaseBaseUrl}/quizzes/${name}/questions.json`).then(res => res.json()).then(qs => {
-            if(!qs) return alert('This quiz is empty!');
-            activeQuizQuestions = Object.values(qs);
-            document.getElementById('active-quiz-title').innerText = name;
-            const container = document.getElementById('quiz-questions-container'); container.innerHTML = '';
-            document.getElementById('submit-quiz-btn').style.display = 'block'; document.getElementById('close-quiz-btn').classList.add('hidden');
-
-            activeQuizQuestions.forEach((q, i) => {
-   
-                if (!q) return;
-                let h = `<div style="background:white; padding:15px; margin-bottom:15px; border-radius:8px; border:2px solid #e2e8f0;"><p style="margin-top:0; font-size:16px; color:var(--text); font-weight:bold;">Q${i+1}: ${q.question}</p>`;
-                if(q.opts) { q.opts.forEach((o, oi) => { if(o) h += `<label class="option-label" id="label_${i}_${oi+1}"><input type="radio" name="q_${i}" value="${oi+1}"> ${o}</label>`;
-                }); }
-                container.innerHTML += h + `</div>`;
-            });
-            document.getElementById('active-quiz-area').classList.remove('hidden');
-        });
-    }
-
-    function submitQuizAnswers() {
-        let score = 0;
-        let detailsArr = [];
-        activeQuizQuestions.forEach((q, i) => {
-            if (!q) return;
-            const sel = document.querySelector(`input[name="q_${i}"]:checked`);
-            let safeText = q.question.replace(/\|/g, '-').replace(/\./g, ' '); 
-            if(sel && sel.value == q.correct) { score++; detailsArr.push(`${safeText} : Correct ✅`); } 
-            else { detailsArr.push(`${safeText} : ${sel ? 'Wrong ❌' : 
-                'Not Answered ⚠️'}`); }
-            document.querySelectorAll(`input[name="q_${i}"]`).forEach(el => el.disabled = true);
-        });
-        let res = `${score} / ${activeQuizQuestions.length}`;
-        let scorePayload = { username: currentUser.fullName || currentUser.username, hrId: currentUser.hrId ||
-            'Not Set', account: currentUser.accountName || '-', quizName: activeQuizName, score: res, details: detailsArr.join(" | "), timestamp: new Date().toLocaleString() };
-        fetch(`${firebaseBaseUrl}/scores.json`, { method: 'POST', body: JSON.stringify(scorePayload) })
-        .then(() => { alert(`Quiz Submitted! Score: ${res}`); document.getElementById('submit-quiz-btn').style.display = 'none'; document.getElementById('close-quiz-btn').classList.remove('hidden'); });
-    }
-
-    // -----------------------------------------------------------------------------
-    // RESULTS & EXPORT
-    // -----------------------------------------------------------------------------
-    function loadScoresAdmin() {
-        fetch(`${firebaseBaseUrl}/scores.json`).then(res => res.json()).then(scores => {
-            globalScoresData = scores;
-            const filterSelect = document.getElementById('admin-quiz-filter');
-            if (filterSelect) {
-                let uniqueQuizzes = new Set();
-  
-                if(scores) { Object.values(scores).forEach(s => { if(s && s.quizName) uniqueQuizzes.add(s.quizName); }); }
-                let opts = `<option value="ALL_QUIZZES">All Quizzes</option>`;
-                uniqueQuizzes.forEach(q => { opts += `<option value="${q.replace(/"/g, '&quot;')}">${q}</option>`; });
-                filterSelect.innerHTML = opts;
-            }
- 
-            filterScoresTable();
-        });
-    }
-
-    function filterScoresTable() {
-        const tbody = document.getElementById('admin-scores-list');
-        tbody.innerHTML = '';
-        if(!globalScoresData) { tbody.innerHTML = '<tr><td colspan="8">No results recorded yet.</td></tr>'; return;
-        }
-        
-        const filterVal = document.getElementById('admin-quiz-filter').value ||
-            "ALL_QUIZZES";
-        let hasData = false;
-        Object.keys(globalScoresData).forEach(id => {
-            let score = globalScoresData[id]; if (!score) return; 
-            if(filterVal === "ALL_QUIZZES" || score.quizName === filterVal) {
-                hasData = true;
-                let detailsHtml = score.details ? score.details.split(' | ').map(p => `<div class="details-row">${p}</div>`).join('') : 'No details';
-        
-                tbody.innerHTML += `<tr><td><b>${score.username}</b></td><td>${score.hrId}</td><td>${score.account}</td><td>${score.quizName}</td><td><span class="badge-score">${score.score}</span></td><td><button class="view-btn" onclick="document.getElementById('det_${id}').classList.toggle('hidden')">View Details</button><div id="det_${id}" class="details-container hidden">${detailsHtml}</div><span style="display:none;" class="excel-details-export">${score.details||''}</span></td><td><small>${score.timestamp}</small></td><td><button class="view-btn" style="background:var(--danger);" onclick="deleteScoreFromSystem('${id}')">Delete</button></td></tr>`;
-            }
-        });
-        if(!hasData) tbody.innerHTML = `<tr><td colspan="8">No matching records found.</td></tr>`;
-    }
-
-    function deleteScoreFromSystem(id) { if(confirm('Delete this score?')) fetch(`${firebaseBaseUrl}/scores/${id}.json`, { method: 'DELETE' }).then(() => loadScoresAdmin());
-    }
-
-    function loadAgentScoresArchive() {
-        switchView('quiz-dashboard'); document.getElementById('active-quiz-area').classList.add('hidden');
-        fetch(`${firebaseBaseUrl}/scores.json`).then(res => res.json()).then(scores => {
-            const list = document.getElementById('available-quizzes-list'); list.innerHTML = '';
-            if(!scores) { list.innerHTML = 'Your archive is empty.'; return; }
-            let h = `<table class="data-table" style="width:100%"><thead><tr><th>Quiz Name</th><th>Score</th><th>Date</th></tr></thead><tbody>`;
-            let hasArchive = false;
-            Object.keys(scores).forEach(id => {
-          
-                let s = scores[id];
-                if (s && (s.username === currentUser.fullName || s.username === currentUser.username)) {
-                    hasArchive = true; h += `<tr><td>${s.quizName}</td><td><span class="badge-score">${s.score}</span></td><td>${s.timestamp}</td></tr>`;
-                }
-            });
-           
-            list.innerHTML = hasArchive ? h + `</tbody></table>` : 'No completed quiz history found.';
-        });
-    }
-
-    function triggerExcelExport() {
-        let tableClone = document.getElementById('admin-scores-table').cloneNode(true);
-        let detailCells = tableClone.querySelectorAll('td:nth-child(6)');
-        detailCells.forEach(cell => { let exportSpan = cell.querySelector('.excel-details-export'); if(exportSpan) cell.innerText = exportSpan.innerText; });
-        tableClone.querySelectorAll('tr').forEach(row => { if(row.children.length > 7) row.removeChild(row.children[7]); });
-        const wb = XLSX.utils.table_to_book(tableClone, { sheet: "Results" });
-        XLSX.writeFile(wb, "HydePark_Results.xlsx");
-    }
+    function triggerExcelExport(){let tableClone=document.getElementById('admin-scores-table').cloneNode(true);tableClone.querySelectorAll('td:nth-child(6)').forEach(cell=>{let exportSpan=cell.querySelector('.excel-details-export');if(exportSpan)cell.innerText=exportSpan.innerText;});tableClone.querySelectorAll('tr').forEach(row=>{if(row.children.length>7)row.removeChild(row.children[7]);});const wb=XLSX.utils.table_to_book(tableClone,{sheet:"Results"});XLSX.writeFile(wb,"Quatro_Results.xlsx");}
 </script>
 </body>
 </html>
