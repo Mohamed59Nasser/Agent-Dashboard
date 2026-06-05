@@ -1,4 +1,6 @@
+bash
 
+cat > /tmp/part1.html << 'EOF'
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
@@ -12,7 +14,7 @@
 <style>
 :root{--gold:#C8A96E;--gold-light:#E8D4A8;--gold-dark:#9A7A45;--bg:#0A0A0A;--bg2:#111111;--bg3:#1A1A1A;--bg4:#222222;--bg5:#2A2A2A;--border:rgba(200,169,110,.18);--border2:rgba(200,169,110,.4);--text:#F5F0E8;--text2:#A89880;--text3:#6B6055;--success:#4CAF7D;--danger:#E05C5C;--warning:#D4A843;--info:#5B9BD5;--rb:#E05C5C;}
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s; position: relative; padding-bottom: 80px;}3s;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s;}
 .hidden{display:none!important;}
 .section-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;color:var(--gold);margin-bottom:4px;}
 .section-sub{font-size:13px;color:var(--text3);margin-bottom:24px;}
@@ -267,13 +269,15 @@ select{cursor:pointer;}select option{background:var(--bg3);}
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:var(--bg2);}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
-footer{position:absolute; bottom:0; left:0; width:100%; text-align:center; padding:20px; font-size:11px; color:var(--text3); letter-spacing:2px; text-transform:uppercase; border-top:1px solid var(--border); background:var(--bg); z-index:100;}1px solid var(--border);margin-top:40px;}
+footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;border-top:1px solid var(--border);margin-top:40px;}
 #wt-name{font-family:'Cormorant Garamond',serif;font-size:19px;color:var(--text);}
 #wt-sub{font-size:12px;color:var(--text3);}
 </style>
 </head>
 <body>
+  bash
 
+cat >> /tmp/part1.html << 'EOF'
 
 <!-- THEME BAR -->
 <div class="theme-bar">
@@ -637,7 +641,9 @@ footer{position:absolute; bottom:0; left:0; width:100%; text-align:center; paddi
 </div>
 
 <footer>Developed by Mohamed Nasser · Quattro Operations</footer>
+bash
 
+cat >> /tmp/part1.html << 'JSEOF'
 <script>
 const FB="https://agent-system-01-default-rtdb.firebaseio.com";
 let liveSchedules={},liveBreaks={},liveKPIData={};
