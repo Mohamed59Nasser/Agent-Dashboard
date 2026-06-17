@@ -275,10 +275,6 @@ footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);letter-s
 </style>
 </head>
 <body>
-  bash
-
-cat >> /tmp/part1.html << 'EOF'
-
 <!-- THEME BAR -->
 <div class="theme-bar">
   <div class="theme-panel" id="theme-panel">
@@ -446,7 +442,7 @@ cat >> /tmp/part1.html << 'EOF'
 <!-- ADMIN DASHBOARD -->
 <div id="admin-dashboard" class="hidden">
   <h2 class="section-title">Control Panel</h2>
-
+  <p class="section-sub">Quattro Operations Management</p>
   <div class="admin-tabs" id="admin-tabs-container">
     <button class="tab-btn" id="tab-btn-users" onclick="switchAdminTab('tab-users',this);loadUsersAdmin();">👥 Users</button>
     <button class="tab-btn" id="tab-btn-comms" onclick="switchAdminTab('tab-comms',this);loadAdminComms();">💬 Communications<span class="tab-badge" id="tab-badge-comms">0</span></button>
@@ -640,10 +636,7 @@ cat >> /tmp/part1.html << 'EOF'
   </div>
 </div>
 
-
-bash
-
-cat >> /tmp/part1.html << 'JSEOF'
+<footer>Developed by Mohamed Nasser · Quattro Operations</footer>
 <script>
 const FB="https://agent-system-01-default-rtdb.firebaseio.com";
 let liveSchedules={},liveBreaks={},liveKPIData={};
@@ -756,7 +749,7 @@ function goHome(){
   if(['admin','leader','quality'].includes(currentUser.role))switchView('admin-dashboard');
   else switchView('agent-hub');
 }
-function logout(){localStorage.removeItem('currentUser');currentUser=null;[agentPollInterval,adminChatInterval,notifPollInterval].forEach(i=>{if(i)clearInterval(i);});agentPollInterval=null;adminChatInterval=null;notifPollInterval=null;document.getElementById('main-container').style.display='none';document.getElementById('auth-box').style.display='flex';document.getElementById('top-navbar').style.display='none';['agent-hub','info-display-box','quiz-dashboard','admin-dashboard','agent-profile'].forEach(id=>document.getElementById(id).classList.add('hidden'));document.getElementById('login-username').value='';document.getElementById('login-password').value='';}
+function logout(){localStorage.removeItem('currentUser');currentUser=null;[agentPollInterval,adminChatInterval,notifPollInterval].forEach(i=>{if(i)clearInterval(i);});document.getElementById('main-container').style.display='none';document.getElementById('auth-box').style.display='flex';document.getElementById('top-navbar').style.display='none';['agent-hub','info-display-box','quiz-dashboard','admin-dashboard','agent-profile'].forEach(id=>document.getElementById(id).classList.add('hidden'));}
 function switchAdminTab(tabId,btn){document.querySelectorAll('.admin-tab-content').forEach(el=>el.classList.add('hidden'));document.querySelectorAll('.tab-btn').forEach(el=>el.classList.remove('active'));document.getElementById(tabId).classList.remove('hidden');if(btn)btn.classList.add('active');if(adminChatInterval){clearInterval(adminChatInterval);adminChatInterval=null;}}
 function switchAgentTab(tab){
   document.getElementById('act-chat').classList.toggle('active',tab==='chat');
