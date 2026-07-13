@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
@@ -509,7 +510,7 @@ footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);letter-s
         <div class="form-group" style="margin:0;"><label>Send To</label><select id="ann-target"><option value="all">All Employees</option><option value="agents">Agents Only</option><option value="leaders">Leaders Only</option><option value="quality">Quality Team</option></select></div>
         <div class="form-group" style="margin:0;"><label>Priority</label><select id="ann-priority"><option value="normal">Normal 📢</option><option value="high">Urgent 🚨</option><option value="info">Info ℹ️</option></select></div>
       </div>
-      <button class="btn primary" onclick="sendAnnouncement()" style="max-width:200px;"><i class="fa-solid fa-paper-plane"></i> Send</button>
+      <button class="btn btn-primary" onclick="sendAnnouncement()" style="max-width:200px;"><i class="fa-solid fa-paper-plane"></i> Send</button>
     </div>
     <h4 style="font-size:12px;color:var(--text2);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;">Sent Announcements</h4>
     <div id="admin-announce-feed" class="ann-feed"></div>
@@ -636,7 +637,6 @@ footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);letter-s
 </div>
 
 <footer>Developed by Mohamed Nasser · Quattro Operations</footer>
-
 <script>
 const FB="https://agent-system-01-default-rtdb.firebaseio.com";
 let liveSchedules={},liveBreaks={},liveKPIData={};
@@ -838,7 +838,6 @@ function createNewConvo(){
   const chatKey=`convos_${currentUser.username}`;
   fetch(`${FB}/${chatKey}/${convoKey}.json`,{method:'PUT',body:JSON.stringify({recipient,subject,createdAt:new Date().toLocaleString(),messages:{}})}).then(()=>{document.getElementById('new-convo-modal').classList.add('hidden');document.getElementById('new-convo-subject').value='';activeAgentConvoKey=convoKey;loadAgentConvoList();openAgentConvo(convoKey);});
 }
-
 async function sendAgentMsg(){
   if(!activeAgentConvoKey){alert("Select or start a conversation first.");return;}
   const text=document.getElementById('agent-chat-msg').value.trim();
@@ -919,7 +918,6 @@ function openAdminConvo(uname,ckey){
   };
   fetchAdminConvo();adminChatInterval=setInterval(fetchAdminConvo,4000);
 }
-
 async function sendAdminReply(){
   if(!activeAdminChatUser||!activeAgentConvoKey)return;
   const text=document.getElementById('admin-chat-input').value.trim();
@@ -1021,41 +1019,101 @@ function markAllNotifsRead(){
 }
 
 // ── AI ──
-function askGemini(){
-  const input=document.getElementById('gemini-input');
-  const q=input.value.trim();
-  if(!q)return;
-  const box=document.getElementById('gemini-chat-box');
-  box.innerHTML+=`<div class="bubble b-sent"><span class="b-sender">You</span>${q}</div>`;
-  input.value='';
-  box.scrollTop=box.scrollHeight;
-  const apiKey="YOUR_GEMINI_API_KEY";
-  if(apiKey==="YOUR_GEMINI_API_KEY"){
-    setTimeout(()=>{
-      box.innerHTML+=`<div class="bubble b-recv"><span class="b-sender">AI</span>Add your Gemini API key in the code to enable AI.</div>`;
-      box.scrollTop=box.scrollHeight;
-    }, 500);
+function askGemini(){const input=document.getElementById('gemini-input');const q=input.value.trim();if(!q)return;const box=document.getElementById('gemini-chat-box');box.innerHTML+=`<div class="bubble b-sent"><span class="b-sender">You</span>${q}</div>`;input.value='';box.scrollTop=box.scrollHeight;const apiKey="YOUR_GEMINI_API_KEY";if(apiKey==="YOUR_GEMINI_API_KEY"){setTimeout(()=>{box.innerHTML+=`<div class="bubble b-recv"><span class="b-sender">AI</span>Add your Gemini API key in the code to enable AI.</div>`;box.scrollTop=box.scrollHeight;},700);return;}fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:`Quattro Operations AI: ${q}`}]}]})}).then(r=>r.json()).then(d=>{const reply=d.candidates[0].content.parts[0].text;box.innerHTML+=`<div class="bubble b-recv"><span class="b-sender">AI</span>${reply.replace(/\n/g,'<br>')}</div>`;box.scrollTop=box.scrollHeight;}).catch(()=>{box.innerHTML+=`<div class="bubble b-recv" style="border-color:var(--danger);">Connection failed.</div>`;box.scrollTop=box.scrollHeight;});}
+
+// ── DASHBOARD SETUP ──
+function setupDashboardPermissions(){
+  if(!currentUser)return;
+  localStorage.setItem('currentUser',JSON.stringify(currentUser));
+  const badge=document.getElementById('user-role-badge');badge.className='role-badge';
+  document.getElementById('nav-profile-wrap').style.display='none';
+  loadDropdownTargets();
+  if(!currentUser.phone||!currentUser.email){switchView('agent-profile');return;}
+  if(['admin','leader','quality'].includes(currentUser.role)){
+    const show=(id,v)=>{const el=document.getElementById(id);if(el)el.style.display=v?'block':'none';};
+    show('tab-btn-users',currentUser.role==='admin'||currentUser.role==='leader');
+    show('tab-btn-comms',true);show('tab-btn-announce',true);
+    show('tab-btn-schedules',currentUser.role==='admin'||currentUser.role==='leader');
+    show('tab-btn-kpi',currentUser.role==='admin'||currentUser.role==='leader');
+    show('tab-btn-quizzes',currentUser.role==='admin'||currentUser.role==='quality');
+    show('tab-btn-results',true);show('tab-btn-gemini',true);
+    document.getElementById('admin-only-add-user').classList.toggle('hidden',currentUser.role!=='admin');
+    if(currentUser.role==='admin'){badge.innerText='Admin';badge.classList.add('badge-admin');switchAdminTab('tab-users',document.getElementById('tab-btn-users'));loadUsersAdmin();}
+    else if(currentUser.role==='leader'){badge.innerText='Leader';badge.classList.add('badge-leader');switchAdminTab('tab-comms',document.getElementById('tab-btn-comms'));loadAdminComms();}
+    else{badge.innerText='Quality';badge.classList.add('badge-quality');switchAdminTab('tab-quizzes',document.getElementById('tab-btn-quizzes'));loadQuizzesAdminSection();}
+    switchView('admin-dashboard');
+    notifPollInterval=setInterval(loadAdminComms,10000);
+  }else{
+    badge.innerText='Agent';badge.classList.add('badge-agent');
+    document.getElementById('wt-name').innerText=currentUser.fullName;
+    document.getElementById('nav-profile-wrap').style.display='block';
+    switchView('agent-hub');
+    notifPollInterval=setInterval(()=>{updateNavBadge();loadAgentNotificationsBadge();},15000);
   }
 }
 
-// ── STUBS FOR MISSING FUNCTIONS (Add your business logic here) ──
-function setupDashboardPermissions() {}
-function loadQuizzesForAgent() {}
-function loadAgentScoresArchive() {}
-function viewAgentSchedule() {}
-function viewAgentBreaks() {}
-function loadUsersAdmin() {}
-function loadQuizzesAdminSection() {}
-function loadScoresAdmin() {}
-function addConfirmedUser() {}
-function saveUserEdit() {}
-function closeEditUserModal() { document.getElementById('edit-user-modal').classList.add('hidden'); }
-function addQuizQuestionAdmin() {}
-function updateQuizTargetFromEditor() {}
-function addSingleQuestionFast() {}
-function filterScoresTable() {}
-function triggerExcelExport() {}
+// ── USERS ──
+function loadUsersAdmin(){
+  if(currentUser.role!=='admin'&&currentUser.role!=='leader')return;
+  const fa=document.getElementById('filter-account').value.trim().toLowerCase();const fs=document.getElementById('filter-status').value;
+  fetch(`${FB}/users.json`).then(r=>r.json()).then(users=>{
+    globalUsersList=users||{};const tbody=document.getElementById('admin-users-list');tbody.innerHTML='';
+    if(!users){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text3);">No users.</td></tr>';return;}
+    Object.keys(users).forEach(uKey=>{let u=users[uKey];if(!u)return;
+      let accMatch=!fa||(u.accountName&&u.accountName.toLowerCase().includes(fa));let stMatch=fs==='all'||u.status===fs;
+      if(accMatch&&stMatch){
+        let stHtml=u.status==='pending'?'<span class="status-badge st-pending">Pending</span>':'<span class="status-badge st-active">Active</span>';
+        let actHtml='';
+        if(u.status==='pending'&&(currentUser.role==='admin'||currentUser.role==='leader')){actHtml+=`<button class="action-btn s" onclick="approveUser('${u.username}')"><i class="fa-solid fa-check"></i> Approve</button> `;if(currentUser.role==='admin')actHtml+=`<button class="action-btn d" onclick="deleteUser('${u.username}')"><i class="fa-solid fa-xmark"></i></button>`;}
+        else if(currentUser.role==='admin'){actHtml+=`<button class="action-btn" onclick="openEditUserModal('${u.username}')"><i class="fa-solid fa-pen"></i></button> <button class="action-btn d" onclick="deleteUser('${u.username}')"><i class="fa-solid fa-trash"></i></button>`;}
+        else actHtml='<span style="color:var(--text3);font-size:11px;">Admin only</span>';
+        const rc={'admin':'badge-admin','leader':'badge-leader','quality':'badge-quality','agent':'badge-agent'}[u.role]||'';
+        tbody.innerHTML+=`<tr><td><strong>${u.fullName||'—'}</strong><br><small style="color:var(--text3);">HR:${u.hrId||'—'} · ${u.phone||'No phone'} · ${u.email||'No email'}</small></td><td><code style="color:var(--gold);font-size:12px;">${u.username}</code></td><td>${u.accountName||'—'}</td><td><span class="status-badge ${rc}" style="text-transform:capitalize;">${u.role}</span></td><td>${stHtml}</td><td>${actHtml}</td></tr>`;
+      }
+    });
+  });
+}
+function addConfirmedUser(){const name=document.getElementById('dir-name').value.trim();const user=document.getElementById('dir-user').value.trim().toLowerCase();const pass=document.getElementById('dir-pass').value.trim();const acc=document.getElementById('dir-acc').value.trim();const role=document.getElementById('dir-role').value;const hrid=document.getElementById('dir-hrid').value.trim();if(!name||!user||!pass||!acc)return alert('Fill all fields!');fetch(`${FB}/users/${user}.json`,{method:'PUT',body:JSON.stringify({fullName:name,username:user,password:pass,role,accountName:acc,status:"approved",phone:"",email:"",hrId:hrid})}).then(()=>{alert('Added!');['dir-name','dir-user','dir-pass','dir-acc','dir-hrid'].forEach(id=>document.getElementById(id).value='');loadUsersAdmin();loadDropdownTargets();});}
+function approveUser(un){fetch(`${FB}/users/${un}/status.json`,{method:'PUT',body:JSON.stringify("approved")}).then(()=>{loadUsersAdmin();loadDropdownTargets();});}
+function deleteUser(un){if(confirm(`Delete [${un}]?`))fetch(`${FB}/users/${un}.json`,{method:'DELETE'}).then(()=>{loadUsersAdmin();loadDropdownTargets();});}
+function openEditUserModal(un){const u=globalUsersList[un];if(!u)return;document.getElementById('edit-orig-username').value=un;document.getElementById('edit-fullname').value=u.fullName||'';document.getElementById('edit-hrid').value=u.hrId||'';document.getElementById('edit-account').value=u.accountName||'';document.getElementById('edit-role').value=u.role||'agent';document.getElementById('edit-phone').value=u.phone||'';document.getElementById('edit-email').value=u.email||'';document.getElementById('edit-password').value=u.password||'';document.getElementById('edit-user-modal').classList.remove('hidden');}
+function closeEditUserModal(){document.getElementById('edit-user-modal').classList.add('hidden');}
+function saveUserEdit(){const un=document.getElementById('edit-orig-username').value;const u=globalUsersList[un];const pw=document.getElementById('edit-password').value.trim();if(!pw)return alert('Password required!');let upd={...u,fullName:document.getElementById('edit-fullname').value.trim(),hrId:document.getElementById('edit-hrid').value.trim(),accountName:document.getElementById('edit-account').value.trim(),role:document.getElementById('edit-role').value,phone:document.getElementById('edit-phone').value.trim(),email:document.getElementById('edit-email').value.trim(),password:pw};fetch(`${FB}/users/${un}.json`,{method:'PUT',body:JSON.stringify(upd)}).then(()=>{alert('Updated!');closeEditUserModal();loadUsersAdmin();});}
 
+function loadDropdownTargets(){fetch(`${FB}/users.json`).then(r=>r.json()).then(users=>{const s1=document.getElementById('q-target-select'),s2=document.getElementById('fast-change-target-select');let opts='<option value="draft">Hidden Draft</option><option value="all">All Employees</option>';let accs=new Set();if(users)Object.values(users).forEach(u=>{if(u&&u.accountName)accs.add(u.accountName);});if(accs.size){opts+=`<optgroup label="By Campaign">`;accs.forEach(a=>opts+=`<option value="ACC_${a}">Campaign: ${a}</option>`);opts+=`</optgroup>`;}if(s1)s1.innerHTML=opts;if(s2)s2.innerHTML=opts;});}
+
+// ── QUIZZES ──
+function addQuizQuestionAdmin(){const qn=document.getElementById('q-quizname').value.trim();const tg=document.getElementById('q-target-select').value;const tx=document.getElementById('q-text').value.trim();const o1=document.getElementById('q-opt1').value.trim();const o2=document.getElementById('q-opt2').value.trim();const o3=document.getElementById('q-opt3').value.trim();const o4=document.getElementById('q-opt4').value.trim();const cr=document.getElementById('q-correct').value.trim();if(!qn||!tx||!o1||!o2||!cr)return alert('Complete all fields!');fetch(`${FB}/quizzes/${qn}/questions.json`,{method:'POST',body:JSON.stringify({question:tx,opts:[o1,o2,o3,o4],correct:parseInt(cr)})}).then(()=>fetch(`${FB}/quizzes/${qn}/target.json`,{method:'PUT',body:JSON.stringify(tg)})).then(()=>{alert('Saved!');['q-text','q-opt1','q-opt2','q-opt3','q-opt4','q-correct'].forEach(id=>document.getElementById(id).value='');loadQuizzesAdminSection();});}
+function loadQuizzesAdminSection(){fetch(`${FB}/quizzes.json`).then(r=>r.json()).then(quizzes=>{const tbody=document.getElementById('admin-quizzes-control-list');tbody.innerHTML='';if(!quizzes){tbody.innerHTML='<tr><td colspan="3" style="text-align:center;color:var(--text3);">No quizzes.</td></tr>';return;}Object.keys(quizzes).forEach(name=>{let q=quizzes[name];if(!q)return;let td=q.target==='draft'?'<span class="status-badge st-draft">Draft</span>':q.target==='all'?'<span class="status-badge st-active">All</span>':`<span class="status-badge st-active">${q.target.replace('ACC_','')}</span>`;tbody.innerHTML+=`<tr><td><strong>${name}</strong></td><td>${td}</td><td><button class="action-btn p" onclick="viewQuizQuestions('${name}')"><i class="fa-solid fa-eye"></i></button> <button class="action-btn s" onclick="openQuestionsEditor('${name}')"><i class="fa-solid fa-pen"></i></button> <button class="action-btn d" onclick="deleteQuizCompletely('${name}')"><i class="fa-solid fa-trash"></i></button></td></tr>`;});});}
+function viewQuizQuestions(qn){document.getElementById('view-quiz-title').innerText=qn;const c=document.getElementById('viewer-questions-list');c.innerHTML='<p style="color:var(--text3)">Loading...</p>';document.getElementById('quiz-viewer-container').classList.remove('hidden');document.getElementById('questions-editor-container').classList.add('hidden');fetch(`${FB}/quizzes/${qn}/questions.json`).then(r=>r.json()).then(qs=>{c.innerHTML='';if(!qs){c.innerHTML='<p style="color:var(--text3)">No questions.</p>';return;}Object.values(qs).forEach((q,i)=>{if(!q)return;let oh='';if(q.opts)q.opts.forEach((o,j)=>{let ok=(j+1)==q.correct;oh+=`<div style="padding:7px 11px;margin:4px 0;border-radius:6px;font-size:13px;${ok?'background:rgba(76,175,125,.1);color:var(--success);border:1px solid rgba(76,175,125,.3);font-weight:600;':'background:var(--bg4);color:var(--text3);border:1px solid var(--border);'}">${j+1}. ${o}${ok?' ✓':''}</div>`;});c.innerHTML+=`<div class="viewer-q"><p style="font-weight:600;color:var(--text);margin:0 0 8px;">Q${i+1}: ${q.question}</p>${oh}</div>`;});});}
+function openQuestionsEditor(qn){currentEditingQuizName=qn;document.getElementById('current-editing-quiz-title').innerText=qn;const c=document.getElementById('individual-questions-list');c.innerHTML='<p style="color:var(--text3)">Loading...</p>';document.getElementById('questions-editor-container').classList.remove('hidden');document.getElementById('quiz-viewer-container').classList.add('hidden');fetch(`${FB}/quizzes/${qn}/target.json`).then(r=>r.json()).then(tg=>{if(tg)document.getElementById('fast-change-target-select').value=tg;});fetch(`${FB}/quizzes/${qn}/questions.json`).then(r=>r.json()).then(qs=>{c.innerHTML='';if(!qs)return;Object.keys(qs).forEach(key=>{let q=qs[key];if(!q)return;c.innerHTML+=`<div class="q-edit-row"><label>Question</label><input type="text" id="et_${key}" value="${q.question}" style="margin-bottom:8px;"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;"><input type="text" id="eo1_${key}" value="${q.opts?q.opts[0]||'':''}"><input type="text" id="eo2_${key}" value="${q.opts?q.opts[1]||'':''}"><input type="text" id="eo3_${key}" value="${q.opts?q.opts[2]||'':''}"><input type="text" id="eo4_${key}" value="${q.opts?q.opts[3]||'':''}"></div><div style="display:flex;justify-content:space-between;align-items:center;"><div><label style="display:inline;font-size:11px;">Correct(1-4): </label><input type="number" id="ec_${key}" value="${q.correct||1}" min="1" max="4" style="width:50px;display:inline;padding:5px;"></div><div><button class="action-btn s" onclick="saveSingleQ('${qn}','${key}')">Save</button> <button class="action-btn d" onclick="deleteSingleQ('${qn}','${key}')">Delete</button></div></div></div>`;});});}
+function updateQuizTargetFromEditor(){const nt=document.getElementById('fast-change-target-select').value;fetch(`${FB}/quizzes/${currentEditingQuizName}/target.json`,{method:'PUT',body:JSON.stringify(nt)}).then(()=>{alert('Updated!');loadQuizzesAdminSection();});}
+function addSingleQuestionFast(){const tx=document.getElementById('fast-q-text').value.trim();const o1=document.getElementById('fast-q-opt1').value.trim();const o2=document.getElementById('fast-q-opt2').value.trim();const o3=document.getElementById('fast-q-opt3').value.trim();const o4=document.getElementById('fast-q-opt4').value.trim();const cr=document.getElementById('fast-q-correct').value.trim();if(!tx||!o1||!o2||!cr)return alert('Fill fields!');fetch(`${FB}/quizzes/${currentEditingQuizName}/questions.json`,{method:'POST',body:JSON.stringify({question:tx,opts:[o1,o2,o3,o4],correct:parseInt(cr)})}).then(()=>{alert('Added!');['fast-q-text','fast-q-opt1','fast-q-opt2','fast-q-opt3','fast-q-opt4','fast-q-correct'].forEach(id=>document.getElementById(id).value='');openQuestionsEditor(currentEditingQuizName);});}
+function saveSingleQ(qn,key){let u={question:document.getElementById(`et_${key}`).value.trim(),opts:[document.getElementById(`eo1_${key}`).value.trim(),document.getElementById(`eo2_${key}`).value.trim(),document.getElementById(`eo3_${key}`).value.trim(),document.getElementById(`eo4_${key}`).value.trim()],correct:parseInt(document.getElementById(`ec_${key}`).value.trim())};fetch(`${FB}/quizzes/${qn}/questions/${key}.json`,{method:'PUT',body:JSON.stringify(u)}).then(()=>{alert('Saved!');openQuestionsEditor(qn);});}
+function deleteSingleQ(qn,key){if(confirm('Delete?'))fetch(`${FB}/quizzes/${qn}/questions/${key}.json`,{method:'DELETE'}).then(()=>openQuestionsEditor(qn));}
+function deleteQuizCompletely(n){if(confirm(`Delete [${n}]?`))fetch(`${FB}/quizzes/${n}.json`,{method:'DELETE'}).then(()=>loadQuizzesAdminSection());}
+
+// ── SCHEDULE/BREAKS ──
+function viewAgentSchedule(){
+  switchView('info-display-box');document.getElementById('info-box-title').innerText="Weekly Schedule (Live)";
+  let nk=currentUser.fullName.trim().toLowerCase();
+  if(!liveSchedules[nk]){document.getElementById('info-content-area').innerHTML=`<div class="info-card" style="border-left-color:var(--danger)">No schedule for <strong>${currentUser.fullName}</strong>.</div>`;return;}
+  let s=liveSchedules[nk];const td=daysMap[new Date().getDay()];
+  document.getElementById('info-content-area').innerHTML=`<div class="table-wrap"><table class="data-table"><thead><tr><th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th></tr></thead><tbody><tr>${daysMap.map(d=>`<td class="${s[d]&&s[d].toLowerCase().includes('off')?'off-day':'work-day'}${td===d?' cur-day':''}">${s[d]||'—'}</td>`).join('')}</tr></tbody></table></div><p style="text-align:center;margin-top:10px;font-size:12px;color:var(--gold);">Today highlighted in gold</p>`;
+}
+function viewAgentBreaks(){switchView('info-display-box');document.getElementById('info-box-title').innerText="Break Time";let nk=currentUser.fullName.trim().toLowerCase();let b=liveBreaks[nk];document.getElementById('info-content-area').innerHTML=b?`<div class="info-card"><i class="fa-solid fa-mug-hot" style="color:var(--gold)"></i> <strong style="color:var(--gold)">Break:</strong> <span style="font-size:18px;">${b}</span></div>`:'<div class="info-card">No break assigned yet.</div>';}
+
+// ── AGENT QUIZZES ──
+function loadQuizzesForAgent(){switchView('quiz-dashboard');document.getElementById('quiz-section-title').innerText="Available Quizzes";document.getElementById('active-quiz-area').classList.add('hidden');fetch(`${FB}/quizzes.json`).then(r=>r.json()).then(quizzes=>{const list=document.getElementById('available-quizzes-list');list.innerHTML='';if(!quizzes){list.innerHTML='<div class="info-card">No quizzes.</div>';return;}let found=false;Object.keys(quizzes).forEach(name=>{let q=quizzes[name];if(!q)return;if(q.target==='all'||q.target===currentUser.username||q.target===`ACC_${currentUser.accountName}`){found=true;list.innerHTML+=`<div class="quiz-item"><div><i class="fa-solid fa-file-pen" style="color:var(--gold);margin-right:8px;"></i><strong>${name}</strong></div><button class="btn btn-primary" onclick="startQuizForAgent('${name}')" style="width:auto;padding:8px 16px;"><i class="fa-solid fa-rocket"></i> Start</button></div>`;}});if(!found)list.innerHTML='<div class="info-card">No quizzes for you now.</div>';});}
+function startQuizForAgent(name){activeQuizName=name;fetch(`${FB}/quizzes/${name}/questions.json`).then(r=>r.json()).then(qs=>{if(!qs)return alert('Empty quiz!');activeQuizQuestions=Object.values(qs);document.getElementById('active-quiz-title').innerText=name;const c=document.getElementById('quiz-questions-container');c.innerHTML='';document.getElementById('submit-quiz-btn').style.display='flex';document.getElementById('close-quiz-btn').classList.add('hidden');activeQuizQuestions.forEach((q,i)=>{if(!q)return;let h=`<div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;"><p style="font-weight:600;color:var(--text);font-size:15px;margin-bottom:10px;">Q${i+1}: ${q.question}</p>`;if(q.opts)q.opts.forEach((o,j)=>{if(o)h+=`<label class="option-label"><input type="radio" name="q_${i}" value="${j+1}" style="width:auto;margin-right:8px;"> ${o}</label>`;});c.innerHTML+=h+'</div>';});document.getElementById('active-quiz-area').classList.remove('hidden');});}
+function submitQuizAnswers(){let score=0;let da=[];activeQuizQuestions.forEach((q,i)=>{if(!q)return;const sel=document.querySelector(`input[name="q_${i}"]:checked`);let st=q.question.replace(/\|/g,'-').replace(/\./g,' ');if(sel&&sel.value==q.correct){score++;da.push(`${st} : Correct ✅`);}else da.push(`${st} : ${sel?'Wrong ❌':'Not Answered ⚠️'}`);document.querySelectorAll(`input[name="q_${i}"]`).forEach(el=>el.disabled=true);});let res=`${score} / ${activeQuizQuestions.length}`;fetch(`${FB}/scores.json`,{method:'POST',body:JSON.stringify({username:currentUser.fullName||currentUser.username,hrId:currentUser.hrId||'Not Set',account:currentUser.accountName||'-',quizName:activeQuizName,score:res,details:da.join(" | "),timestamp:new Date().toLocaleString()})}).then(()=>{alert(`Submitted! Score: ${res}`);document.getElementById('submit-quiz-btn').style.display='none';document.getElementById('close-quiz-btn').classList.remove('hidden');});}
+
+// ── RESULTS ──
+function loadScoresAdmin(){fetch(`${FB}/scores.json`).then(r=>r.json()).then(scores=>{globalScoresData=scores;const fs=document.getElementById('admin-quiz-filter');if(fs){let uq=new Set();if(scores)Object.values(scores).forEach(s=>{if(s&&s.quizName)uq.add(s.quizName);});let opts=`<option value="ALL_QUIZZES">All Quizzes</option>`;uq.forEach(q=>{opts+=`<option value="${q.replace(/"/g,'&quot;')}">${q}</option>`;});fs.innerHTML=opts;}filterScoresTable();});}
+function filterScoresTable(){const tbody=document.getElementById('admin-scores-list');tbody.innerHTML='';if(!globalScoresData){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--text3);">No results.</td></tr>';return;}const fv=document.getElementById('admin-quiz-filter').value||"ALL_QUIZZES";let has=false;Object.keys(globalScoresData).forEach(id=>{let s=globalScoresData[id];if(!s)return;if(fv==="ALL_QUIZZES"||s.quizName===fv){has=true;let dh=s.details?s.details.split(' | ').map(p=>`<div style="margin:2px 0;">${p}</div>`).join(''):'—';tbody.innerHTML+=`<tr><td><strong>${s.username}</strong></td><td style="color:var(--text3);">${s.hrId}</td><td>${s.account}</td><td>${s.quizName}</td><td><span class="score-badge">${s.score}</span></td><td><button class="action-btn" onclick="document.getElementById('det_${id}').classList.toggle('hidden')">Details</button><div id="det_${id}" class="details-container hidden">${dh}</div><span style="display:none" class="xd">${s.details||''}</span></td><td style="color:var(--text3);font-size:12px;">${s.timestamp}</td><td><button class="action-btn d" onclick="delScore('${id}')"><i class="fa-solid fa-trash"></i></button></td></tr>`;}});if(!has)tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--text3);">No records.</td></tr>';}
+function delScore(id){if(confirm('Delete?'))fetch(`${FB}/scores/${id}.json`,{method:'DELETE'}).then(()=>loadScoresAdmin());}
+function loadAgentScoresArchive(){switchView('quiz-dashboard');document.getElementById('quiz-section-title').innerText="Results Archive";document.getElementById('active-quiz-area').classList.add('hidden');fetch(`${FB}/scores.json`).then(r=>r.json()).then(scores=>{const list=document.getElementById('available-quizzes-list');list.innerHTML='';if(!scores){list.innerHTML='<div class="info-card">Archive empty.</div>';return;}let h=`<div class="table-wrap"><table class="data-table"><thead><tr><th>Quiz</th><th>Score</th><th>Date</th></tr></thead><tbody>`;let has=false;Object.keys(scores).forEach(id=>{let s=scores[id];if(s&&(s.username===currentUser.fullName||s.username===currentUser.username)){has=true;h+=`<tr><td>${s.quizName}</td><td><span class="score-badge">${s.score}</span></td><td style="color:var(--text3);font-size:12px;">${s.timestamp}</td></tr>`;}});list.innerHTML=has?h+'</tbody></table></div>':'<div class="info-card">No completed quizzes.</div>';});}
+function triggerExcelExport(){let tc=document.getElementById('admin-scores-table').cloneNode(true);tc.querySelectorAll('td:nth-child(6)').forEach(c=>{let x=c.querySelector('.xd');if(x)c.innerText=x.innerText;});tc.querySelectorAll('tr').forEach(r=>{if(r.children.length>7)r.removeChild(r.children[7]);});const wb=XLSX.utils.table_to_book(tc,{sheet:"Results"});XLSX.writeFile(wb,"Quattro_Results.xlsx");}
 </script>
 </body>
 </html>
