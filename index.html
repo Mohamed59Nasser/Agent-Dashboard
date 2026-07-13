@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
@@ -575,9 +574,20 @@ footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);letter-s
 
   <!-- RESULTS -->
   <div id="tab-results" class="admin-tab-content hidden">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
-      <div style="display:flex;align-items:center;gap:10px;"><label style="font-size:11px;color:var(--text3);letter-spacing:.8px;text-transform:uppercase;white-space:nowrap;">Filter</label><select id="admin-quiz-filter" onchange="filterScoresTable()" style="width:auto;min-width:170px;"></select></div>
-      <button class="btn btn-success" onclick="triggerExcelExport()" style="width:auto;padding:9px 18px;"><i class="fa-solid fa-file-excel"></i> Export</button>
+    <div class="filter-bar" style="display:flex; gap:12px; background:var(--bg4); border:1px solid var(--border); padding:12px 16px; border-radius:10px; margin-bottom:14px; flex-wrap:wrap; align-items:center;">
+      <div style="display:flex; align-items:center; gap:8px; flex:1; min-width:180px;">
+        <label style="font-size:11px; color:var(--text3); margin:0; white-space:nowrap;">Quiz Name:</label>
+        <select id="admin-quiz-filter" onchange="filterScoresTable()" style="padding:8px 12px; background:var(--bg3); border:1px solid var(--border); border-radius:6px; color:var(--text); font-size:13px; width:100%;"></select>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px; flex:1; min-width:180px;">
+        <label style="font-size:11px; color:var(--text3); margin:0; white-space:nowrap;">Agent Name:</label>
+        <input type="text" id="admin-agent-filter" onkeyup="filterScoresTable()" placeholder="Search Agent..." style="padding:8px 12px; background:var(--bg3); border:1px solid var(--border); border-radius:6px; color:var(--text); font-size:13px; width:100%;">
+      </div>
+      <div style="display:flex; align-items:center; gap:8px; flex:1; min-width:180px;">
+        <label style="font-size:11px; color:var(--text3); margin:0; white-space:nowrap;">Account:</label>
+        <input type="text" id="admin-account-filter" onkeyup="filterScoresTable()" placeholder="Search Account..." style="padding:8px 12px; background:var(--bg3); border:1px solid var(--border); border-radius:6px; color:var(--text); font-size:13px; width:100%;">
+      </div>
+      <button class="btn btn-success" onclick="triggerExcelExport()" style="width:auto; padding:10px 20px; margin:0;"><i class="fa-solid fa-file-excel"></i> Export</button>
     </div>
     <div class="table-wrap"><table class="data-table" id="admin-scores-table"><thead><tr><th>Employee</th><th>HR ID</th><th>Account</th><th>Quiz</th><th>Score</th><th>Details</th><th>Date</th><th></th></tr></thead><tbody id="admin-scores-list"></tbody></table></div>
   </div>
@@ -861,7 +871,7 @@ function pollAgentUnread(){loadAgentConvoList();}
 function loadAdminComms(){
   fetch(`${FB}/users.json`).then(r=>r.json()).then(users=>{
     const list=document.getElementById('admin-chat-list');list.innerHTML='';
-    if(!users){list.innerHTML='<p style="padding:14px;color:var(--text3);font-size:12px;">No users.</p>';return;}
+    if(!users){list.innerHTML='<p style="padding:14px;color:var(--text3);font-size:12px;">Loading...</p>';return;}
     let totalUnread=0;
     const userKeys=Object.keys(users).filter(u=>users[u]&&users[u].role==='agent');
     let pending=userKeys.length;if(pending===0){list.innerHTML='<p style="padding:14px;color:var(--text3);font-size:12px;">No agent chats.</p>';return;}
@@ -1042,78 +1052,405 @@ function setupDashboardPermissions(){
     else if(currentUser.role==='leader'){badge.innerText='Leader';badge.classList.add('badge-leader');switchAdminTab('tab-comms',document.getElementById('tab-btn-comms'));loadAdminComms();}
     else{badge.innerText='Quality';badge.classList.add('badge-quality');switchAdminTab('tab-quizzes',document.getElementById('tab-btn-quizzes'));loadQuizzesAdminSection();}
     switchView('admin-dashboard');
-    notifPollInterval=setInterval(loadAdminComms,10000);
-  }else{
+  } else {
     badge.innerText='Agent';badge.classList.add('badge-agent');
-    document.getElementById('wt-name').innerText=currentUser.fullName;
     document.getElementById('nav-profile-wrap').style.display='block';
+    document.getElementById('wt-name').innerText=currentUser.fullName;
+    document.getElementById('wt-sub').innerText=`${currentUser.accountName || 'Quattro'} — Agent Portal`;
     switchView('agent-hub');
-    notifPollInterval=setInterval(()=>{updateNavBadge();loadAgentNotificationsBadge();},15000);
+    updateNavBadge();
   }
 }
 
-// ── USERS ──
-function loadUsersAdmin(){
-  if(currentUser.role!=='admin'&&currentUser.role!=='leader')return;
-  const fa=document.getElementById('filter-account').value.trim().toLowerCase();const fs=document.getElementById('filter-status').value;
-  fetch(`${FB}/users.json`).then(r=>r.json()).then(users=>{
-    globalUsersList=users||{};const tbody=document.getElementById('admin-users-list');tbody.innerHTML='';
-    if(!users){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text3);">No users.</td></tr>';return;}
-    Object.keys(users).forEach(uKey=>{let u=users[uKey];if(!u)return;
-      let accMatch=!fa||(u.accountName&&u.accountName.toLowerCase().includes(fa));let stMatch=fs==='all'||u.status===fs;
-      if(accMatch&&stMatch){
-        let stHtml=u.status==='pending'?'<span class="status-badge st-pending">Pending</span>':'<span class="status-badge st-active">Active</span>';
-        let actHtml='';
-        if(u.status==='pending'&&(currentUser.role==='admin'||currentUser.role==='leader')){actHtml+=`<button class="action-btn s" onclick="approveUser('${u.username}')"><i class="fa-solid fa-check"></i> Approve</button> `;if(currentUser.role==='admin')actHtml+=`<button class="action-btn d" onclick="deleteUser('${u.username}')"><i class="fa-solid fa-xmark"></i></button>`;}
-        else if(currentUser.role==='admin'){actHtml+=`<button class="action-btn" onclick="openEditUserModal('${u.username}')"><i class="fa-solid fa-pen"></i></button> <button class="action-btn d" onclick="deleteUser('${u.username}')"><i class="fa-solid fa-trash"></i></button>`;}
-        else actHtml='<span style="color:var(--text3);font-size:11px;">Admin only</span>';
-        const rc={'admin':'badge-admin','leader':'badge-leader','quality':'badge-quality','agent':'badge-agent'}[u.role]||'';
-        tbody.innerHTML+=`<tr><td><strong>${u.fullName||'—'}</strong><br><small style="color:var(--text3);">HR:${u.hrId||'—'} · ${u.phone||'No phone'} · ${u.email||'No email'}</small></td><td><code style="color:var(--gold);font-size:12px;">${u.username}</code></td><td>${u.accountName||'—'}</td><td><span class="status-badge ${rc}" style="text-transform:capitalize;">${u.role}</span></td><td>${stHtml}</td><td>${actHtml}</td></tr>`;
-      }
+// ── USERS MANAGER FUNCTIONS ──
+function loadUsersAdmin() {
+  fetch(`${FB}/users.json`).then(r=>r.json()).then(users => {
+    globalUsersList = users || {};
+    const tbody = document.getElementById('admin-users-list');if(!tbody)return;
+    tbody.innerHTML = '';
+    const accFilter = document.getElementById('filter-account').value.toLowerCase().trim();
+    const statusFilter = document.getElementById('filter-status').value;
+    
+    Object.entries(globalUsersList).forEach(([username, u]) => {
+      if (!u) return;
+      if (accFilter && u.accountName && !u.accountName.toLowerCase().includes(accFilter)) return;
+      if (statusFilter !== 'all' && u.status !== statusFilter) return;
+      
+      const isPending = u.status === 'pending';
+      tbody.innerHTML += `<tr>
+        <td><strong>${u.fullName}</strong><br><small>${u.email || 'No Email'} | ${u.phone || 'No Phone'}</small></td>
+        <td>${username}</td>
+        <td>${u.accountName || '—'}</td>
+        <td><span class="role-badge badge-${u.role || 'agent'}">${u.role || 'agent'}</span></td>
+        <td><span class="status-badge ${isPending ? 'st-pending' : 'st-active'}">${u.status}</span></td>
+        <td>
+          <button class="action-btn p" onclick="openEditUserModal('${username}')"><i class="fa-solid fa-pen"></i></button>
+          ${isPending ? `<button class="action-btn s" onclick="approveUser('${username}')"><i class="fa-solid fa-check"></i></button>` : ''}
+          <button class="action-btn d" onclick="deleteUser('${username}')"><i class="fa-solid fa-trash"></i></button>
+        </td>
+      </tr>`;
     });
   });
 }
-function addConfirmedUser(){const name=document.getElementById('dir-name').value.trim();const user=document.getElementById('dir-user').value.trim().toLowerCase();const pass=document.getElementById('dir-pass').value.trim();const acc=document.getElementById('dir-acc').value.trim();const role=document.getElementById('dir-role').value;const hrid=document.getElementById('dir-hrid').value.trim();if(!name||!user||!pass||!acc)return alert('Fill all fields!');fetch(`${FB}/users/${user}.json`,{method:'PUT',body:JSON.stringify({fullName:name,username:user,password:pass,role,accountName:acc,status:"approved",phone:"",email:"",hrId:hrid})}).then(()=>{alert('Added!');['dir-name','dir-user','dir-pass','dir-acc','dir-hrid'].forEach(id=>document.getElementById(id).value='');loadUsersAdmin();loadDropdownTargets();});}
-function approveUser(un){fetch(`${FB}/users/${un}/status.json`,{method:'PUT',body:JSON.stringify("approved")}).then(()=>{loadUsersAdmin();loadDropdownTargets();});}
-function deleteUser(un){if(confirm(`Delete [${un}]?`))fetch(`${FB}/users/${un}.json`,{method:'DELETE'}).then(()=>{loadUsersAdmin();loadDropdownTargets();});}
-function openEditUserModal(un){const u=globalUsersList[un];if(!u)return;document.getElementById('edit-orig-username').value=un;document.getElementById('edit-fullname').value=u.fullName||'';document.getElementById('edit-hrid').value=u.hrId||'';document.getElementById('edit-account').value=u.accountName||'';document.getElementById('edit-role').value=u.role||'agent';document.getElementById('edit-phone').value=u.phone||'';document.getElementById('edit-email').value=u.email||'';document.getElementById('edit-password').value=u.password||'';document.getElementById('edit-user-modal').classList.remove('hidden');}
-function closeEditUserModal(){document.getElementById('edit-user-modal').classList.add('hidden');}
-function saveUserEdit(){const un=document.getElementById('edit-orig-username').value;const u=globalUsersList[un];const pw=document.getElementById('edit-password').value.trim();if(!pw)return alert('Password required!');let upd={...u,fullName:document.getElementById('edit-fullname').value.trim(),hrId:document.getElementById('edit-hrid').value.trim(),accountName:document.getElementById('edit-account').value.trim(),role:document.getElementById('edit-role').value,phone:document.getElementById('edit-phone').value.trim(),email:document.getElementById('edit-email').value.trim(),password:pw};fetch(`${FB}/users/${un}.json`,{method:'PUT',body:JSON.stringify(upd)}).then(()=>{alert('Updated!');closeEditUserModal();loadUsersAdmin();});}
-
-function loadDropdownTargets(){fetch(`${FB}/users.json`).then(r=>r.json()).then(users=>{const s1=document.getElementById('q-target-select'),s2=document.getElementById('fast-change-target-select');let opts='<option value="draft">Hidden Draft</option><option value="all">All Employees</option>';let accs=new Set();if(users)Object.values(users).forEach(u=>{if(u&&u.accountName)accs.add(u.accountName);});if(accs.size){opts+=`<optgroup label="By Campaign">`;accs.forEach(a=>opts+=`<option value="ACC_${a}">Campaign: ${a}</option>`);opts+=`</optgroup>`;}if(s1)s1.innerHTML=opts;if(s2)s2.innerHTML=opts;});}
-
-// ── QUIZZES ──
-function addQuizQuestionAdmin(){const qn=document.getElementById('q-quizname').value.trim();const tg=document.getElementById('q-target-select').value;const tx=document.getElementById('q-text').value.trim();const o1=document.getElementById('q-opt1').value.trim();const o2=document.getElementById('q-opt2').value.trim();const o3=document.getElementById('q-opt3').value.trim();const o4=document.getElementById('q-opt4').value.trim();const cr=document.getElementById('q-correct').value.trim();if(!qn||!tx||!o1||!o2||!cr)return alert('Complete all fields!');fetch(`${FB}/quizzes/${qn}/questions.json`,{method:'POST',body:JSON.stringify({question:tx,opts:[o1,o2,o3,o4],correct:parseInt(cr)})}).then(()=>fetch(`${FB}/quizzes/${qn}/target.json`,{method:'PUT',body:JSON.stringify(tg)})).then(()=>{alert('Saved!');['q-text','q-opt1','q-opt2','q-opt3','q-opt4','q-correct'].forEach(id=>document.getElementById(id).value='');loadQuizzesAdminSection();});}
-function loadQuizzesAdminSection(){fetch(`${FB}/quizzes.json`).then(r=>r.json()).then(quizzes=>{const tbody=document.getElementById('admin-quizzes-control-list');tbody.innerHTML='';if(!quizzes){tbody.innerHTML='<tr><td colspan="3" style="text-align:center;color:var(--text3);">No quizzes.</td></tr>';return;}Object.keys(quizzes).forEach(name=>{let q=quizzes[name];if(!q)return;let td=q.target==='draft'?'<span class="status-badge st-draft">Draft</span>':q.target==='all'?'<span class="status-badge st-active">All</span>':`<span class="status-badge st-active">${q.target.replace('ACC_','')}</span>`;tbody.innerHTML+=`<tr><td><strong>${name}</strong></td><td>${td}</td><td><button class="action-btn p" onclick="viewQuizQuestions('${name}')"><i class="fa-solid fa-eye"></i></button> <button class="action-btn s" onclick="openQuestionsEditor('${name}')"><i class="fa-solid fa-pen"></i></button> <button class="action-btn d" onclick="deleteQuizCompletely('${name}')"><i class="fa-solid fa-trash"></i></button></td></tr>`;});});}
-function viewQuizQuestions(qn){document.getElementById('view-quiz-title').innerText=qn;const c=document.getElementById('viewer-questions-list');c.innerHTML='<p style="color:var(--text3)">Loading...</p>';document.getElementById('quiz-viewer-container').classList.remove('hidden');document.getElementById('questions-editor-container').classList.add('hidden');fetch(`${FB}/quizzes/${qn}/questions.json`).then(r=>r.json()).then(qs=>{c.innerHTML='';if(!qs){c.innerHTML='<p style="color:var(--text3)">No questions.</p>';return;}Object.values(qs).forEach((q,i)=>{if(!q)return;let oh='';if(q.opts)q.opts.forEach((o,j)=>{let ok=(j+1)==q.correct;oh+=`<div style="padding:7px 11px;margin:4px 0;border-radius:6px;font-size:13px;${ok?'background:rgba(76,175,125,.1);color:var(--success);border:1px solid rgba(76,175,125,.3);font-weight:600;':'background:var(--bg4);color:var(--text3);border:1px solid var(--border);'}">${j+1}. ${o}${ok?' ✓':''}</div>`;});c.innerHTML+=`<div class="viewer-q"><p style="font-weight:600;color:var(--text);margin:0 0 8px;">Q${i+1}: ${q.question}</p>${oh}</div>`;});});}
-function openQuestionsEditor(qn){currentEditingQuizName=qn;document.getElementById('current-editing-quiz-title').innerText=qn;const c=document.getElementById('individual-questions-list');c.innerHTML='<p style="color:var(--text3)">Loading...</p>';document.getElementById('questions-editor-container').classList.remove('hidden');document.getElementById('quiz-viewer-container').classList.add('hidden');fetch(`${FB}/quizzes/${qn}/target.json`).then(r=>r.json()).then(tg=>{if(tg)document.getElementById('fast-change-target-select').value=tg;});fetch(`${FB}/quizzes/${qn}/questions.json`).then(r=>r.json()).then(qs=>{c.innerHTML='';if(!qs)return;Object.keys(qs).forEach(key=>{let q=qs[key];if(!q)return;c.innerHTML+=`<div class="q-edit-row"><label>Question</label><input type="text" id="et_${key}" value="${q.question}" style="margin-bottom:8px;"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;"><input type="text" id="eo1_${key}" value="${q.opts?q.opts[0]||'':''}"><input type="text" id="eo2_${key}" value="${q.opts?q.opts[1]||'':''}"><input type="text" id="eo3_${key}" value="${q.opts?q.opts[2]||'':''}"><input type="text" id="eo4_${key}" value="${q.opts?q.opts[3]||'':''}"></div><div style="display:flex;justify-content:space-between;align-items:center;"><div><label style="display:inline;font-size:11px;">Correct(1-4): </label><input type="number" id="ec_${key}" value="${q.correct||1}" min="1" max="4" style="width:50px;display:inline;padding:5px;"></div><div><button class="action-btn s" onclick="saveSingleQ('${qn}','${key}')">Save</button> <button class="action-btn d" onclick="deleteSingleQ('${qn}','${key}')">Delete</button></div></div></div>`;});});}
-function updateQuizTargetFromEditor(){const nt=document.getElementById('fast-change-target-select').value;fetch(`${FB}/quizzes/${currentEditingQuizName}/target.json`,{method:'PUT',body:JSON.stringify(nt)}).then(()=>{alert('Updated!');loadQuizzesAdminSection();});}
-function addSingleQuestionFast(){const tx=document.getElementById('fast-q-text').value.trim();const o1=document.getElementById('fast-q-opt1').value.trim();const o2=document.getElementById('fast-q-opt2').value.trim();const o3=document.getElementById('fast-q-opt3').value.trim();const o4=document.getElementById('fast-q-opt4').value.trim();const cr=document.getElementById('fast-q-correct').value.trim();if(!tx||!o1||!o2||!cr)return alert('Fill fields!');fetch(`${FB}/quizzes/${currentEditingQuizName}/questions.json`,{method:'POST',body:JSON.stringify({question:tx,opts:[o1,o2,o3,o4],correct:parseInt(cr)})}).then(()=>{alert('Added!');['fast-q-text','fast-q-opt1','fast-q-opt2','fast-q-opt3','fast-q-opt4','fast-q-correct'].forEach(id=>document.getElementById(id).value='');openQuestionsEditor(currentEditingQuizName);});}
-function saveSingleQ(qn,key){let u={question:document.getElementById(`et_${key}`).value.trim(),opts:[document.getElementById(`eo1_${key}`).value.trim(),document.getElementById(`eo2_${key}`).value.trim(),document.getElementById(`eo3_${key}`).value.trim(),document.getElementById(`eo4_${key}`).value.trim()],correct:parseInt(document.getElementById(`ec_${key}`).value.trim())};fetch(`${FB}/quizzes/${qn}/questions/${key}.json`,{method:'PUT',body:JSON.stringify(u)}).then(()=>{alert('Saved!');openQuestionsEditor(qn);});}
-function deleteSingleQ(qn,key){if(confirm('Delete?'))fetch(`${FB}/quizzes/${qn}/questions/${key}.json`,{method:'DELETE'}).then(()=>openQuestionsEditor(qn));}
-function deleteQuizCompletely(n){if(confirm(`Delete [${n}]?`))fetch(`${FB}/quizzes/${n}.json`,{method:'DELETE'}).then(()=>loadQuizzesAdminSection());}
-
-// ── SCHEDULE/BREAKS ──
-function viewAgentSchedule(){
-  switchView('info-display-box');document.getElementById('info-box-title').innerText="Weekly Schedule (Live)";
-  let nk=currentUser.fullName.trim().toLowerCase();
-  if(!liveSchedules[nk]){document.getElementById('info-content-area').innerHTML=`<div class="info-card" style="border-left-color:var(--danger)">No schedule for <strong>${currentUser.fullName}</strong>.</div>`;return;}
-  let s=liveSchedules[nk];const td=daysMap[new Date().getDay()];
-  document.getElementById('info-content-area').innerHTML=`<div class="table-wrap"><table class="data-table"><thead><tr><th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th></tr></thead><tbody><tr>${daysMap.map(d=>`<td class="${s[d]&&s[d].toLowerCase().includes('off')?'off-day':'work-day'}${td===d?' cur-day':''}">${s[d]||'—'}</td>`).join('')}</tr></tbody></table></div><p style="text-align:center;margin-top:10px;font-size:12px;color:var(--gold);">Today highlighted in gold</p>`;
+function approveUser(username) {
+  fetch(`${FB}/users/${username}/status.json`, { method: 'PUT', body: JSON.stringify('approved') }).then(() => loadUsersAdmin());
 }
-function viewAgentBreaks(){switchView('info-display-box');document.getElementById('info-box-title').innerText="Break Time";let nk=currentUser.fullName.trim().toLowerCase();let b=liveBreaks[nk];document.getElementById('info-content-area').innerHTML=b?`<div class="info-card"><i class="fa-solid fa-mug-hot" style="color:var(--gold)"></i> <strong style="color:var(--gold)">Break:</strong> <span style="font-size:18px;">${b}</span></div>`:'<div class="info-card">No break assigned yet.</div>';}
+function deleteUser(username) {
+  if (confirm(`Delete user ${username}?`)) {
+    fetch(`${FB}/users/${username}.json`, { method: 'DELETE' }).then(() => loadUsersAdmin());
+  }
+}
+function addConfirmedUser() {
+  const name = document.getElementById('dir-name').value.trim();
+  const user = document.getElementById('dir-user').value.trim().toLowerCase();
+  const pass = document.getElementById('dir-pass').value.trim();
+  const acc = document.getElementById('dir-acc').value.trim();
+  const hrid = document.getElementById('dir-hrid').value.trim();
+  const role = document.getElementById('dir-role').value;
+  if(!name || !user || !pass) return alert("Fill required fields!");
+  fetch(`${FB}/users/${user}.json`, {
+    method: 'PUT',
+    body: JSON.stringify({ fullName: name, username: user, password: pass, role: role, accountName: acc, hrId: hrid, status: 'approved', phone:'', email:'' })
+  }).then(() => {
+    alert("User added!");
+    document.getElementById('dir-name').value='';
+    document.getElementById('dir-user').value='';
+    document.getElementById('dir-pass').value='';
+    loadUsersAdmin();
+  });
+}
+function openEditUserModal(username) {
+  const u = globalUsersList[username];if (!u) return;
+  document.getElementById('edit-orig-username').value = username;
+  document.getElementById('edit-fullname').value = u.fullName || '';
+  document.getElementById('edit-hrid').value = u.hrId || '';
+  document.getElementById('edit-account').value = u.accountName || '';
+  document.getElementById('edit-role').value = u.role || 'agent';
+  document.getElementById('edit-phone').value = u.phone || '';
+  document.getElementById('edit-email').value = u.email || '';
+  document.getElementById('edit-password').value = u.password || '';
+  document.getElementById('edit-user-modal').classList.remove('hidden');
+}
+function closeEditUserModal() { document.getElementById('edit-user-modal').classList.add('hidden'); }
+function saveUserEdit() {
+  const username = document.getElementById('edit-orig-username').value;
+  const updated = {
+    fullName: document.getElementById('edit-fullname').value.trim(),
+    hrId: document.getElementById('edit-hrid').value.trim(),
+    accountName: document.getElementById('edit-account').value.trim(),
+    role: document.getElementById('edit-role').value,
+    phone: document.getElementById('edit-phone').value.trim(),
+    email: document.getElementById('edit-email').value.trim(),
+    password: document.getElementById('edit-password').value.trim(),
+    status: globalUsersList[username].status || 'approved'
+  };
+  fetch(`${FB}/users/${username}.json`, { method: 'PATCH', body: JSON.stringify(updated) }).then(() => {
+    closeEditUserModal();
+    loadUsersAdmin();
+  });
+}
+function loadDropdownTargets() {}
 
-// ── AGENT QUIZZES ──
-function loadQuizzesForAgent(){switchView('quiz-dashboard');document.getElementById('quiz-section-title').innerText="Available Quizzes";document.getElementById('active-quiz-area').classList.add('hidden');fetch(`${FB}/quizzes.json`).then(r=>r.json()).then(quizzes=>{const list=document.getElementById('available-quizzes-list');list.innerHTML='';if(!quizzes){list.innerHTML='<div class="info-card">No quizzes.</div>';return;}let found=false;Object.keys(quizzes).forEach(name=>{let q=quizzes[name];if(!q)return;if(q.target==='all'||q.target===currentUser.username||q.target===`ACC_${currentUser.accountName}`){found=true;list.innerHTML+=`<div class="quiz-item"><div><i class="fa-solid fa-file-pen" style="color:var(--gold);margin-right:8px;"></i><strong>${name}</strong></div><button class="btn btn-primary" onclick="startQuizForAgent('${name}')" style="width:auto;padding:8px 16px;"><i class="fa-solid fa-rocket"></i> Start</button></div>`;}});if(!found)list.innerHTML='<div class="info-card">No quizzes for you now.</div>';});}
-function startQuizForAgent(name){activeQuizName=name;fetch(`${FB}/quizzes/${name}/questions.json`).then(r=>r.json()).then(qs=>{if(!qs)return alert('Empty quiz!');activeQuizQuestions=Object.values(qs);document.getElementById('active-quiz-title').innerText=name;const c=document.getElementById('quiz-questions-container');c.innerHTML='';document.getElementById('submit-quiz-btn').style.display='flex';document.getElementById('close-quiz-btn').classList.add('hidden');activeQuizQuestions.forEach((q,i)=>{if(!q)return;let h=`<div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;"><p style="font-weight:600;color:var(--text);font-size:15px;margin-bottom:10px;">Q${i+1}: ${q.question}</p>`;if(q.opts)q.opts.forEach((o,j)=>{if(o)h+=`<label class="option-label"><input type="radio" name="q_${i}" value="${j+1}" style="width:auto;margin-right:8px;"> ${o}</label>`;});c.innerHTML+=h+'</div>';});document.getElementById('active-quiz-area').classList.remove('hidden');});}
-function submitQuizAnswers(){let score=0;let da=[];activeQuizQuestions.forEach((q,i)=>{if(!q)return;const sel=document.querySelector(`input[name="q_${i}"]:checked`);let st=q.question.replace(/\|/g,'-').replace(/\./g,' ');if(sel&&sel.value==q.correct){score++;da.push(`${st} : Correct ✅`);}else da.push(`${st} : ${sel?'Wrong ❌':'Not Answered ⚠️'}`);document.querySelectorAll(`input[name="q_${i}"]`).forEach(el=>el.disabled=true);});let res=`${score} / ${activeQuizQuestions.length}`;fetch(`${FB}/scores.json`,{method:'POST',body:JSON.stringify({username:currentUser.fullName||currentUser.username,hrId:currentUser.hrId||'Not Set',account:currentUser.accountName||'-',quizName:activeQuizName,score:res,details:da.join(" | "),timestamp:new Date().toLocaleString()})}).then(()=>{alert(`Submitted! Score: ${res}`);document.getElementById('submit-quiz-btn').style.display='none';document.getElementById('close-quiz-btn').classList.remove('hidden');});}
+// ── QUIZZES MANAGEMENT ──
+function loadQuizzesAdminSection() {
+  fetch(`${FB}/quizzes.json`).then(r=>r.json()).then(quizzes => {
+    const tbody = document.getElementById('admin-quizzes-control-list');if(!tbody)return;
+    tbody.innerHTML = '';if(!quizzes) return;
+    Object.entries(quizzes).forEach(([qName, qData]) => {
+      if(!qData) return;
+      tbody.innerHTML += `<tr>
+        <td><strong>${qName}</strong></td>
+        <td>${qData.target || 'all'}</td>
+        <td>
+          <button class="action-btn p" onclick="viewQuizAdmin('${qName}')"><i class="fa-solid fa-eye"></i></button>
+          <button class="action-btn s" onclick="openQuizEditor('${qName}')"><i class="fa-solid fa-pen"></i></button>
+          <button class="action-btn d" onclick="deleteQuizAdmin('${qName}')"><i class="fa-solid fa-trash"></i></button>
+        </td>
+      </tr>`;
+    });
+  });
+}
+function addQuizQuestionAdmin() {
+  const qName = document.getElementById('q-quizname').value.trim();
+  const target = document.getElementById('q-target-select').value;
+  const text = document.getElementById('q-text').value.trim();
+  const o1 = document.getElementById('q-opt1').value.trim();
+  const o2 = document.getElementById('q-opt2').value.trim();
+  const o3 = document.getElementById('q-opt3').value.trim();
+  const o4 = document.getElementById('q-opt4').value.trim();
+  const correct = parseInt(document.getElementById('q-correct').value);
+  
+  if(!qName || !text || !o1 || !o2) return alert("Fill quiz name, question, and options.");
+  const questionData = { text, options:[o1, o2, o3, o4], correct };
+  
+  fetch(`${FB}/quizzes/${qName}/questions.json`, { method: 'POST', body: JSON.stringify(questionData) }).then(() => {
+    fetch(`${FB}/quizzes/${qName}/target.json`, { method: 'PUT', body: JSON.stringify(target) }).then(() => {
+      alert("Question saved!");
+      document.getElementById('q-text').value = '';
+      document.getElementById('q-opt1').value = '';
+      document.getElementById('q-opt2').value = '';
+      document.getElementById('q-opt3').value = '';
+      document.getElementById('q-opt4').value = '';
+      loadQuizzesAdminSection();
+    });
+  });
+}
+function viewQuizAdmin(qName) {
+  fetch(`${FB}/quizzes/${qName}.json`).then(r=>r.json()).then(qData => {
+    document.getElementById('view-quiz-title').innerText = qName;
+    const container = document.getElementById('viewer-questions-list');
+    container.innerHTML = '';
+    if(qData && qData.questions) {
+      Object.values(qData.questions).forEach((q, idx) => {
+        container.innerHTML += `<div class="viewer-q">
+          <strong>Q${idx+1}: ${q.text}</strong>
+          <ul style="list-style:none; margin-top:6px; font-size:12px; color:var(--text2);">
+            ${q.options.map((o,i)=>`<li class="${i+1===q.correct?'t-ok':''}">${i+1}. ${o}</li>`).join('')}
+          </ul>
+        </div>`;
+      });
+    }
+    document.getElementById('quiz-viewer-container').classList.remove('hidden');
+  });
+}
+function openQuizEditor(qName) {
+  currentEditingQuizName = qName;
+  document.getElementById('current-editing-quiz-title').innerText = qName;
+  document.getElementById('questions-editor-container').classList.remove('hidden');
+  loadEditorQuestions(qName);
+}
+function loadEditorQuestions(qName) {
+  fetch(`${FB}/quizzes/${qName}.json`).then(r=>r.json()).then(qData => {
+    if(!qData) return;
+    document.getElementById('fast-change-target-select').value = qData.target || 'all';
+    const container = document.getElementById('individual-questions-list');
+    container.innerHTML = '';
+    if(qData.questions) {
+      Object.entries(qData.questions).forEach(([mkey, q]) => {
+        container.innerHTML += `<div class="q-edit-row">
+          <p><strong>${q.text}</strong></p>
+          <button class="action-btn d" style="margin-top:6px;" onclick="deleteQuestionFromQuiz('${mkey}')"><i class="fa-solid fa-trash"></i> Delete Question</button>
+        </div>`;
+      });
+    }
+  });
+}
+function deleteQuestionFromQuiz(mkey) {
+  if(confirm("Delete this question?")) {
+    fetch(`${FB}/quizzes/${currentEditingQuizName}/questions/${mkey}.json`, { method: 'DELETE' }).then(() => loadEditorQuestions(currentEditingQuizName));
+  }
+}
+function updateQuizTargetFromEditor() {
+  const t = document.getElementById('fast-change-target-select').value;
+  fetch(`${FB}/quizzes/${currentEditingQuizName}/target.json`, { method: 'PUT', body: JSON.stringify(t) }).then(() => {
+    alert("Target updated!");
+    loadQuizzesAdminSection();
+  });
+}
+function addSingleQuestionFast() {
+  const text = document.getElementById('fast-q-text').value.trim();
+  const o1 = document.getElementById('fast-q-opt1').value.trim();
+  const o2 = document.getElementById('fast-q-opt2').value.trim();
+  const o3 = document.getElementById('fast-q-opt3').value.trim();
+  const o4 = document.getElementById('fast-q-opt4').value.trim();
+  const correct = parseInt(document.getElementById('fast-q-correct').value);
+  if(!text || !o1 || !o2) return alert("Fill missing fields.");
+  fetch(`${FB}/quizzes/${currentEditingQuizName}/questions.json`, {
+    method: 'POST',
+    body: JSON.stringify({ text, options:[o1,o2,o3,o4], correct })
+  }).then(() => {
+    document.getElementById('fast-q-text').value='';
+    document.getElementById('fast-q-opt1').value='';
+    document.getElementById('fast-q-opt2').value='';
+    document.getElementById('fast-q-opt3').value='';
+    document.getElementById('fast-q-opt4').value='';
+    loadEditorQuestions(currentEditingQuizName);
+  });
+}
 
-// ── RESULTS ──
-function loadScoresAdmin(){fetch(`${FB}/scores.json`).then(r=>r.json()).then(scores=>{globalScoresData=scores;const fs=document.getElementById('admin-quiz-filter');if(fs){let uq=new Set();if(scores)Object.values(scores).forEach(s=>{if(s&&s.quizName)uq.add(s.quizName);});let opts=`<option value="ALL_QUIZZES">All Quizzes</option>`;uq.forEach(q=>{opts+=`<option value="${q.replace(/"/g,'&quot;')}">${q}</option>`;});fs.innerHTML=opts;}filterScoresTable();});}
-function filterScoresTable(){const tbody=document.getElementById('admin-scores-list');tbody.innerHTML='';if(!globalScoresData){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--text3);">No results.</td></tr>';return;}const fv=document.getElementById('admin-quiz-filter').value||"ALL_QUIZZES";let has=false;Object.keys(globalScoresData).forEach(id=>{let s=globalScoresData[id];if(!s)return;if(fv==="ALL_QUIZZES"||s.quizName===fv){has=true;let dh=s.details?s.details.split(' | ').map(p=>`<div style="margin:2px 0;">${p}</div>`).join(''):'—';tbody.innerHTML+=`<tr><td><strong>${s.username}</strong></td><td style="color:var(--text3);">${s.hrId}</td><td>${s.account}</td><td>${s.quizName}</td><td><span class="score-badge">${s.score}</span></td><td><button class="action-btn" onclick="document.getElementById('det_${id}').classList.toggle('hidden')">Details</button><div id="det_${id}" class="details-container hidden">${dh}</div><span style="display:none" class="xd">${s.details||''}</span></td><td style="color:var(--text3);font-size:12px;">${s.timestamp}</td><td><button class="action-btn d" onclick="delScore('${id}')"><i class="fa-solid fa-trash"></i></button></td></tr>`;}});if(!has)tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--text3);">No records.</td></tr>';}
-function delScore(id){if(confirm('Delete?'))fetch(`${FB}/scores/${id}.json`,{method:'DELETE'}).then(()=>loadScoresAdmin());}
-function loadAgentScoresArchive(){switchView('quiz-dashboard');document.getElementById('quiz-section-title').innerText="Results Archive";document.getElementById('active-quiz-area').classList.add('hidden');fetch(`${FB}/scores.json`).then(r=>r.json()).then(scores=>{const list=document.getElementById('available-quizzes-list');list.innerHTML='';if(!scores){list.innerHTML='<div class="info-card">Archive empty.</div>';return;}let h=`<div class="table-wrap"><table class="data-table"><thead><tr><th>Quiz</th><th>Score</th><th>Date</th></tr></thead><tbody>`;let has=false;Object.keys(scores).forEach(id=>{let s=scores[id];if(s&&(s.username===currentUser.fullName||s.username===currentUser.username)){has=true;h+=`<tr><td>${s.quizName}</td><td><span class="score-badge">${s.score}</span></td><td style="color:var(--text3);font-size:12px;">${s.timestamp}</td></tr>`;}});list.innerHTML=has?h+'</tbody></table></div>':'<div class="info-card">No completed quizzes.</div>';});}
-function triggerExcelExport(){let tc=document.getElementById('admin-scores-table').cloneNode(true);tc.querySelectorAll('td:nth-child(6)').forEach(c=>{let x=c.querySelector('.xd');if(x)c.innerText=x.innerText;});tc.querySelectorAll('tr').forEach(r=>{if(r.children.length>7)r.removeChild(r.children[7]);});const wb=XLSX.utils.table_to_book(tc,{sheet:"Results"});XLSX.writeFile(wb,"Quattro_Results.xlsx");}
+// ── AGENT ACTIONS & QUIZ RUNTIME ──
+function loadQuizzesForAgent() {
+  switchView('quiz-dashboard');
+  fetch(`${FB}/quizzes.json`).then(r=>r.json()).then(quizzes => {
+    const list = document.getElementById('available-quizzes-list');if(!list)return;
+    list.innerHTML = '';
+    if(!quizzes) { list.innerHTML = '<p style="color:var(--text3)">No quizzes available.</p>'; return; }
+    Object.entries(quizzes).forEach(([qName, qData]) => {
+      if(!qData || qData.target === 'draft') return;
+      list.innerHTML += `<div class="quiz-item">
+        <div><strong>${qName}</strong></div>
+        <button class="btn btn-primary" style="width:auto; padding:6px 14px;" onclick="startQuizForAgent('${qName}')">Take Quiz</button>
+      </div>`;
+    });
+  });
+}
+function startQuizForAgent(qName) {
+  activeQuizName = qName;
+  fetch(`${FB}/quizzes/${qName}.json`).then(r=>r.json()).then(qData => {
+    if(!qData || !qData.questions) return;
+    document.getElementById('active-quiz-title').innerText = qName;
+    const container = document.getElementById('quiz-questions-container');
+    container.innerHTML = '';
+    activeQuizQuestions = Object.values(qData.questions);
+    activeQuizQuestions.forEach((q, idx) => {
+      container.innerHTML += `<div class="card" style="margin-bottom:12px;">
+        <p style="margin-bottom:10px;"><strong>Q${idx+1}: ${q.text}</strong></p>
+        ${q.options.map((o, oi) => o ? `<label class="option-label"><input type="radio" name="q_${idx}" value="${oi+1}"> ${o}</label>` : '').join('')}
+      </div>`;
+    });
+    document.getElementById('active-quiz-area').classList.remove('hidden');
+  });
+}
+function submitQuizAnswers() {
+  let score = 0;let details = [];
+  activeQuizQuestions.forEach((q, idx) => {
+    const rads = document.getElementsByName(`q_${idx}`);let chosen = 0;
+    for(let r of rads) { if(r.checked) chosen = parseInt(r.value); }
+    if(chosen === q.correct) score++;
+    details.push(`Q${idx+1}:${chosen===q.correct?'Correct':'Wrong'}`);
+  });
+  const scoreData = {
+    username: currentUser.username, fullName: currentUser.fullName,
+    hrId: currentUser.hrId || '', accountName: currentUser.accountName || '',
+    quizName: activeQuizName, score: score, totalQuestions: activeQuizQuestions.length,
+    details: details.join(', '), timestamp: new Date().toLocaleString()
+  };
+  fetch(`${FB}/scores.json`, { method: 'POST', body: JSON.stringify(scoreData) }).then(() => {
+    alert(`Quiz Submitted! Your score: ${score} / ${activeQuizQuestions.length}`);
+    document.getElementById('active-quiz-area').classList.add('hidden');
+    loadQuizzesForAgent();
+  });
+}
+function loadAgentScoresArchive() {
+  switchView('info-display-box');document.getElementById('info-box-title').innerText = "🏆 Results Archive";
+  const c = document.getElementById('info-content-area');c.innerHTML = 'Loading...';
+  fetch(`${FB}/scores.json`).then(r=>r.json()).then(scores => {
+    c.innerHTML = '';
+    if(!scores) { c.innerHTML = '<p style="color:var(--text3)">No scores archived.</p>'; return; }
+    let found = false;
+    let tableHtml = `<table class="data-table"><thead><tr><th>Quiz Name</th><th>Score</th><th>Date</th></tr></thead><tbody>`;
+    Object.values(scores).forEach(s => {
+      if(s && s.username === currentUser.username) {
+        found = true;
+        tableHtml += `<tr><td><strong>${s.quizName}</strong></td><td><span class="score-badge">${s.score} / ${s.totalQuestions || s.total || 0}</span></td><td>${s.timestamp || s.date || ''}</td></tr>`;
+      }
+    });
+    tableHtml += `</tbody></table>`;
+    if(found) c.innerHTML = tableHtml;
+    else c.innerHTML = '<p style="color:var(--text3)">No quiz records found for you.</p>';
+  });
+}
+function viewAgentSchedule() {
+  switchView('info-display-box');document.getElementById('info-box-title').innerText = "📅 Weekly Schedule";
+  const c = document.getElementById('info-content-area');const nameKey = currentUser.fullName.toLowerCase().trim();
+  const sched = liveSchedules[nameKey];
+  if(!sched) { c.innerHTML = `<p style="color:var(--text3)">No schedule updated yet for ${currentUser.fullName}.</p>`; return; }
+  const todayIdx = new Date().getDay();
+  let html = `<table class="data-table"><thead><tr><th>Day</th><th>Shift</th></tr></thead><tbody>`;
+  daysMap.forEach((d, i) => {
+    const isToday = i === todayIdx;
+    html += `<tr class="${isToday ? 'cur-day' : ''}"><td><strong>${d.toUpperCase()}</strong></td><td class="${sched[d].toLowerCase().includes('off')?'off-day':'work-day'}">${sched[d]}</td></tr>`;
+  });
+  html += `</tbody></table>`;c.innerHTML = html;
+}
+function viewAgentBreaks() {
+  switchView('info-display-box');document.getElementById('info-box-title').innerText = "☕ Assigned Break Time";
+  const c = document.getElementById('info-content-area');const nameKey = currentUser.fullName.toLowerCase().trim();
+  const brk = liveBreaks[nameKey];
+  if(!brk) { c.innerHTML = `<p style="color:var(--text3)">No live break set for ${currentUser.fullName}.</p>`; return; }
+  c.innerHTML = `<div class="card" style="text-align:center;"><p style="font-size:12px; color:var(--text3); text-transform:uppercase;">Your Live Break Window</p><h2 style="color:var(--gold); margin-top:8px; font-family:'Cormorant Garamond', serif; font-size:32px;">${brk}</h2></div>`;
+}
+
+// ── RESULTS & ADVANCED FILTERING ──
+function loadScoresAdmin() {
+  fetch(`${FB}/scores.json`).then(r=>r.json()).then(data=>{
+    globalScoresData = data || {};
+    const quizFilter = document.getElementById('admin-quiz-filter');if(!quizFilter)return;
+    const currentSelected = quizFilter.value;
+    quizFilter.innerHTML = '<option value="all">All Quizzes</option>';
+    const quizzes = new Set();
+    Object.values(globalScoresData).forEach(s => { if(s && s.quizName) quizzes.add(s.quizName); });
+    quizzes.forEach(q => { quizFilter.innerHTML += `<option value="${q}">${q}</option>`; });
+    if (currentSelected) quizFilter.value = currentSelected;
+    filterScoresTable();
+  });
+}
+function filterScoresTable() {
+  const quizVal = document.getElementById('admin-quiz-filter').value;
+  const agentVal = document.getElementById('admin-agent-filter').value.toLowerCase().trim();
+  const accountVal = document.getElementById('admin-account-filter').value.toLowerCase().trim();
+  const tbody = document.getElementById('admin-scores-list');if(!tbody)return;
+  tbody.innerHTML = '';
+  
+  if (!globalScoresData || Object.keys(globalScoresData).length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text3);">No results found.</td></tr>';
+    return;
+  }
+  
+  Object.entries(globalScoresData).forEach(([key, score]) => {
+    if (!score) return;
+    const matchQuiz = (quizVal === 'all' || score.quizName === quizVal);
+    const matchAgent = (!agentVal || (score.fullName && score.fullName.toLowerCase().includes(agentVal)) || (score.username && score.username.toLowerCase().includes(agentVal)));
+    const matchAccount = (!accountVal || (score.accountName && score.accountName.toLowerCase().includes(accountVal)));
+    
+    if (matchQuiz && matchAgent && matchAccount) {
+      tbody.innerHTML += `<tr>
+        <td><strong>${score.fullName || score.username}</strong></td>
+        <td>${score.hrId || '—'}</td>
+        <td>${score.accountName || '—'}</td>
+        <td>${score.quizName || '—'}</td>
+        <td><span class="score-badge">${score.score} / ${score.totalQuestions || score.total || 0}</span></td>
+        <td><small class="details-container" style="display:inline-block; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${score.details || ''}">${score.details || '—'}</small></td>
+        <td>${score.date || score.timestamp || '—'}</td>
+        <td><button class="action-btn d" onclick="deleteScoreRecord('${key}')"><i class="fa-solid fa-trash"></i></button></td>
+      </tr>`;
+    }
+  });
+  
+  if (tbody.innerHTML === '') {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text3);">No matching results.</td></tr>';
+  }
+}
+function deleteScoreRecord(key) {
+  if (confirm("Are you sure you want to delete this score record?")) {
+    fetch(`${FB}/scores/${key}.json`, { method: 'DELETE' }).then(() => {
+      alert("Record deleted successfully.");
+      loadScoresAdmin();
+    });
+  }
+}
+function triggerExcelExport() {
+  if (!globalScoresData || Object.keys(globalScoresData).length === 0) return alert("No data to export.");
+  const quizVal = document.getElementById('admin-quiz-filter').value;
+  const agentVal = document.getElementById('admin-agent-filter').value.toLowerCase().trim();
+  const accountVal = document.getElementById('admin-account-filter').value.toLowerCase().trim();
+  
+  const rows = [];
+  Object.values(globalScoresData).forEach(score => {
+    if (!score) return;
+    const matchQuiz = (quizVal === 'all' || score.quizName === quizVal);
+    const matchAgent = (!agentVal || (score.fullName && score.fullName.toLowerCase().includes(agentVal)) || (score.username && score.username.toLowerCase().includes(agentVal)));
+    const matchAccount = (!accountVal || (score.accountName && score.accountName.toLowerCase().includes(accountVal)));
+    
+    if (matchQuiz && matchAgent && matchAccount) {
+      rows.push({
+        "Employee Name": score.fullName || score.username,
+        "HR ID": score.hrId || '—',
+        "Account": score.accountName || '—',
+        "Quiz Name": score.quizName || '—',
+        "Score": `${score.score} / ${score.totalQuestions || score.total || 0}`,
+        "Details": score.details || '—',
+        "Date Completed": score.date || score.timestamp || '—'
+      });
+    }
+  });
+  
+  if (rows.length === 0) return alert("No rows matching filter criteria to export.");
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Quiz Results");
+  XLSX.writeFile(wb, "Quattro_Filtered_Quiz_Results.xlsx");
+}
 </script>
 </body>
 </html>
