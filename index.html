@@ -262,16 +262,15 @@
     <!-- MAIN SCRIPT CONTROLLER -->
     <script>
         // CONFIGURATION NOTE: Replace with your actual Firebase Realtime Database parameters
-        const firebaseConfig = {
-            apiKey: "AIzaSyDummyKeyReplaceThisWithYourActualApiKey",
-            authDomain: "quattro-operations.firebaseapp.com",
-            databaseURL: "https://agent-dashboard-theta-three-default-rtdb.firebaseio.com/",
-            projectId: "quattro-operations",
-            storageBucket: "quattro-operations.appspot.com",
-            messagingSenderId: "1234567890",
-            appId: "1:1234567890:web:abcdef123456"
-        };
-
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "agent-dashboard-theta-three.firebaseapp.com",
+  databaseURL: "https://agent-system-01-default-rtdb.firebaseio.com/",
+  projectId: "agent-dashboard-theta-three",
+  storageBucket: "agent-dashboard-theta-three.appspot.com",
+  messagingSenderId: "...",
+  appId: "..."
+};
         // Initialize Firebase
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
