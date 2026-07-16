@@ -47,8 +47,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
 /* CONTAINER */
 .container{max-width:1180px;margin:76px auto 40px;padding:0 24px;}
-body.quiz-active .navbar, body.quiz-active .theme-bar { display: none !important; }
-body.quiz-active .container { margin-top: 20px !important; }
 
 /* AUTH */
 #auth-box{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;background:radial-gradient(ellipse at 50% 0%,rgba(200,169,110,.07) 0%,transparent 70%);}
@@ -68,7 +66,6 @@ input,select,textarea{width:100%;padding:11px 13px;background:var(--bg3);border:
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);}
 input[readonly]{background:var(--bg2);color:var(--text3);cursor:not-allowed;}
 select{cursor:pointer;}select option{background:var(--bg3);}
-select[multiple]{height:100px; padding:8px;}
 
 /* BUTTONS */
 .btn{width:100%;padding:12px 18px;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;}
@@ -139,8 +136,7 @@ select[multiple]{height:100px; padding:8px;}
 .chat-unread-badge{background:var(--rb);color:#fff;border-radius:50%;min-width:18px;height:18px;font-size:10px;font-weight:700;display:none;align-items:center;justify-content:center;flex-shrink:0;}
 .chat-unread-badge.show{display:flex;animation:bpop .3s ease;}
 .chat-main{flex:1;display:flex;flex-direction:column;min-width:0;}
-.chat-main-hdr{padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg4);display:flex;align-items:center;gap:10px; cursor: pointer;}
-.chat-main-hdr:hover{background:var(--bg5);}
+.chat-main-hdr{padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg4);display:flex;align-items:center;gap:10px;}
 .chat-main-hdr h5{font-size:14px;color:var(--text);margin:0;}
 .chat-main-hdr span{font-size:11px;color:var(--text3);}
 .chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;}
@@ -160,7 +156,6 @@ select[multiple]{height:100px; padding:8px;}
 .chat-del-btn:hover{background:rgba(224,92,92,.1);}
 .chat-empty-state{display:flex;align-items:center;justify-content:center;flex:1;color:var(--text3);font-size:13px;flex-direction:column;gap:8px;}
 .chat-empty-state i{font-size:32px;color:var(--border2);}
-
 /* File/image attachment */
 .attach-btn{background:transparent;border:1px solid var(--border);color:var(--text3);border-radius:50%;width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;}
 .attach-btn:hover{border-color:var(--gold);color:var(--gold);}
@@ -206,7 +201,7 @@ select[multiple]{height:100px; padding:8px;}
 .ab-role{background:rgba(91,155,213,.1);color:var(--info);border:1px solid rgba(91,155,213,.25);}
 .ann-body{font-size:13px;color:var(--text2);line-height:1.6;}
 
-/* NOTIF ITEMS */
+/* NOTIF ITEMS (agent side) */
 .notif-item{background:rgba(91,155,213,.07);border:1px solid rgba(91,155,213,.2);border-radius:10px;padding:12px 16px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px;position:relative;}
 .notif-item.is-new{border-color:var(--rb);}
 .notif-new-dot{position:absolute;top:8px;right:10px;background:var(--rb);color:#fff;font-size:8px;font-weight:700;padding:1px 5px;border-radius:10px;}
@@ -233,6 +228,11 @@ select[multiple]{height:100px; padding:8px;}
 .inline-form{display:flex;gap:10px;}
 .inline-form input{flex:1;}
 .inline-form .btn{width:auto;padding:10px 18px;white-space:nowrap;}
+.kpi-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px;}
+.kpi-table th{background:var(--bg4);color:var(--text2);font-size:10px;letter-spacing:.8px;text-transform:uppercase;padding:10px 13px;text-align:center;border:1px solid var(--border);}
+.kpi-table td{padding:12px 13px;border:1px solid var(--border);text-align:center;font-weight:600;}
+.t-ok{color:var(--success);}
+.t-bad{color:var(--danger);}
 
 /* SCHEDULE */
 .off-day{color:var(--danger);font-weight:600;font-size:12px;}
@@ -249,7 +249,7 @@ select[multiple]{height:100px; padding:8px;}
 
 /* MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:2000;}
-.modal-content{background:var(--bg3);border:1px solid var(--border);border-radius:16px;padding:28px;width:90%;max-width:550px;max-height:90vh;overflow-y:auto;}
+.modal-content{background:var(--bg3);border:1px solid var(--border);border-radius:16px;padding:28px;width:90%;max-width:480px;max-height:90vh;overflow-y:auto;}
 .modal-title{font-family:'Cormorant Garamond',serif;font-size:21px;color:var(--gold);margin-bottom:18px;}
 
 /* IMAGE VIEWER MODAL */
@@ -263,15 +263,6 @@ select[multiple]{height:100px; padding:8px;}
 .viewer-q{background:var(--bg4);border-left:3px solid #C878E0;padding:11px 15px;margin-bottom:10px;border-radius:6px;}
 .details-container{margin-top:7px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:9px 13px;font-size:12px;color:var(--text3);}
 
-/* SEARCH BAR FOR CHAT */
-.chat-search-bar { padding: 10px; background: var(--bg4); border-bottom: 1px solid var(--border); }
-.chat-search-bar input { width: 100%; padding: 8px 12px; border-radius: 20px; font-size: 12px; }
-
-/* CHAT TABS */
-.chat-tab-container { display: flex; border-bottom: 1px solid var(--border); }
-.chat-tab { flex: 1; text-align: center; padding: 8px; font-size: 11px; font-weight: 600; cursor: pointer; color: var(--text3); text-transform: uppercase; }
-.chat-tab.active { color: var(--gold); border-bottom: 2px solid var(--gold); }
-
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:var(--bg2);}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
@@ -281,6 +272,7 @@ footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);letter-s
 </style>
 </head>
 <body>
+
 
 <!-- THEME BAR -->
 <div class="theme-bar">
@@ -393,26 +385,27 @@ footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);letter-s
       </div>
     </div>
 
-    <!-- CHAT PANEL: multi-conversation -->
+    <!-- CHAT PANEL: multi-conversation like WhatsApp -->
     <div class="ac-panel active" id="acp-chat">
       <div style="display:flex;height:460px;">
-        <div style="width:230px;flex-shrink:0;border-right:1px solid var(--border);display:flex;flex-direction:column;">
-          <div style="padding:10px 12px;background:var(--bg4); border-bottom:1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+        <!-- conversation list -->
+        <div style="width:200px;flex-shrink:0;border-right:1px solid var(--border);display:flex;flex-direction:column;">
+          <div style="padding:10px 12px;background:var(--bg4);border-bottom:1px solid var(--border);">
             <p style="font-size:10px;font-weight:600;color:var(--text2);letter-spacing:1px;text-transform:uppercase;margin:0;">Conversations</p>
-            <button class="action-btn p" onclick="startNewConvoModal()" title="Start New Chat"><i class="fa-solid fa-pen-to-square"></i></button>
-          </div>
-          <div class="chat-search-bar">
-            <input type="text" id="agent-chat-search" placeholder="Search by name, ID..." onkeyup="filterAgentChatList()">
           </div>
           <div id="agent-convo-list" style="flex:1;overflow-y:auto;"></div>
+          <div style="padding:8px;">
+            <button class="btn btn-primary" onclick="startNewConvo()" style="padding:8px;font-size:12px;"><i class="fa-solid fa-plus"></i> New Chat</button>
+          </div>
         </div>
+        <!-- active chat window -->
         <div style="flex:1;display:flex;flex-direction:column;">
-          <div id="agent-chat-window-hdr" style="padding:10px 14px;background:var(--bg4);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px; cursor: pointer;" onclick="showUserInfoDrawer(activeAgentChatUname)">
+          <div id="agent-chat-window-hdr" style="padding:10px 14px;background:var(--bg4);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;">
             <div style="font-size:13px;color:var(--text3);">Select a conversation or start a new one</div>
           </div>
           <div id="agent-chat-msgs" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:7px;"></div>
-          <div id="agent-chat-input-area" class="chat-input-area" style="display:none;">
-            <input type="file" id="agent-file-input" style="display:none;" multiple accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.txt" onchange="previewFileBeforeSend(event, 'agent')">
+          <div id="agent-chat-input-area" class="chat-input-area">
+            <input type="file" id="agent-file-input" style="display:none;" multiple accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.txt" onchange="handleAgentFileSelect(event)">
             <button class="attach-btn" onclick="document.getElementById('agent-file-input').click()" title="Attach file"><i class="fa-solid fa-paperclip"></i></button>
             <input type="text" id="agent-chat-msg" placeholder="Type a message..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){sendAgentMsg();event.preventDefault();}">
             <button class="chat-send-btn" onclick="sendAgentMsg()"><i class="fa-solid fa-paper-plane"></i></button>
@@ -439,10 +432,10 @@ footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);letter-s
     <div id="quiz-questions-container"></div>
     <div style="display:flex;gap:10px;margin-top:14px;">
       <button id="submit-quiz-btn" class="btn btn-primary" onclick="submitQuizAnswers()" style="max-width:180px;"><i class="fa-solid fa-flag-checkered"></i> Submit</button>
-      <button id="close-quiz-btn" class="btn btn-secondary hidden" onclick="closeQuizView()" style="max-width:180px;"><i class="fa-solid fa-xmark"></i> Close</button>
+      <button id="close-quiz-btn" class="btn btn-secondary hidden" onclick="loadQuizzesForAgent()" style="max-width:180px;"><i class="fa-solid fa-xmark"></i> Close</button>
     </div>
   </div>
-  <button class="btn btn-secondary" id="quiz-back-btn" onclick="goHome()" style="max-width:150px;margin-top:18px;"><i class="fa-solid fa-arrow-left"></i> Home</button>
+  <button class="btn btn-secondary" onclick="goHome()" style="max-width:150px;margin-top:18px;"><i class="fa-solid fa-arrow-left"></i> Home</button>
 </div>
 
 <!-- ADMIN DASHBOARD -->
@@ -463,13 +456,7 @@ footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);letter-s
   <!-- USERS -->
   <div id="tab-users" class="admin-tab-content hidden">
     <div id="admin-only-add-user" class="add-user-panel hidden">
-      <div style="grid-column:1/-1; display:flex; justify-content:space-between; align-items:center;">
-          <h5><i class="fa-solid fa-user-plus"></i> Add Employee</h5>
-          <div>
-              <input type="file" id="bulk-import-excel" accept=".xlsx, .csv" style="display:none;" onchange="processBulkImport(event)">
-              <button class="btn btn-primary" onclick="document.getElementById('bulk-import-excel').click()" style="padding:6px 12px; width:auto; font-size:12px;"><i class="fa-solid fa-file-excel"></i> Import via Excel</button>
-          </div>
-      </div>
+      <h5><i class="fa-solid fa-user-plus"></i> Add Employee</h5>
       <input type="text" id="dir-name" placeholder="Full Name">
       <input type="text" id="dir-user" placeholder="Username">
       <input type="password" id="dir-pass" placeholder="Password">
@@ -485,37 +472,27 @@ footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);letter-s
     <div class="table-wrap"><table class="data-table"><thead><tr><th>Name & Contact</th><th>Username</th><th>Account</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead><tbody id="admin-users-list"><tr><td colspan="6" style="text-align:center;color:var(--text3);">Loading...</td></tr></tbody></table></div>
   </div>
 
-  <!-- COMMUNICATIONS -->
+  <!-- COMMUNICATIONS (WhatsApp admin side) -->
   <div id="tab-comms" class="admin-tab-content hidden">
     <div class="chat-container">
       <div class="chat-sidebar">
-        <div class="chat-sidebar-hdr">
-            <h4><i class="fa-solid fa-comments"></i> Team Chats</h4>
-            <button class="action-btn p" onclick="startNewConvoModal()" title="Start New Chat"><i class="fa-solid fa-pen-to-square"></i></button>
-        </div>
-        <div class="chat-search-bar">
-            <input type="text" id="admin-chat-search" placeholder="Search by name, ID..." onkeyup="loadAdminComms()">
-        </div>
-        <div class="chat-tab-container">
-            <div class="chat-tab active" id="c-tab-active" onclick="switchChatArchiveTab('active')">Active</div>
-            <div class="chat-tab" id="c-tab-archive" onclick="switchChatArchiveTab('archived')">Archived</div>
-        </div>
+        <div class="chat-sidebar-hdr"><h4><i class="fa-solid fa-comments"></i> Agent Chats</h4></div>
         <div class="chat-list" id="admin-chat-list"><p style="padding:14px;color:var(--text3);font-size:12px;">Loading...</p></div>
       </div>
       <div class="chat-main" id="admin-chat-main-wrap">
         <div class="chat-empty-state" id="chat-empty-state"><i class="fa-solid fa-comments"></i><span>Select a conversation</span></div>
         <div id="admin-chat-active" style="display:none;flex-direction:column;height:100%;">
-          <div class="chat-main-hdr" onclick="showUserInfoDrawer(activeAdminChatUser)">
+          <div class="chat-main-hdr">
             <div class="chat-av" id="adm-chat-av" style="font-size:12px;font-weight:700;"></div>
             <div><h5 id="admin-chat-hdr-name">—</h5><span id="admin-chat-hdr-sub">—</span></div>
           </div>
           <div class="chat-msgs" id="admin-chat-messages"></div>
           <div class="chat-input-area">
-            <input type="file" id="admin-file-input" style="display:none;" multiple accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.txt" onchange="previewFileBeforeSend(event, 'admin')">
+            <input type="file" id="admin-file-input" style="display:none;" multiple accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.txt" onchange="handleAdminFileSelect(event)">
             <button class="attach-btn" onclick="document.getElementById('admin-file-input').click()" title="Attach"><i class="fa-solid fa-paperclip"></i></button>
             <input type="text" id="admin-chat-input" placeholder="Type reply..." disabled onkeydown="if(event.key==='Enter') sendAdminReply()">
             <button class="chat-send-btn" id="admin-chat-send-btn" onclick="sendAdminReply()" disabled><i class="fa-solid fa-paper-plane"></i></button>
-            <button class="chat-del-btn" id="admin-chat-delete-btn" onclick="archiveActiveChat()" disabled title="Archive Chat"><i class="fa-solid fa-box-archive"></i></button>
+            <button class="chat-del-btn" id="admin-chat-delete-btn" onclick="deleteActiveChat()" disabled><i class="fa-solid fa-trash"></i></button>
           </div>
         </div>
       </div>
@@ -566,19 +543,14 @@ footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);letter-s
       <div class="card-title"><i class="fa-solid fa-plus-circle"></i> Create New Quiz</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
         <div class="form-group" style="margin:0;"><label>Quiz Name</label><input type="text" id="q-quizname" placeholder="e.g. Quality Test – May"></div>
-        <div class="form-group" style="margin:0;"><label>Target Employees (Multi-Select)</label>
-            <select id="q-target-select" multiple>
-                <option value="draft">Hidden Draft</option>
-                <option value="all">All Employees</option>
-            </select>
-        </div>
+        <div class="form-group" style="margin:0;"><label>Target</label><select id="q-target-select"><option value="draft">Hidden Draft</option><option value="all">All Employees</option></select></div>
       </div>
       <div style="background:var(--bg4);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;">
         <div class="form-group"><label>Question Text</label><input type="text" id="q-text"></div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;"><input type="text" id="q-opt1" placeholder="Option 1"><input type="text" id="q-opt2" placeholder="Option 2"><input type="text" id="q-opt3" placeholder="Option 3"><input type="text" id="q-opt4" placeholder="Option 4"></div>
-        <div class="form-group" style="margin:0;"><label>Correct Answer (1–4)</label><input type="number" id="q-correct" min="1" max="4" style="max-width:90px;"></div>
+        <div class="form-group" style="margin:0;"><label>Correct (1–4)</label><input type="number" id="q-correct" min="1" max="4" style="max-width:90px;"></div>
       </div>
-      <button class="btn btn-success" onclick="addQuizQuestionAdmin()" style="max-width:220px;"><i class="fa-solid fa-rocket"></i> Save Question</button>
+      <button class="btn btn-success" onclick="addQuizQuestionAdmin()" style="max-width:220px;"><i class="fa-solid fa-rocket"></i> Save & Create</button>
     </div>
     <div class="table-wrap"><table class="data-table"><thead><tr><th>Quiz Name</th><th>Target</th><th>Actions</th></tr></thead><tbody id="admin-quizzes-control-list"></tbody></table></div>
     <div id="quiz-viewer-container" class="viewer-box hidden">
@@ -586,13 +558,9 @@ footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);letter-s
       <div id="viewer-questions-list"></div>
       <button class="btn btn-secondary" onclick="document.getElementById('quiz-viewer-container').classList.add('hidden')" style="max-width:150px;margin-top:10px;">Close</button>
     </div>
-    
     <div id="questions-editor-container" class="hidden" style="background:rgba(76,175,125,.04);border:1px solid rgba(76,175,125,.2);border-radius:12px;padding:18px;margin-top:18px;">
       <h3 style="color:var(--success);font-family:'Cormorant Garamond',serif;font-size:19px;margin-bottom:14px;"><i class="fa-solid fa-pen-to-square"></i> Editing: <span id="current-editing-quiz-title"></span></h3>
-      <div style="background:var(--bg4);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:14px;"><label>Change Target (Multi-Select)</label><div style="display:flex;gap:10px;margin-top:6px;">
-          <select id="fast-change-target-select" multiple style="flex:1;"><option value="draft">Hidden Draft</option><option value="all">All Employees</option></select>
-          <button class="btn btn-success" onclick="updateQuizTargetFromEditor()" style="width:auto;padding:9px 16px;">Update Target</button>
-      </div></div>
+      <div style="background:var(--bg4);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:14px;"><label>Change Target</label><div style="display:flex;gap:10px;margin-top:6px;"><select id="fast-change-target-select" style="flex:1;"><option value="draft">Hidden Draft</option><option value="all">All Employees</option></select><button class="btn btn-success" onclick="updateQuizTargetFromEditor()" style="width:auto;padding:9px 16px;">Update</button></div></div>
       <div id="individual-questions-list"></div>
       <div class="q-fast-add">
         <h4 style="color:var(--info);font-size:13px;margin-bottom:12px;"><i class="fa-solid fa-bolt"></i> Add Question Fast</h4>
@@ -619,7 +587,7 @@ footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);letter-s
         <label style="font-size:11px; color:var(--text3); margin:0; white-space:nowrap;">Account:</label>
         <input type="text" id="admin-account-filter" onkeyup="filterScoresTable()" placeholder="Search Account..." style="padding:8px 12px; background:var(--bg3); border:1px solid var(--border); border-radius:6px; color:var(--text); font-size:13px; width:100%;">
       </div>
-      <button class="btn btn-success" onclick="triggerExcelExport()" style="width:auto; padding:10px 20px; margin:0;"><i class="fa-solid fa-file-excel"></i> Export Selected View</button>
+      <button class="btn btn-success" onclick="triggerExcelExport()" style="width:auto; padding:10px 20px; margin:0;"><i class="fa-solid fa-file-excel"></i> Export</button>
     </div>
     <div class="table-wrap"><table class="data-table" id="admin-scores-table"><thead><tr><th>Employee</th><th>HR ID</th><th>Account</th><th>Quiz</th><th>Score</th><th>Details</th><th>Date</th><th></th></tr></thead><tbody id="admin-scores-list"></tbody></table></div>
   </div>
@@ -640,8 +608,6 @@ footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);letter-s
 </div><!-- /admin-dashboard -->
 </div><!-- /main-container -->
 
-<!-- MODALS -->
-
 <!-- EDIT USER MODAL -->
 <div id="edit-user-modal" class="modal-overlay hidden">
   <div class="modal-content">
@@ -658,481 +624,435 @@ footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);letter-s
   </div>
 </div>
 
-<!-- START NEW CHAT MODAL -->
-<div id="new-convo-modal" class="modal-overlay hidden">
-  <div class="modal-content">
-    <h3 class="modal-title"><i class="fa-solid fa-comment-medical"></i> Start New Conversation</h3>
-    <div class="form-group">
-        <label>Search Employee (Name, ID, Username)</label>
-        <input type="text" id="new-convo-search" placeholder="Type to search..." onkeyup="filterNewConvoUsers()">
-    </div>
-    <div id="new-convo-users-list" style="max-height: 250px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; padding: 5px; margin-bottom: 15px;">
-        <!-- Filled by JS -->
-    </div>
-    <button class="btn btn-secondary" onclick="document.getElementById('new-convo-modal').classList.add('hidden')">Cancel</button>
-  </div>
-</div>
-
-<!-- FILE PREVIEW MODAL (WhatsApp Style) -->
-<div id="file-preview-modal" class="modal-overlay hidden">
-  <div class="modal-content" style="text-align:center;">
-    <h3 class="modal-title">File Preview</h3>
-    <div id="file-preview-container" style="margin-bottom:15px; max-height:300px; overflow:hidden;"></div>
-    <div class="form-group"><input type="text" id="file-preview-caption" placeholder="Add a caption..."></div>
-    <div style="display:flex;gap:10px;margin-top:20px;">
-        <button class="btn btn-success" id="file-preview-send-btn"><i class="fa-solid fa-paper-plane"></i> Send File</button>
-        <button class="btn btn-secondary" onclick="document.getElementById('file-preview-modal').classList.add('hidden')">Cancel</button>
-    </div>
-  </div>
-</div>
-
-<!-- QUIZ REVIEW MODAL (Google Forms Style) -->
-<div id="quiz-review-modal" class="modal-overlay hidden">
-  <div class="modal-content" style="max-width: 600px;">
-    <h3 class="modal-title"><i class="fa-solid fa-square-poll-vertical"></i> Quiz Result Review</h3>
-    <div id="quiz-review-score" style="font-size:24px; font-weight:bold; color:var(--gold); text-align:center; margin-bottom: 20px;"></div>
-    <div id="quiz-review-details" style="display:flex; flex-direction:column; gap:15px;"></div>
-    <button class="btn btn-secondary" onclick="closeQuizReview()" style="margin-top:20px;">Close Review</button>
-  </div>
-</div>
-
-<!-- SCORE DETAILS MODAL (Admin) -->
-<div id="score-details-modal" class="modal-overlay hidden">
-  <div class="modal-content" style="max-width: 600px;">
-    <h3 class="modal-title"><i class="fa-solid fa-file-invoice"></i> Score Breakdown</h3>
-    <div id="score-details-content" style="display:flex; flex-direction:column; gap:12px;"></div>
-    <button class="btn btn-secondary" onclick="document.getElementById('score-details-modal').classList.add('hidden')" style="margin-top:20px;">Close</button>
-  </div>
-</div>
-
-<!-- USER INFO DRAWER -->
-<div id="user-info-drawer" class="modal-overlay hidden" onclick="if(event.target===this)this.classList.add('hidden')">
-  <div class="modal-content" style="position: absolute; right: 0; top: 0; height: 100vh; max-width: 350px; border-radius: 0; border-left: 1px solid var(--border); animation: slideIn 0.3s forwards;">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h3 class="modal-title" style="margin:0;"><i class="fa-solid fa-address-card"></i> User Info</h3>
-        <button class="action-btn" onclick="document.getElementById('user-info-drawer').classList.add('hidden')"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    <div style="text-align:center; margin-bottom:20px;">
-        <div id="uid-av" style="width:70px; height:70px; border-radius:50%; background:var(--bg4); border:2px solid var(--gold); display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:bold; color:var(--gold); margin:0 auto 10px;"></div>
-        <h4 id="uid-name" style="font-size:18px; color:var(--text);"></h4>
-        <span id="uid-role" class="role-badge" style="margin-top:5px; display:inline-block;"></span>
-    </div>
-    <div style="background:var(--bg4); border-radius:10px; padding:15px; font-size:13px; color:var(--text2); display:flex; flex-direction:column; gap:10px;">
-        <div><strong>Username:</strong> <span id="uid-user"></span></div>
-        <div><strong>HR ID:</strong> <span id="uid-hrid"></span></div>
-        <div><strong>Account:</strong> <span id="uid-acc"></span></div>
-        <div><strong>Phone:</strong> <span id="uid-phone"></span></div>
-        <div><strong>Email:</strong> <span id="uid-email"></span></div>
-    </div>
-  </div>
-</div>
-
 <!-- IMAGE VIEWER -->
 <div id="img-modal" class="img-modal hidden" onclick="this.classList.add('hidden')">
   <img id="img-modal-src" src="" alt="">
 </div>
 
-<style>
-    @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-</style>
+<!-- NEW CONVO MODAL -->
+<div id="new-convo-modal" class="modal-overlay hidden">
+  <div class="modal-content">
+    <h3 class="modal-title"><i class="fa-solid fa-comment-dots"></i> New Conversation</h3>
+    <div class="form-group"><label>Send To</label>
+      <select id="new-convo-recipient">
+        <option value="all">All Management</option>
+        <option value="admin">Admin Only</option>
+        <option value="leader">My Leader</option>
+        <option value="quality">Quality Team</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Topic / Subject</label><input type="text" id="new-convo-subject" placeholder="e.g. Schedule question"></div>
+    <div style="display:flex;gap:10px;margin-top:16px;"><button class="btn btn-primary" onclick="createNewConvo()">Start Chat</button><button class="btn btn-secondary" onclick="document.getElementById('new-convo-modal').classList.add('hidden')">Cancel</button></div>
+  </div>
+</div>
 
+<footer>Developed by Mohamed Nasser · Quattro Operations</footer>
 <script>
-// Mock Firebase URL for Demo / Should be replaced with actual Firebase RTDB URL
-const FB = 'YOUR_FIREBASE_DB_URL'; 
+const FB="https://agent-system-01-default-rtdb.firebaseio.com";
+let liveSchedules={},liveBreaks={},liveKPIData={};
+let isSignUpMode=false,currentUser=null;
+let activeQuizQuestions=[],activeQuizName="",currentEditingQuizName="";
+let globalScoresData=null,globalUsersList={};
+const daysMap=['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+let activeAdminChatUser=null,adminChatInterval=null,agentPollInterval=null,notifPollInterval=null;
+let seenNotifIds=new Set(JSON.parse(localStorage.getItem('seenNotifs')||'[]'));
+let activeAgentConvoKey=null;
+let agentPendingFiles=[];
+let adminPendingFiles=[];
 
-let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
-let globalUsersList = {};
-let activeQuizQuestions = [];
-let activeQuizName = '';
-let currentEditingQuizName = '';
-let globalScoresData = {};
-let activeAdminChatUser = null;
-let activeAgentConvoKey = null;
-let adminChatInterval = null;
-let adminPendingFiles = [];
-let agentPendingFiles = [];
-let seenNotifIds = new Set(JSON.parse(localStorage.getItem('seenNotifs')||'[]'));
-let activeChatTab = 'active'; // active | archived
-let activePendingFileObj = null; 
-
-// --- UTILS ---
-const fileToBase64 = (file) => new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = error => reject(error);
-});
-
-// --- INIT & LOGOUT FIX ---
-window.onload = () => {
-    if(currentUser) { setupDashboardPermissions(); }
-    else { document.getElementById('auth-box').style.display = 'flex'; }
+// ── THEMES ──
+const themes={
+  dark:{'--bg':'#0A0A0A','--bg2':'#111111','--bg3':'#1A1A1A','--bg4':'#222222','--border':'rgba(200,169,110,.18)','--border2':'rgba(200,169,110,.4)','--text':'#F5F0E8','--text2':'#A89880','--text3':'#6B6055','--gold':'#C8A96E','--gold-light':'#E8D4A8'},
+  charcoal:{'--bg':'#1C1C2E','--bg2':'#16162A','--bg3':'#252540','--bg4':'#2E2E50','--border':'rgba(123,140,222,.18)','--border2':'rgba(123,140,222,.4)','--text':'#E8ECF8','--text2':'#8B9EC8','--text3':'#5B6888','--gold':'#7B8CDE','--gold-light':'#A8B4F0'},
+  emerald:{'--bg':'#0D1A15','--bg2':'#0A1510','--bg3':'#112218','--bg4':'#162C1F','--border':'rgba(62,207,142,.15)','--border2':'rgba(62,207,142,.4)','--text':'#E8F5EE','--text2':'#7AB898','--text3':'#4A7A60','--gold':'#3ECF8E','--gold-light':'#7EEAB5'},
+  ruby:{'--bg':'#1A0D0D','--bg2':'#150808','--bg3':'#221212','--bg4':'#2C1818','--border':'rgba(224,92,92,.18)','--border2':'rgba(224,92,92,.4)','--text':'#F8EEEE','--text2':'#C89090','--text3':'#886060','--gold':'#E05C5C','--gold-light':'#F09090'},
+  light:{'--bg':'#F5F0E8','--bg2':'#EDE8DC','--bg3':'#FFFFFF','--bg4':'#F0EBE0','--border':'rgba(154,122,69,.18)','--border2':'rgba(154,122,69,.4)','--text':'#1A1208','--text2':'#5A4A32','--text3':'#8A7A62','--gold':'#9A7A45','--gold-light':'#C8A96E'}
 };
+function setTheme(n){const t=themes[n];if(!t)return;Object.entries(t).forEach(([k,v])=>document.documentElement.style.setProperty(k,v));document.querySelectorAll('.theme-opt').forEach(o=>o.classList.toggle('active',o.dataset.theme===n));localStorage.setItem('theme',n);}
+(()=>{const s=localStorage.getItem('theme');if(s&&themes[s])setTheme(s);})();
 
-function logout() {
-    localStorage.removeItem('currentUser');
-    sessionStorage.clear();
-    window.location.replace(window.location.href.split('#')[0]);
-}
-
-function switchView(id) {
-    document.getElementById('auth-box').style.display = 'none';
-    const views = ['agent-hub', 'agent-profile', 'admin-dashboard', 'quiz-dashboard', 'info-display-box'];
-    views.forEach(v => { const e = document.getElementById(v); if(e) e.classList.add('hidden'); });
-    document.getElementById('main-container').style.display = 'block';
-    document.getElementById(id).classList.remove('hidden');
-    document.getElementById('top-navbar').style.display = 'flex';
-}
-
-function goHome() {
-    if(!currentUser) return;
-    if(['admin', 'leader', 'quality'].includes(currentUser.role)) {
-        switchView('admin-dashboard');
-    } else {
-        switchView('agent-hub');
-    }
-}
-
-// --- BULK IMPORT ---
-function processBulkImport(e) {
-    const file = e.target.files[0];
-    if(!file) return;
-    const reader = new FileReader();
-    reader.onload = function(evt) {
-        const data = evt.target.result;
-        const wb = XLSX.read(data, {type: 'binary'});
-        const ws = wb.Sheets[wb.SheetNames[0]];
-        const json = XLSX.utils.sheet_to_json(ws);
-        
-        let added = 0;
-        json.forEach(row => {
-            // [ Full Name | Username | Password | Account | HR ID | Role | Email | Phone ]
-            const fullName = row['Full Name'];
-            const user = (row['Username'] || '').toString().toLowerCase().trim();
-            const pass = row['Password'];
-            if(!user || !fullName || !pass) return; // Skip invalid
-            
-            const userData = {
-                fullName: fullName,
-                username: user,
-                password: pass.toString(),
-                accountName: row['Account'] || '',
-                hrId: row['HR ID'] || '',
-                role: (row['Role'] || 'agent').toLowerCase(),
-                email: row['Email'] || '',
-                phone: row['Phone'] || '',
-                status: 'approved'
-            };
-            fetch(`${FB}/users/${user}.json`, { method: 'PUT', body: JSON.stringify(userData) });
-            added++;
-        });
-        setTimeout(() => { alert(`${added} users imported successfully!`); loadUsersAdmin(); }, 1500);
-    };
-    reader.readAsBinaryString(file);
-}
-
-// --- CHAT MODULE UPGRADES ---
-function switchChatArchiveTab(tab) {
-    activeChatTab = tab;
-    document.getElementById('c-tab-active').classList.toggle('active', tab === 'active');
-    document.getElementById('c-tab-archive').classList.toggle('active', tab === 'archived');
-    loadAdminComms();
-}
-
-function updateAdminChatBadge(n){
-    const tb=document.getElementById('tab-badge-comms');
-    if(tb){if(n>0){tb.innerText=n;tb.classList.add('show');}else tb.classList.remove('show');}
-}
-
-function loadAdminComms() {
-    // Basic mock fetch for chat list including role check
-    const list = document.getElementById('admin-chat-list');
-    const searchQ = (document.getElementById('admin-chat-search')?.value || '').toLowerCase();
-    
-    fetch(`${FB}/users.json`).then(r => r.json()).then(users => {
-        fetch(`${FB}/chats.json`).then(r => r.json()).then(chats => {
-            // Processing chats and sorting into active/archived based on status or last timestamp
-            // MOCK LOGIC for list rendering to show flexible search
-            list.innerHTML = '<p style="padding:14px;color:var(--text3);font-size:12px;">Mock Chat List Rendered</p>';
-            // In a real scenario, map Object.keys(chats) and filter by users[id].fullName.toLowerCase().includes(searchQ) || users[id].hrId.includes(searchQ)
-        });
-    });
-}
-
-function startNewConvoModal() {
-    document.getElementById('new-convo-modal').classList.remove('hidden');
-    document.getElementById('new-convo-search').value = '';
-    filterNewConvoUsers();
-}
-
-function filterNewConvoUsers() {
-    const q = document.getElementById('new-convo-search').value.toLowerCase();
-    const list = document.getElementById('new-convo-users-list');
-    list.innerHTML = '';
-    
-    fetch(`${FB}/users.json`).then(r => r.json()).then(users => {
-        if(!users) return;
-        Object.keys(users).forEach(u => {
-            const user = users[u];
-            if(user.username === currentUser.username) return; // don't chat self
-            const searchStr = `${user.fullName} ${user.username} ${user.hrId||''}`.toLowerCase();
-            if(searchStr.includes(q)) {
-                list.innerHTML += `<div class="chat-item" onclick="initiateChat('${user.username}')">
-                    <div class="chat-av">${user.fullName.substring(0,2).toUpperCase()}</div>
-                    <div class="chat-item-info"><strong>${user.fullName}</strong><span>@${user.username} | ${user.role}</span></div>
-                </div>`;
-            }
-        });
-    });
-}
-
-function initiateChat(username) {
-    // Persistent history logic: check if chat exists, if so load it, else create
-    document.getElementById('new-convo-modal').classList.add('hidden');
-    alert(`Initiating persistent chat with ${username}... (Mocked)`);
-    // activeAdminChatUser = username; etc...
-}
-
-function previewFileBeforeSend(event, context) {
-    const file = event.target.files[0];
-    if(!file) return;
-    
-    // Size check (e.g., max 5MB for base64)
-    if(file.size > 5 * 1024 * 1024) {
-        alert("File size exceeds 5MB limit.");
-        return;
-    }
-    
-    activePendingFileObj = { file: file, context: context };
-    const pContainer = document.getElementById('file-preview-container');
-    pContainer.innerHTML = '';
-    
-    if(file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            pContainer.innerHTML = `<img src="${e.target.result}" style="max-width:100%; border-radius:8px;">`;
-            document.getElementById('file-preview-modal').classList.remove('hidden');
-        };
-        reader.readAsDataURL(file);
-    } else {
-        pContainer.innerHTML = `<div style="padding:30px; background:var(--bg4); border-radius:8px;"><i class="fa-solid fa-file fa-3x" style="color:var(--text3);"></i><p style="margin-top:10px;">${file.name}</p></div>`;
-        document.getElementById('file-preview-modal').classList.remove('hidden');
-    }
-}
-
-document.getElementById('file-preview-send-btn').addEventListener('click', async () => {
-    if(!activePendingFileObj) return;
-    const { file, context } = activePendingFileObj;
-    const caption = document.getElementById('file-preview-caption').value;
-    
-    // File Base64 conversion
-    const base64Data = await fileToBase64(file);
-    const attachmentObj = { name: file.name, type: file.type, size: `${(file.size/1024).toFixed(1)}KB`, data: base64Data, caption: caption };
-    
-    if(context === 'admin') {
-        adminPendingFiles = [file]; // Store actual file or data
-        sendAdminReply(attachmentObj);
-    } else {
-        agentPendingFiles = [file];
-        // sendAgentMsg(attachmentObj);
-    }
-    
-    document.getElementById('file-preview-modal').classList.add('hidden');
-    document.getElementById('file-preview-caption').value = '';
-    activePendingFileObj = null;
+// ── INIT ──
+window.addEventListener('DOMContentLoaded',()=>{
+  initLiveSheetSync();
+  const s=localStorage.getItem('currentUser');
+  if(s){currentUser=JSON.parse(s);setupDashboardPermissions();}
 });
 
-function showUserInfoDrawer(username) {
-    if(!username) return;
-    fetch(`${FB}/users/${username}.json`).then(r => r.json()).then(data => {
-        if(!data) return;
-        document.getElementById('uid-av').innerText = (data.fullName||'??').substring(0,2).toUpperCase();
-        document.getElementById('uid-name').innerText = data.fullName;
-        document.getElementById('uid-role').innerText = data.role;
-        document.getElementById('uid-user').innerText = `@${username}`;
-        document.getElementById('uid-hrid').innerText = data.hrId || 'N/A';
-        document.getElementById('uid-acc').innerText = data.accountName || 'N/A';
-        document.getElementById('uid-phone').innerText = data.phone || 'N/A';
-        document.getElementById('uid-email').innerText = data.email || 'N/A';
-        document.getElementById('user-info-drawer').classList.remove('hidden');
-    });
+// ── SHEET SYNC ──
+function initLiveSheetSync(){
+  fetch(`${FB}/settings/sheetUrl.json`).then(r=>r.json()).then(url=>{if(url){const el=document.getElementById('master-sheet-url');if(el)el.value=url;fetchLiveExcelData(url,false);}});
+  fetch(`${FB}/settings/kpiSheetUrl.json`).then(r=>r.json()).then(url=>{if(url){const el=document.getElementById('kpi-sheet-url');if(el)el.value=url;fetchLiveKPIExcelData(url,false);}});
+}
+function saveAndSyncSheetUrl(){const url=document.getElementById('master-sheet-url').value.trim();if(!url)return alert("Enter URL.");fetch(`${FB}/settings/sheetUrl.json`,{method:'PUT',body:JSON.stringify(url)}).then(()=>{alert("Saved!");fetchLiveExcelData(url,true);});}
+function fetchLiveExcelData(url,up=false){
+  const m=url.match(/\/d\/([a-zA-Z0-9-_]+)/);if(!m)return;
+  fetch(`https://docs.google.com/spreadsheets/d/${m[1]}/export?format=xlsx`).then(r=>r.ok?r.arrayBuffer():null).then(data=>{
+    if(!data)return;const wb=XLSX.read(data,{type:'array'});
+    liveSchedules={};
+    if(wb.SheetNames.length>0){XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]).forEach(row=>{const keys=Object.keys(row);const ek=keys.find(k=>k.toLowerCase().includes('emp')||k.toLowerCase().includes('name'))||keys[0];let name=row[ek];if(!name)return;name=name.toString().toLowerCase().trim();liveSchedules[name]={sunday:row['Sunday']||row['sunday']||"OFF",monday:row['Monday']||row['monday']||"OFF",tuesday:row['Tuesday']||row['tuesday']||"OFF",wednesday:row['Wednesday']||row['wednesday']||"OFF",thursday:row['Thursday']||row['thursday']||"OFF",friday:row['Friday']||row['friday']||"OFF",saturday:row['Saturday']||row['saturday']||"OFF"};});}
+    liveBreaks={};
+    if(wb.SheetNames.length>1){XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[1]]).forEach(row=>{const keys=Object.keys(row);const ek=keys.find(k=>k.toLowerCase().includes('emp')||k.toLowerCase().includes('name'))||keys[0];const bk=keys.find(k=>k.toLowerCase().includes('break')||k.toLowerCase().includes('time'))||keys[1];let name=row[ek];if(!name)return;liveBreaks[name.toString().toLowerCase().trim()]=row[bk];});}
+    if(up)renderLiveAdminPreviews();
+  }).catch(e=>console.error(e));
+}
+function renderLiveAdminPreviews(){
+  const sb=document.getElementById('admin-schedule-list'),bb=document.getElementById('admin-breaks-list');if(!sb||!bb)return;sb.innerHTML='';bb.innerHTML='';
+  if(!Object.keys(liveSchedules).length)sb.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--text3)">No data.</td></tr>';
+  else Object.keys(liveSchedules).forEach(n=>{let s=liveSchedules[n];sb.innerHTML+=`<tr><td><strong>${n.toUpperCase()}</strong></td>${['sunday','monday','tuesday','wednesday','thursday','friday','saturday'].map(d=>`<td class="${s[d]&&s[d].toLowerCase().includes('off')?'off-day':'work-day'}">${s[d]||'—'}</td>`).join('')}</tr>`;});
+  if(!Object.keys(liveBreaks).length)bb.innerHTML='<tr><td colspan="2" style="text-align:center;color:var(--text3)">No data.</td></tr>';
+  else Object.keys(liveBreaks).forEach(n=>{bb.innerHTML+=`<tr><td><strong>${n.toUpperCase()}</strong></td><td>${liveBreaks[n]}</td></tr>`;});
+}
+function loadSheetSettings(){renderLiveAdminPreviews();}
+
+// ── KPI ──
+function cleanKPIName(n){return n?n.toString().trim().toLowerCase().replace(/\s+/g,'_').replace(/[.#$[\]]/g,''):'';}
+function saveAndSyncKPIUrl(){const url=document.getElementById('kpi-sheet-url').value.trim();if(!url)return alert("Enter URL.");fetch(`${FB}/settings/kpiSheetUrl.json`,{method:'PUT',body:JSON.stringify(url)}).then(()=>{alert("KPI Saved!");fetchLiveKPIExcelData(url,true);});}
+function fetchLiveKPIExcelData(url,sa=false){
+  const m=url.match(/\/d\/([a-zA-Z0-9-_]+)/);if(!m)return;
+  fetch(`https://docs.google.com/spreadsheets/d/${m[1]}/export?format=xlsx`).then(r=>r.arrayBuffer()).then(data=>{
+    const wb=XLSX.read(data,{type:'array'});liveKPIData={};
+    if(wb.Sheets["Quality"]){XLSX.utils.sheet_to_json(wb.Sheets["Quality"],{header:"A",defval:""}).forEach(row=>{let n=row["K"];if(n&&typeof n==='string'){let c=n.trim().toLowerCase();if(c&&!c.includes("agent")&&!c.includes("اسم")){let key=cleanKPIName(n);if(!liveKPIData[key])liveKPIData[key]={};liveKPIData[key].Quality={compliance:row["L"],endUser:row["M"],business:row["N"],softSkills:row["O"],total:row["P"]};}}});}
+    if(wb.Sheets["Mistakes"]){XLSX.utils.sheet_to_json(wb.Sheets["Mistakes"]).forEach(row=>{let n=row["Agent "]||row["Agent Name"]||row["Agent"];if(n){let key=cleanKPIName(n);if(!liveKPIData[key])liveKPIData[key]={};liveKPIData[key].Mistakes=row["Number of Mistakes"]||row["Mistakes"]||0;}});}
+    if(wb.Sheets["Performance"]){XLSX.utils.sheet_to_json(wb.Sheets["Performance"]).forEach(row=>{let n=row["Agent Name"]||row["Agent"];if(n){let key=cleanKPIName(n);if(!liveKPIData[key])liveKPIData[key]={};liveKPIData[key].Performance=row["Utilization "]||row["Utilization"]||row["Performance"]||0;}});}
+    if(sa)alert("KPI Synced!");
+  }).catch(e=>{if(sa)alert("KPI Error: "+e);});
+}
+function viewKPIScorecard(){
+  switchView('info-display-box');document.getElementById('info-box-title').innerText="📊 KPI Scorecard (Live)";
+  let c=document.getElementById('info-content-area');
+  let key=cleanKPIName(currentUser.fullName);let data=liveKPIData[key];
+  if(!data){c.innerHTML=`<div class="info-card" style="border-left-color:var(--warning)">No KPI data for <strong>${currentUser.fullName}</strong>.</div>`;return;}
+  const pv=(v)=>{if(v===undefined||v===null||v==="")return 0;if(typeof v==='number')return v;let n=parseFloat(v.toString().replace(/%/g,'').trim());if(isNaN(n))return 0;if(v.toString().includes('%'))return n/100;return n;};
+  let comp=pv(data.Quality?.compliance),eu=pv(data.Quality?.endUser),bus=pv(data.Quality?.business),soft=pv(data.Quality?.softSkills),util=pv(data.Performance),mis=parseInt(data.Mistakes??0);
+  if(comp>1&&comp<=100)comp/=100;if(eu>1&&eu<=100)eu/=100;if(bus>1&&bus<=100)bus/=100;if(soft>1&&soft<=100)soft/=100;if(util>1&&util<=100)util/=100;
+  const gf=(v,t)=>{let p=(v*100).toFixed(1)+'%';if(v>=1.0)return`<span style="color:var(--gold);font-weight:700;">${p} 🌟</span>`;if(v>=t)return`<span class="t-ok">${p}</span>`;return`<span class="t-bad">${p}</span>`;};
+  const fm=(v)=>isNaN(v)?'0':v>0?`<span class="t-bad">${v}</span>`:`<span style="color:var(--gold);font-weight:700;">0 🌟</span>`;
+  let tq=pv(data.Quality?.total);if(tq>1&&tq<=100)tq/=100;if(tq===0)tq=(comp+eu+bus+soft)/4;
+  let allPass=(comp>=1.0)&&(eu>=0.98)&&(bus>=0.95)&&(soft>=0.90)&&(util>=0.86)&&(mis===0);
+  c.innerHTML=`<div class="card"><div style="overflow-x:auto;"><table class="kpi-table"><thead><tr><th>Compliance(100%)</th><th>End User(98%)</th><th>Business(95%)</th><th>Soft Skills(90%)</th><th>Utilization(86%)</th><th>Mistakes(0)</th></tr></thead><tbody><tr><td>${gf(comp,1.0)}</td><td>${gf(eu,0.98)}</td><td>${gf(bus,0.95)}</td><td>${gf(soft,0.90)}</td><td>${gf(util,0.86)}</td><td>${fm(mis)}</td></tr></tbody></table></div><div style="background:var(--bg4);border:1px solid var(--border);border-radius:10px;padding:16px;margin-top:14px;text-align:center;"><p style="font-size:11px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">Total Quality</p>${allPass?`<span style="color:var(--success);font-size:22px;font-weight:700;">${(tq*100).toFixed(1)}% 🏆</span>`:`<span style="color:var(--gold);font-size:26px;font-weight:700;">${(tq*100).toFixed(1)}%</span>`}</div></div>`;
 }
 
-// --- QUIZ MODULE UPGRADES ---
+// ── NAV ──
+function switchView(viewId){
+  ['auth-box','agent-hub','info-display-box','quiz-dashboard','admin-dashboard','agent-profile'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.add('hidden');});
+  const el=document.getElementById(viewId);if(el)el.classList.remove('hidden');
+  const isAuth=(viewId==='auth-box');
+  document.getElementById('top-navbar').style.display=isAuth?'none':'flex';
+  document.getElementById('main-container').style.display=isAuth?'none':'block';
+  document.getElementById('auth-box').style.display=isAuth?'flex':'none';
+  if(agentPollInterval){clearInterval(agentPollInterval);agentPollInterval=null;}
+  if(viewId==='agent-profile'&&currentUser){
+    document.getElementById('prof-name').value=currentUser.fullName||'';
+    document.getElementById('prof-user').value=currentUser.username||'';
+    document.getElementById('prof-account').value=currentUser.accountName||'';
+    document.getElementById('prof-phone').value=currentUser.phone||'';
+    document.getElementById('prof-email').value=currentUser.email||'';
+    if(currentUser.phone&&currentUser.email){document.getElementById('prof-phone').readOnly=true;document.getElementById('prof-email').readOnly=true;document.getElementById('save-profile-btn').classList.add('hidden');document.getElementById('prof-mandatory-msg').classList.add('hidden');}
+    else{document.getElementById('prof-phone').readOnly=false;document.getElementById('prof-email').readOnly=false;document.getElementById('save-profile-btn').classList.remove('hidden');document.getElementById('prof-mandatory-msg').classList.remove('hidden');}
+    loadAgentConvoList();loadAgentNotifications();
+    agentPollInterval=setInterval(()=>{loadAgentConvoList();pollAgentUnread();loadAgentNotificationsBadge();},5000);
+  }
+}
+function goHome(){
+  if(!currentUser)return switchView('auth-box');
+  if(!currentUser.phone||!currentUser.email){alert("Complete profile first.");return switchView('agent-profile');}
+  if(['admin','leader','quality'].includes(currentUser.role))switchView('admin-dashboard');
+  else switchView('agent-hub');
+}
+function logout(){localStorage.removeItem('currentUser');currentUser=null;[agentPollInterval,adminChatInterval,notifPollInterval].forEach(i=>{if(i)clearInterval(i);});document.getElementById('main-container').style.display='none';document.getElementById('auth-box').style.display='flex';document.getElementById('top-navbar').style.display='none';['agent-hub','info-display-box','quiz-dashboard','admin-dashboard','agent-profile'].forEach(id=>document.getElementById(id).classList.add('hidden'));}
+function switchAdminTab(tabId,btn){document.querySelectorAll('.admin-tab-content').forEach(el=>el.classList.add('hidden'));document.querySelectorAll('.tab-btn').forEach(el=>el.classList.remove('active'));document.getElementById(tabId).classList.remove('hidden');if(btn)btn.classList.add('active');if(adminChatInterval){clearInterval(adminChatInterval);adminChatInterval=null;}}
+function switchAgentTab(tab){
+  document.getElementById('act-chat').classList.toggle('active',tab==='chat');
+  document.getElementById('act-notif').classList.toggle('active',tab==='notif');
+  document.getElementById('acp-chat').classList.toggle('active',tab==='chat');
+  document.getElementById('acp-notif').classList.toggle('active',tab==='notif');
+  if(tab==='notif'){markAllNotifsRead();}
+}
+function toggleAuthMode(){isSignUpMode=!isSignUpMode;document.getElementById('signup-fields').style.display=isSignUpMode?"block":"none";document.getElementById('auth-btn').innerHTML=isSignUpMode?'<i class="fa-solid fa-user-plus"></i> Register':'<i class="fa-solid fa-right-to-bracket"></i> Sign In';document.getElementById('toggle-auth-btn').innerText=isSignUpMode?"Have an account? Sign in":"No account? Register (needs approval)";}
+function handleAuth(e){
+  e.preventDefault();const user=document.getElementById('auth-username').value.trim().toLowerCase();const pass=document.getElementById('auth-password').value.trim();
+  if(user==="mohamed nasser"&&pass==="592005"){currentUser={username:"mohamed nasser",fullName:"Mohamed Nasser",role:"admin",status:"approved",accountName:"Quattro",phone:"01000000000",email:"admin@quattro.com",hrId:"ADMIN-01"};setupDashboardPermissions();return;}
+  if(isSignUpMode){const name=document.getElementById('auth-fullname').value.trim();const acc=document.getElementById('auth-account').value.trim();if(!name||!acc)return alert('Complete all fields.');fetch(`${FB}/users/${user}.json`,{method:'PUT',body:JSON.stringify({fullName:name,username:user,password:pass,role:"agent",accountName:acc,status:"pending",phone:"",email:"",hrId:""})}).then(()=>{alert('Registered! Waiting for approval.');toggleAuthMode();});}
+  else{fetch(`${FB}/users/${user}.json`).then(r=>r.json()).then(ud=>{if(ud&&ud.password===pass){if(ud.status==='pending')return alert('Account pending approval.');currentUser=ud;setupDashboardPermissions();}else alert("Incorrect username or password.");});}
+}
+function saveProfileData(){const ph=document.getElementById('prof-phone').value.trim();const em=document.getElementById('prof-email').value.trim();if(!ph||!em)return alert('Both required!');currentUser.phone=ph;currentUser.email=em;fetch(`${FB}/users/${currentUser.username}/phone.json`,{method:'PUT',body:JSON.stringify(ph)});fetch(`${FB}/users/${currentUser.username}/email.json`,{method:'PUT',body:JSON.stringify(em)}).then(()=>{localStorage.setItem('currentUser',JSON.stringify(currentUser));alert('Saved!');goHome();});}
 
-function addQuizQuestionAdmin() {
-    const qName = document.getElementById('q-quizname').value.trim();
-    // Use Array.from for multi-select
-    const targetOpts = document.getElementById('q-target-select').selectedOptions;
-    const targets = Array.from(targetOpts).map(opt => opt.value);
-    
-    const txt = document.getElementById('q-text').value.trim();
-    const o1 = document.getElementById('q-opt1').value.trim();
-    const o2 = document.getElementById('q-opt2').value.trim();
-    const o3 = document.getElementById('q-opt3').value.trim();
-    const o4 = document.getElementById('q-opt4').value.trim();
-    const corr = document.getElementById('q-correct').value;
+// ── FILE HELPERS ──
+function fileToBase64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file);});}
+function renderAttachment(att){
+  if(!att)return'';
+  if(att.type&&att.type.startsWith('image/')){return`<br><img src="${att.data}" class="msg-img" alt="${att.name}" onclick="document.getElementById('img-modal-src').src='${att.data}';document.getElementById('img-modal').classList.remove('hidden')">`;}
+  if(att.type&&att.type.startsWith('video/')){return`<br><video src="${att.data}" controls style="max-width:240px;border-radius:6px;margin-top:5px;"></video>`;}
+  return`<br><div class="msg-attachment"><i class="fa-solid fa-paperclip"></i><a href="${att.data}" download="${att.name}">${att.name}</a><span style="color:var(--text3);font-size:10px;">${att.size}</span></div>`;
+}
+function handleAgentFileSelect(e){agentPendingFiles=Array.from(e.target.files);if(agentPendingFiles.length)alert(`${agentPendingFiles.length} file(s) attached. Press send to deliver.`);}
+function handleAdminFileSelect(e){adminPendingFiles=Array.from(e.target.files);if(adminPendingFiles.length)alert(`${adminPendingFiles.length} file(s) attached. Press send to deliver.`);}
 
-    if(!qName || targets.length===0 || !txt || !o1 || !o2 || !o3 || !o4 || !corr) {
-        alert("Please fill all fields."); return;
-    }
+// ── AGENT MULTI-CHAT ──
+function loadAgentConvoList(){
+  const chatKey=`convos_${currentUser.username}`;
+  fetch(`${FB}/${chatKey}.json`).then(r=>r.json()).then(data=>{
+    const list=document.getElementById('agent-convo-list');list.innerHTML='';
+    if(!data){list.innerHTML='<p style="padding:10px;font-size:12px;color:var(--text3)">No conversations yet.</p>';return;}
+    let totalUnread=0;
+    Object.entries(data).forEach(([key,convo])=>{
+      if(!convo)return;
+      const msgs=convo.messages?Object.values(convo.messages):[];
+      const lastMsg=msgs[msgs.length-1];
+      const unread=msgs.filter(m=>m.sender!==currentUser.username&&!m.readByAgent).length;
+      if(unread>0)totalUnread+=unread;
+      const isActive=activeAgentConvoKey===key;
+      list.innerHTML+=`<div class="agent-convo-item ${isActive?'active':''}" onclick="openAgentConvo('${key}')">
+        <div class="chat-av" style="font-size:11px;font-weight:700;">${(convo.recipient||'MG').substring(0,2).toUpperCase()}</div>
+        <div class="chat-item-info"><strong style="font-size:12px;">${convo.subject||convo.recipient||'Chat'}</strong><span>${lastMsg?lastMsg.text.substring(0,30)+'...':'No messages'}</span></div>
+        <div class="chat-unread-badge ${unread>0?'show':''}">${unread}</div>
+      </div>`;
+    });
+    // update nav badge
+    updateNavBadge();
+    const chatBadge=document.getElementById('agent-chat-badge');
+    if(totalUnread>0){chatBadge.innerText=totalUnread;chatBadge.classList.add('show');}
+    else chatBadge.classList.remove('show');
+  });
+}
+function openAgentConvo(key){
+  activeAgentConvoKey=key;
+  const chatKey=`convos_${currentUser.username}`;
+  fetch(`${FB}/${chatKey}/${key}.json`).then(r=>r.json()).then(convo=>{
+    if(!convo)return;
+    // update header
+    document.getElementById('agent-chat-window-hdr').innerHTML=`<div class="chat-av" style="font-size:11px;font-weight:700;width:30px;height:30px;">${(convo.recipient||'MG').substring(0,2).toUpperCase()}</div><div><div style="font-size:13px;font-weight:600;color:var(--text);">${convo.subject||'Chat'}</div><div style="font-size:11px;color:var(--text3);">To: ${convo.recipient||'Management'}</div></div>`;
+    // render messages
+    const msgs=convo.messages?Object.values(convo.messages):[];
+    const c=document.getElementById('agent-chat-msgs');c.innerHTML='';
+    msgs.forEach(msg=>{
+      const isMe=msg.sender===currentUser.username;
+      c.innerHTML+=`<div class="bubble ${isMe?'b-sent':'b-recv'}" style="margin-${isMe?'left':'right'}:auto;">
+        <div class="b-sender">${msg.senderName||msg.sender}${msg.role&&msg.role!=='agent'?` <span style="font-size:9px;color:var(--text3)">[${msg.role.toUpperCase()}]</span>`:''}</div>
+        ${msg.text}${renderAttachment(msg.attachment||null)}
+        <div class="b-meta">${msg.timestamp||''} ${isMe?`<span class="${msg.readByAdmin?'tick-r':'tick-u'}"><i class="fa-solid fa-check-double"></i></span>`:''}</div>
+      </div>`;
+    });
+    c.scrollTop=c.scrollHeight;
+    // mark msgs as read by agent
+    if(convo.messages){Object.entries(convo.messages).forEach(([mkey,msg])=>{if(msg.sender!==currentUser.username&&!msg.readByAgent){fetch(`${FB}/${chatKey}/${key}/messages/${mkey}/readByAgent.json`,{method:'PUT',body:JSON.stringify(true)});}});}
+    // refresh convo list to clear badge
+    setTimeout(loadAgentConvoList,500);
+  });
+}
+function startNewConvo(){document.getElementById('new-convo-modal').classList.remove('hidden');}
+function createNewConvo(){
+  const recipient=document.getElementById('new-convo-recipient').value;
+  const subject=document.getElementById('new-convo-subject').value.trim()||'New Chat';
+  const convoKey=`convo_${Date.now()}`;
+  const chatKey=`convos_${currentUser.username}`;
+  fetch(`${FB}/${chatKey}/${convoKey}.json`,{method:'PUT',body:JSON.stringify({recipient,subject,createdAt:new Date().toLocaleString(),messages:{}})}).then(()=>{document.getElementById('new-convo-modal').classList.add('hidden');document.getElementById('new-convo-subject').value='';activeAgentConvoKey=convoKey;loadAgentConvoList();openAgentConvo(convoKey);});
+}
+async function sendAgentMsg(){
+  if(!activeAgentConvoKey){alert("Select or start a conversation first.");return;}
+  const text=document.getElementById('agent-chat-msg').value.trim();
+  if(!text&&agentPendingFiles.length===0)return;
+  document.getElementById('agent-chat-msg').value='';
+  let attachment=null;
+  if(agentPendingFiles.length>0){
+    const f=agentPendingFiles[0];
+    const data=await fileToBase64(f);
+    attachment={name:f.name,type:f.type,size:`${(f.size/1024).toFixed(1)}KB`,data};
+    agentPendingFiles=[];document.getElementById('agent-file-input').value='';
+  }
+  const msgData={sender:currentUser.username,senderName:currentUser.fullName,role:currentUser.role,text:text||(attachment?'[File]':''),timestamp:new Date().toLocaleString(),readByAgent:true,readByAdmin:false};
+  if(attachment)msgData.attachment=attachment;
+  const chatKey=`convos_${currentUser.username}`;
+  fetch(`${FB}/${activeAgentConvoKey}/messages.json`,{method:'POST',body:JSON.stringify(msgData)}).then(()=>openAgentConvo(activeAgentConvoKey));
+}
+function pollAgentUnread(){loadAgentConvoList();}
 
-    const qObj = { text: txt, options: [o1,o2,o3,o4], correct: parseInt(corr)-1 };
-    
-    // Save quiz logic
-    fetch(`${FB}/quizzes/${qName}/target.json`, {method:'PUT', body:JSON.stringify(targets)}).then(() => {
-        fetch(`${FB}/quizzes/${qName}/questions.json`, {method:'POST', body:JSON.stringify(qObj)}).then(() => {
-            if(confirm("Question saved! Do you want to add another question to this quiz?")) {
-                document.getElementById('q-text').value = '';
-                document.getElementById('q-opt1').value = '';
-                document.getElementById('q-opt2').value = '';
-                document.getElementById('q-opt3').value = '';
-                document.getElementById('q-opt4').value = '';
-                document.getElementById('q-correct').value = '';
-            } else {
-                loadQuizzesAdminSection();
-            }
+// ── ADMIN COMMS ──
+function loadAdminComms(){
+  fetch(`${FB}/users.json`).then(r=>r.json()).then(users=>{
+    const list=document.getElementById('admin-chat-list');list.innerHTML='';
+    if(!users){list.innerHTML='<p style="padding:14px;color:var(--text3);font-size:12px;">Loading...</p>';return;}
+    let totalUnread=0;
+    const userKeys=Object.keys(users).filter(u=>users[u]&&users[u].role==='agent');
+    let pending=userKeys.length;if(pending===0){list.innerHTML='<p style="padding:14px;color:var(--text3);font-size:12px;">No agent chats.</p>';return;}
+    userKeys.forEach(uname=>{
+      fetch(`${FB}/convos_${uname}.json`).then(r=>r.json()).then(convos=>{
+        if(!convos){pending--;if(pending===0)updateAdminChatBadge(totalUnread);return;}
+        Object.entries(convos).forEach(([ckey,convo])=>{
+          if(!convo)return;
+          const msgs=convo.messages?Object.values(convo.messages):[];
+          const lastMsg=msgs[msgs.length-1];
+          const unread=msgs.filter(m=>m.sender===uname&&!m.readByAdmin).length;
+          if(unread>0)totalUnread+=unread;
+          const initials=(uname.substring(0,2)||'??').toUpperCase();
+          list.innerHTML+=`<div class="chat-item ${unread>0?'unread-item':''} ${activeAdminChatUser===uname&&activeAgentConvoKey===ckey?'active':''}" onclick="openAdminConvo('${uname}','${ckey}')">
+            <div class="chat-av">${initials}</div>
+            <div class="chat-item-info"><strong>@${uname}</strong><span>${convo.subject||'Chat'}: ${lastMsg?lastMsg.text.substring(0,25):'—'}</span></div>
+            <div class="chat-unread-badge ${unread>0?'show':''}">${unread}</div>
+          </div>`;
         });
+        pending--;if(pending===0)updateAdminChatBadge(totalUnread);
+      }).catch(()=>{pending--;if(pending===0)updateAdminChatBadge(totalUnread);});
     });
+  });
 }
-
-function loadEditorQuestions(qName, questions) {
-    const c = document.getElementById('individual-questions-list');
-    c.innerHTML = '';
-    Object.keys(questions).forEach(k => {
-        const q = questions[k];
-        c.innerHTML += `
-        <div class="q-edit-row">
-            <input type="text" id="eq-txt-${k}" value="${q.text}" style="margin-bottom:8px; font-weight:bold;">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px;">
-                <input type="text" id="eq-o1-${k}" value="${q.options[0]}">
-                <input type="text" id="eq-o2-${k}" value="${q.options[1]}">
-                <input type="text" id="eq-o3-${k}" value="${q.options[2]}">
-                <input type="text" id="eq-o4-${k}" value="${q.options[3]}">
-            </div>
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                    <label style="display:inline;font-size:11px;">Correct (1-4): </label>
-                    <input type="number" id="eq-c-${k}" value="${q.correct+1}" min="1" max="4" style="width:55px;display:inline;padding:5px;">
-                </div>
-                <div>
-                    <button class="action-btn s" onclick="updateSingleQuestion('${qName}', '${k}')"><i class="fa-solid fa-check"></i> Update</button>
-                    <button class="action-btn d" onclick="deleteSingleQuestion('${qName}', '${k}')"><i class="fa-solid fa-trash"></i></button>
-                </div>
-            </div>
+function updateAdminChatBadge(n){const tb=document.getElementById('tab-badge-comms');if(tb){if(n>0){tb.innerText=n;tb.classList.add('show');}else tb.classList.remove('show');}}
+function openAdminConvo(uname,ckey){
+  activeAdminChatUser=uname;activeAgentConvoKey=ckey;
+  document.getElementById('chat-empty-state').style.display='none';
+  document.getElementById('admin-chat-active').style.display='flex';
+  document.getElementById('adm-chat-av').innerText=(uname.substring(0,2)||'??').toUpperCase();
+  document.getElementById('admin-chat-hdr-name').innerText=`@${uname}`;
+  document.getElementById('admin-chat-hdr-sub').innerText='Active conversation';
+  ['admin-chat-input','admin-chat-send-btn','admin-chat-delete-btn'].forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=false;});
+  if(adminChatInterval){clearInterval(adminChatInterval);adminChatInterval=null;}
+  const fetchAdminConvo=()=>{
+    if(!activeAdminChatUser||!activeAgentConvoKey)return;
+    fetch(`${FB}/convos_${activeAdminChatUser}/${activeAgentConvoKey}.json`).then(r=>r.json()).then(convo=>{
+      const c=document.getElementById('admin-chat-messages');c.innerHTML='';if(!convo)return;
+      const msgs=convo.messages?Object.entries(convo.messages):[];
+      msgs.forEach(([mkey,msg])=>{
+        if(!msg)return;
+        const isAgent=msg.sender===activeAdminChatUser;
+        c.innerHTML+=`<div class="bubble ${isAgent?'b-recv':'b-sent'}" style="margin-${isAgent?'right':'left'}:auto;text-align:${isAgent?'left':'right'};">
+          <div class="b-sender">${msg.senderName||msg.sender}${msg.role&&msg.role!=='agent'?` <span style="font-size:9px;color:var(--text3)">[${msg.role.toUpperCase()}]</span>`:''}</div>
+          ${msg.text}${renderAttachment(msg.attachment||null)}
+          <div class="b-meta">${msg.timestamp||''} <span class="${msg.readByAdmin?'tick-r':'tick-u'}"><i class="fa-solid fa-check-double"></i></span></div>
         </div>`;
+        // mark as read by admin
+        if(isAgent&&!msg.readByAdmin){fetch(`${FB}/convos_${activeAdminChatUser}/${activeAgentConvoKey}/messages/${mkey}/readByAdmin.json`,{method:'PUT',body:JSON.stringify(true)});}
+      });
+      c.scrollTop=c.scrollHeight;
+      setTimeout(loadAdminComms,500);
     });
+  };
+  fetchAdminConvo();adminChatInterval=setInterval(fetchAdminConvo,4000);
 }
-
-function deleteQuizAdmin(qName) {
-    if(confirm(`Are you sure you want to delete the entire quiz "${qName}" with all its questions?`)) {
-        fetch(`${FB}/quizzes/${qName}.json`, {method:'DELETE'}).then(() => loadQuizzesAdminSection());
-    }
+async function sendAdminReply(){
+  if(!activeAdminChatUser||!activeAgentConvoKey)return;
+  const text=document.getElementById('admin-chat-input').value.trim();
+  if(!text&&adminPendingFiles.length===0)return;
+  document.getElementById('admin-chat-input').value='';
+  let attachment=null;
+  if(adminPendingFiles.length>0){
+    const f=adminPendingFiles[0];
+    const data=await fileToBase64(f);
+    attachment={name:f.name,type:f.type,size:`${(f.size/1024).toFixed(1)}KB`,data};
+    adminPendingFiles=[];document.getElementById('admin-file-input').value='';
+  }
+  const msgData={sender:currentUser.username,senderName:currentUser.fullName,role:currentUser.role,text:text||(attachment?'[File]':''),timestamp:new Date().toLocaleString(),readByAdmin:true,readByAgent:false};
+  if(attachment)msgData.attachment=attachment;
+  fetch(`${FB}/convos_${activeAdminChatUser}/${activeAgentConvoKey}/messages.json`,{method:'POST',body:JSON.stringify(msgData)}).then(()=>{});
 }
+function deleteActiveChat(){if(!activeAdminChatUser||!activeAgentConvoKey)return;if(confirm(`Delete this conversation?`)){fetch(`${FB}/convos_${activeAdminChatUser}/${activeAgentConvoKey}.json`,{method:'DELETE'}).then(()=>{document.getElementById('admin-chat-messages').innerHTML='';document.getElementById('chat-empty-state').style.display='flex';document.getElementById('admin-chat-active').style.display='none';['admin-chat-input','admin-chat-send-btn','admin-chat-delete-btn'].forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=true;});activeAdminChatUser=null;if(adminChatInterval){clearInterval(adminChatInterval);}loadAdminComms();});}}
 
-function openQuizView(qName, questions) {
-    activeQuizName = qName;
-    activeQuizQuestions = Object.values(questions);
-    
-    // Dedicated Mode
-    document.body.classList.add('quiz-active');
-    document.getElementById('quiz-dashboard').classList.remove('hidden');
-    document.getElementById('available-quizzes-list').classList.add('hidden');
-    document.getElementById('quiz-back-btn').classList.add('hidden');
-    document.getElementById('active-quiz-area').classList.remove('hidden');
-    document.getElementById('active-quiz-title').innerText = qName;
-    document.getElementById('submit-quiz-btn').classList.remove('hidden');
-    document.getElementById('close-quiz-btn').classList.add('hidden');
-    
-    let html = '';
-    activeQuizQuestions.forEach((q, i) => {
-        html += `<div class="quiz-item" style="flex-direction:column;align-items:flex-start;padding:22px;">
-            <p style="font-size:16px;font-weight:600;margin-bottom:14px;color:var(--text);">${i+1}. ${q.text}</p>
-            <div style="width:100%;display:grid;grid-template-columns:1fr;gap:8px;">`;
-        q.options.forEach((opt, oi) => {
-            html += `<label class="option-label"><input type="radio" name="q${i}" value="${oi}" style="margin-right:8px;">${opt}</label>`;
-        });
-        html += `</div></div>`;
+// ── NAV BADGE UPDATE ──
+function updateNavBadge(){
+  const chatKey=`convos_${currentUser?.username}`;
+  if(!currentUser||!['agent'].includes(currentUser.role))return;
+  fetch(`${FB}/${chatKey}.json`).then(r=>r.json()).then(data=>{
+    let unread=0;
+    if(data)Object.values(data).forEach(convo=>{if(convo&&convo.messages)Object.values(convo.messages).forEach(m=>{if(m&&m.sender!==currentUser.username&&!m.readByAgent)unread++;});});
+    fetch(`${FB}/announcements.json`).then(r=>r.json()).then(anns=>{
+      let newAnns=0;
+      if(anns)Object.entries(anns).forEach(([id,ann])=>{if(ann&&!seenNotifIds.has(id)){const t=ann.target;if(t==='all'||(t==='agents'&&currentUser.role==='agent'))newAnns++;}});
+      const total=unread+newAnns;
+      const nb=document.getElementById('nav-total-badge');
+      if(nb){if(total>0){nb.innerText=total;nb.classList.add('show');}else nb.classList.remove('show');}
     });
-    document.getElementById('quiz-questions-container').innerHTML = html;
+  });
 }
 
-function submitQuizAnswers() {
-    let score = 0;
-    let reviewDetailsHtml = '';
-    const details = [];
-    
-    activeQuizQuestions.forEach((q, i) => {
-        const selected = document.querySelector(`input[name="q${i}"]:checked`);
-        const selVal = selected ? parseInt(selected.value) : -1;
-        const isCorrect = selVal === q.correct;
-        
-        if(isCorrect) score++;
-        
-        details.push({
-            question: q.text,
-            selectedText: selVal >= 0 ? q.options[selVal] : "No Answer",
-            correctText: q.options[q.correct],
-            isCorrect: isCorrect
-        });
-        
-        reviewDetailsHtml += `
-            <div style="padding:15px; background:var(--bg4); border-radius:8px; border-left:4px solid ${isCorrect ? 'var(--success)' : 'var(--danger)'}">
-                <p style="font-weight:bold; margin-bottom:8px;">${i+1}. ${q.text}</p>
-                <p style="font-size:13px; color:var(--text2); margin-bottom:4px;">Your Answer: <span style="color:${isCorrect ? 'var(--success)' : 'var(--danger)'}">${selVal >= 0 ? q.options[selVal] : "No Answer"} ${isCorrect ? '✅' : '❌'}</span></p>
-                ${!isCorrect ? `<p style="font-size:13px; color:var(--text2);">Correct Answer: <span style="color:var(--success)">${q.options[q.correct]}</span></p>` : ''}
-            </div>
-        `;
+// ── ANNOUNCEMENTS ──
+function sendAnnouncement(){
+  const title=document.getElementById('ann-title').value.trim();const body=document.getElementById('ann-body').value.trim();const target=document.getElementById('ann-target').value;const priority=document.getElementById('ann-priority').value;
+  if(!title||!body)return alert('Fill title and message.');
+  fetch(`${FB}/announcements.json`,{method:'POST',body:JSON.stringify({title,body,target,priority,sender:currentUser.fullName,senderRole:currentUser.role,timestamp:new Date().toLocaleString()})}).then(()=>{alert('Sent!');document.getElementById('ann-title').value='';document.getElementById('ann-body').value='';loadAnnouncements();});
+}
+function loadAnnouncements(){
+  fetch(`${FB}/announcements.json`).then(r=>r.json()).then(data=>{
+    const feed=document.getElementById('admin-announce-feed');if(!feed)return;feed.innerHTML='';
+    if(!data){feed.innerHTML='<p style="text-align:center;color:var(--text3);padding:30px;">No announcements.</p>';return;}
+    Object.entries(data).reverse().forEach(([id,ann])=>{
+      if(!ann)return;
+      const icons={high:'🚨',normal:'📢',info:'ℹ️'};const pc={high:'ph',normal:'pn',info:'pi'};
+      feed.innerHTML+=`<div class="ann-item ${pc[ann.priority||'normal']}">
+        <div class="ann-hdr">
+          <div class="ann-title-row"><strong>${ann.title}</strong><span class="ann-badge ${ann.target==='all'?'ab-all':'ab-role'}">${ann.target}</span><span style="font-size:12px;">${icons[ann.priority]||'📢'}</span></div>
+          <div style="display:flex;align-items:center;gap:8px;"><span class="ann-meta">${ann.sender} · ${ann.timestamp}</span><button class="action-btn d" onclick="deleteAnnouncement('${id}')"><i class="fa-solid fa-trash"></i></button></div>
+        </div>
+        <div class="ann-body">${ann.body}</div>
+      </div>`;
     });
-    
-    const percentage = Math.round((score / activeQuizQuestions.length) * 100);
-    const dateStr = new Date().toLocaleString();
-    
-    // Show Google Forms Style Review
-    document.getElementById('quiz-review-score').innerHTML = `Score: ${score} / ${activeQuizQuestions.length} <br><span style="font-size:32px;">${percentage}%</span>`;
-    document.getElementById('quiz-review-details').innerHTML = reviewDetailsHtml;
-    document.getElementById('quiz-review-modal').classList.remove('hidden');
-    
-    // Save to DB
-    const resData = {
-        agent: currentUser.fullName,
-        hrId: currentUser.hrId,
-        account: currentUser.accountName,
-        quiz: activeQuizName,
-        score: score,
-        total: activeQuizQuestions.length,
-        percentage: percentage,
-        date: dateStr,
-        details: details
-    };
-    fetch(`${FB}/scores.json`, {method:'POST', body:JSON.stringify(resData)});
-    
-    document.getElementById('submit-quiz-btn').classList.add('hidden');
-    document.getElementById('close-quiz-btn').classList.remove('hidden');
+  });
+}
+function deleteAnnouncement(id){if(confirm('Delete?'))fetch(`${FB}/announcements/${id}.json`,{method:'DELETE'}).then(()=>loadAnnouncements());}
+
+// ── AGENT NOTIFICATIONS ──
+function loadAgentNotifications(){
+  fetch(`${FB}/announcements.json`).then(r=>r.json()).then(data=>{
+    const c=document.getElementById('agent-notifications-list');if(!c)return;c.innerHTML='';
+    if(!data){c.innerHTML='<p style="color:var(--text3);font-size:13px;text-align:center;padding:20px;">No announcements.</p>';return;}
+    const myRole=currentUser.role;
+    const relevant=Object.entries(data).filter(([id,ann])=>{if(!ann)return false;const t=ann.target;return t==='all'||(t==='agents'&&myRole==='agent')||(t==='leaders'&&myRole==='leader')||(t==='quality'&&myRole==='quality');}).reverse();
+    if(!relevant.length){c.innerHTML='<p style="color:var(--text3);font-size:13px;text-align:center;padding:20px;">No announcements for you.</p>';return;}
+    let newCount=0;
+    const icons={high:'🚨',normal:'📢',info:'ℹ️'};const colors={high:'var(--danger)',normal:'var(--gold)',info:'var(--info)'};
+    relevant.forEach(([id,ann])=>{
+      const isNew=!seenNotifIds.has(id);if(isNew)newCount++;
+      c.innerHTML+=`<div class="notif-item ${isNew?'is-new':''}" style="border-left:3px solid ${colors[ann.priority||'normal']}">
+        ${isNew?'<span class="notif-new-dot">NEW</span>':''}
+        <div class="notif-icon">${icons[ann.priority||'normal']}</div>
+        <div class="notif-body"><strong>${ann.title}</strong><p>${ann.body}</p><small>${ann.sender} · ${ann.timestamp}</small></div>
+      </div>`;
+    });
+    const badge=document.getElementById('agent-notif-badge');
+    if(newCount>0){badge.innerText=newCount;badge.classList.add('show');}else badge.classList.remove('show');
+    updateNavBadge();
+  });
+}
+function loadAgentNotificationsBadge(){
+  fetch(`${FB}/announcements.json`).then(r=>r.json()).then(data=>{
+    if(!data)return;const myRole=currentUser.role;
+    let n=Object.entries(data).filter(([id,ann])=>{if(!ann)return false;const t=ann.target;return !seenNotifIds.has(id)&&(t==='all'||(t==='agents'&&myRole==='agent')||(t==='leaders'&&myRole==='leader')||(t==='quality'&&myRole==='quality'));}).length;
+    const badge=document.getElementById('agent-notif-badge');
+    if(n>0){badge.innerText=n;badge.classList.add('show');}else badge.classList.remove('show');
+  });
+}
+function markAllNotifsRead(){
+  fetch(`${FB}/announcements.json`).then(r=>r.json()).then(data=>{
+    if(!data)return;Object.keys(data).forEach(id=>seenNotifIds.add(id));
+    localStorage.setItem('seenNotifs',JSON.stringify([...seenNotifIds]));
+    const badge=document.getElementById('agent-notif-badge');badge.classList.remove('show');
+    loadAgentNotifications();updateNavBadge();
+  });
 }
 
-function closeQuizReview() {
-    document.getElementById('quiz-review-modal').classList.add('hidden');
-    closeQuizView();
+// ── AI ──
+function askGemini(){const input=document.getElementById('gemini-input');const q=input.value.trim();if(!q)return;const box=document.getElementById('gemini-chat-box');box.innerHTML+=`<div class="bubble b-sent"><span class="b-sender">You</span>${q}</div>`;input.value='';box.scrollTop=box.scrollHeight;const apiKey="YOUR_GEMINI_API_KEY";if(apiKey==="YOUR_GEMINI_API_KEY"){setTimeout(()=>{box.innerHTML+=`<div class="bubble b-recv"><span class="b-sender">AI</span>Add your Gemini API key in the code to enable AI.</div>`;box.scrollTop=box.scrollHeight;},700);return;}fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:`Quattro Operations AI: ${q}`}]}]})}).then(r=>r.json()).then(d=>{const reply=d.candidates[0].content.parts[0].text;box.innerHTML+=`<div class="bubble b-recv"><span class="b-sender">AI</span>${reply.replace(/\n/g,'<br>')}</div>`;box.scrollTop=box.scrollHeight;}).catch(()=>{box.innerHTML+=`<div class="bubble b-recv" style="border-color:var(--danger);">Connection failed.</div>`;box.scrollTop=box.scrollHeight;});}
+
+// ── DASHBOARD SETUP ──
+function setupDashboardPermissions(){
+  if(!currentUser)return;
+  localStorage.setItem('currentUser',JSON.stringify(currentUser));
+  const badge=document.getElementById('user-role-badge');badge.className='role-badge';
+  document.getElementById('nav-profile-wrap').style.display='none';
+  if(!currentUser.phone||!currentUser.email){switchView('agent-profile');return;}
+  if(['admin','leader','quality'].includes(currentUser.role)){
+    const show=(id,v)=>{const el=document.getElementById(id);if(el)el.style.display=v?'block':'none';};
+    show('tab-btn-users',currentUser.role==='admin'||currentUser.role==='leader');
+    show('tab-btn-comms',true);show('tab-btn-announce',true);
+    show('tab-btn-schedules',currentUser.role==='admin'||currentUser.role==='leader');
+    show('tab-btn-kpi',currentUser.role==='admin'||currentUser.role==='leader');
+    show('tab-btn-quizzes',currentUser.role==='admin'||currentUser.role==='quality');
+    show('tab-btn-results',true);show('tab-btn-gemini',true);
+    document.getElementById('admin-only-add-user').classList.toggle('hidden',currentUser.role!=='admin');
+    
+    if(currentUser.role==='admin'){badge.innerText='Admin';badge.classList.add('badge-admin');switchAdminTab('tab-users',document.getElementById('tab-btn-users'));loadUsersAdmin();}
+    else if(currentUser.role==='leader'){badge.innerText='Leader';badge.classList.add('badge-leader');switchAdminTab('tab-users',document.getElementById('tab-btn-users'));loadUsersAdmin();}
+    else if(currentUser.role==='quality'){badge.innerText='Quality';badge.classList.add('badge-quality');switchAdminTab('tab-quizzes',document.getElementById('tab-btn-quizzes'));}
+  }
 }
-
-function closeQuizView() {
-    document.body.classList.remove('quiz-active');
-    document.getElementById('active-quiz-area').classList.add('hidden');
-    document.getElementById('available-quizzes-list').classList.remove('hidden');
-    document.getElementById('quiz-back-btn').classList.remove('hidden');
-    loadQuizzesForAgent();
-}
-
-function triggerExcelExport() {
-    // Generate CSV from globalScoresData based on active filters
-    alert("Exporting visible results to Excel/CSV... (Mocked download)");
-    // Logic: Iterate globalScoresData, build 2D array, XLSX.utils.aoa_to_sheet, XLSX.writeFile(wb, "Quiz_Results.xlsx")
-}
-
-// ... All remaining unmodified script logic goes here ...
-// Assuming the rest of the generic UI toggles and setups from original code.
-
 </script>
 </body>
 </html>
