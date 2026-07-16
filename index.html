@@ -863,7 +863,7 @@ async function sendAgentMsg(){
   const msgData={sender:currentUser.username,senderName:currentUser.fullName,role:currentUser.role,text:text||(attachment?'[File]':''),timestamp:new Date().toLocaleString(),readByAgent:true,readByAdmin:false};
   if(attachment)msgData.attachment=attachment;
   const chatKey=`convos_${currentUser.username}`;
-  fetch(`${FB}/${activeAgentConvoKey}/messages.json`,{method:'POST',body:JSON.stringify(msgData)}).then(()=>openAgentConvo(activeAgentConvoKey));
+  fetch(`${FB}/${chatKey}/${activeAgentConvoKey}/messages.json`,{method:'POST',body:JSON.stringify(msgData)}).then(()=>openAgentConvo(activeAgentConvoKey));
 }
 function pollAgentUnread(){loadAgentConvoList();}
 
@@ -1037,6 +1037,7 @@ function setupDashboardPermissions(){
   localStorage.setItem('currentUser',JSON.stringify(currentUser));
   const badge=document.getElementById('user-role-badge');badge.className='role-badge';
   document.getElementById('nav-profile-wrap').style.display='none';
+  loadDropdownTargets();
   if(!currentUser.phone||!currentUser.email){switchView('agent-profile');return;}
   if(['admin','leader','quality'].includes(currentUser.role)){
     const show=(id,v)=>{const el=document.getElementById(id);if(el)el.style.display=v?'block':'none';};
@@ -1047,11 +1048,408 @@ function setupDashboardPermissions(){
     show('tab-btn-quizzes',currentUser.role==='admin'||currentUser.role==='quality');
     show('tab-btn-results',true);show('tab-btn-gemini',true);
     document.getElementById('admin-only-add-user').classList.toggle('hidden',currentUser.role!=='admin');
-    
     if(currentUser.role==='admin'){badge.innerText='Admin';badge.classList.add('badge-admin');switchAdminTab('tab-users',document.getElementById('tab-btn-users'));loadUsersAdmin();}
-    else if(currentUser.role==='leader'){badge.innerText='Leader';badge.classList.add('badge-leader');switchAdminTab('tab-users',document.getElementById('tab-btn-users'));loadUsersAdmin();}
-    else if(currentUser.role==='quality'){badge.innerText='Quality';badge.classList.add('badge-quality');switchAdminTab('tab-quizzes',document.getElementById('tab-btn-quizzes'));}
+    else if(currentUser.role==='leader'){badge.innerText='Leader';badge.classList.add('badge-leader');switchAdminTab('tab-comms',document.getElementById('tab-btn-comms'));loadAdminComms();}
+    else{badge.innerText='Quality';badge.classList.add('badge-quality');switchAdminTab('tab-quizzes',document.getElementById('tab-btn-quizzes'));loadQuizzesAdminSection();}
+    switchView('admin-dashboard');
+  } else {
+    badge.innerText='Agent';badge.classList.add('badge-agent');
+    document.getElementById('nav-profile-wrap').style.display='block';
+    document.getElementById('wt-name').innerText=currentUser.fullName;
+    document.getElementById('wt-sub').innerText=`${currentUser.accountName || 'Quattro'} — Agent Portal`;
+    switchView('agent-hub');
+    updateNavBadge();
   }
+}
+
+// ── USERS MANAGER FUNCTIONS ──
+function loadUsersAdmin() {
+  fetch(`${FB}/users.json`).then(r=>r.json()).then(users => {
+    globalUsersList = users || {};
+    const tbody = document.getElementById('admin-users-list');if(!tbody)return;
+    tbody.innerHTML = '';
+    const accFilter = document.getElementById('filter-account').value.toLowerCase().trim();
+    const statusFilter = document.getElementById('filter-status').value;
+    
+    Object.entries(globalUsersList).forEach(([username, u]) => {
+      if (!u) return;
+      if (accFilter && u.accountName && !u.accountName.toLowerCase().includes(accFilter)) return;
+      if (statusFilter !== 'all' && u.status !== statusFilter) return;
+      
+      const isPending = u.status === 'pending';
+      tbody.innerHTML += `<tr>
+        <td><strong>${u.fullName}</strong><br><small>${u.email || 'No Email'} | ${u.phone || 'No Phone'}</small></td>
+        <td>${username}</td>
+        <td>${u.accountName || '—'}</td>
+        <td><span class="role-badge badge-${u.role || 'agent'}">${u.role || 'agent'}</span></td>
+        <td><span class="status-badge ${isPending ? 'st-pending' : 'st-active'}">${u.status}</span></td>
+        <td>
+          <button class="action-btn p" onclick="openEditUserModal('${username}')"><i class="fa-solid fa-pen"></i></button>
+          ${isPending ? `<button class="action-btn s" onclick="approveUser('${username}')"><i class="fa-solid fa-check"></i></button>` : ''}
+          <button class="action-btn d" onclick="deleteUser('${username}')"><i class="fa-solid fa-trash"></i></button>
+        </td>
+      </tr>`;
+    });
+  });
+}
+function approveUser(username) {
+  fetch(`${FB}/users/${username}/status.json`, { method: 'PUT', body: JSON.stringify('approved') }).then(() => loadUsersAdmin());
+}
+function deleteUser(username) {
+  if (confirm(`Delete user ${username}?`)) {
+    fetch(`${FB}/users/${username}.json`, { method: 'DELETE' }).then(() => loadUsersAdmin());
+  }
+}
+function addConfirmedUser() {
+  const name = document.getElementById('dir-name').value.trim();
+  const user = document.getElementById('dir-user').value.trim().toLowerCase();
+  const pass = document.getElementById('dir-pass').value.trim();
+  const acc = document.getElementById('dir-acc').value.trim();
+  const hrid = document.getElementById('dir-hrid').value.trim();
+  const role = document.getElementById('dir-role').value;
+  if(!name || !user || !pass) return alert("Fill required fields!");
+  fetch(`${FB}/users/${user}.json`, {
+    method: 'PUT',
+    body: JSON.stringify({ fullName: name, username: user, password: pass, role: role, accountName: acc, hrId: hrid, status: 'approved', phone:'', email:'' })
+  }).then(() => {
+    alert("User added!");
+    document.getElementById('dir-name').value='';
+    document.getElementById('dir-user').value='';
+    document.getElementById('dir-pass').value='';
+    loadUsersAdmin();
+  });
+}
+function openEditUserModal(username) {
+  const u = globalUsersList[username];if (!u) return;
+  document.getElementById('edit-orig-username').value = username;
+  document.getElementById('edit-fullname').value = u.fullName || '';
+  document.getElementById('edit-hrid').value = u.hrId || '';
+  document.getElementById('edit-account').value = u.accountName || '';
+  document.getElementById('edit-role').value = u.role || 'agent';
+  document.getElementById('edit-phone').value = u.phone || '';
+  document.getElementById('edit-email').value = u.email || '';
+  document.getElementById('edit-password').value = u.password || '';
+  document.getElementById('edit-user-modal').classList.remove('hidden');
+}
+function closeEditUserModal() { document.getElementById('edit-user-modal').classList.add('hidden'); }
+function saveUserEdit() {
+  const username = document.getElementById('edit-orig-username').value;
+  const updated = {
+    fullName: document.getElementById('edit-fullname').value.trim(),
+    hrId: document.getElementById('edit-hrid').value.trim(),
+    accountName: document.getElementById('edit-account').value.trim(),
+    role: document.getElementById('edit-role').value,
+    phone: document.getElementById('edit-phone').value.trim(),
+    email: document.getElementById('edit-email').value.trim(),
+    password: document.getElementById('edit-password').value.trim(),
+    status: globalUsersList[username].status || 'approved'
+  };
+  fetch(`${FB}/users/${username}.json`, { method: 'PATCH', body: JSON.stringify(updated) }).then(() => {
+    closeEditUserModal();
+    loadUsersAdmin();
+  });
+}
+function loadDropdownTargets() {}
+
+// ── QUIZZES MANAGEMENT ──
+function loadQuizzesAdminSection() {
+  fetch(`${FB}/quizzes.json`).then(r=>r.json()).then(quizzes => {
+    const tbody = document.getElementById('admin-quizzes-control-list');if(!tbody)return;
+    tbody.innerHTML = '';if(!quizzes) return;
+    Object.entries(quizzes).forEach(([qName, qData]) => {
+      if(!qData) return;
+      tbody.innerHTML += `<tr>
+        <td><strong>${qName}</strong></td>
+        <td>${qData.target || 'all'}</td>
+        <td>
+          <button class="action-btn p" onclick="viewQuizAdmin('${qName}')"><i class="fa-solid fa-eye"></i></button>
+          <button class="action-btn s" onclick="openQuizEditor('${qName}')"><i class="fa-solid fa-pen"></i></button>
+          <button class="action-btn d" onclick="deleteQuizAdmin('${qName}')"><i class="fa-solid fa-trash"></i></button>
+        </td>
+      </tr>`;
+    });
+  });
+}
+function addQuizQuestionAdmin() {
+  const qName = document.getElementById('q-quizname').value.trim();
+  const target = document.getElementById('q-target-select').value;
+  const text = document.getElementById('q-text').value.trim();
+  const o1 = document.getElementById('q-opt1').value.trim();
+  const o2 = document.getElementById('q-opt2').value.trim();
+  const o3 = document.getElementById('q-opt3').value.trim();
+  const o4 = document.getElementById('q-opt4').value.trim();
+  const correct = parseInt(document.getElementById('q-correct').value);
+  
+  if(!qName || !text || !o1 || !o2) return alert("Fill quiz name, question, and options.");
+  const questionData = { text, options:[o1, o2, o3, o4], correct };
+  
+  fetch(`${FB}/quizzes/${qName}/questions.json`, { method: 'POST', body: JSON.stringify(questionData) }).then(() => {
+    fetch(`${FB}/quizzes/${qName}/target.json`, { method: 'PUT', body: JSON.stringify(target) }).then(() => {
+      alert("Question saved!");
+      document.getElementById('q-text').value = '';
+      document.getElementById('q-opt1').value = '';
+      document.getElementById('q-opt2').value = '';
+      document.getElementById('q-opt3').value = '';
+      document.getElementById('q-opt4').value = '';
+      loadQuizzesAdminSection();
+    });
+  });
+}
+function viewQuizAdmin(qName) {
+  fetch(`${FB}/quizzes/${qName}.json`).then(r=>r.json()).then(qData => {
+    document.getElementById('view-quiz-title').innerText = qName;
+    const container = document.getElementById('viewer-questions-list');
+    container.innerHTML = '';
+    if(qData && qData.questions) {
+      Object.values(qData.questions).forEach((q, idx) => {
+        container.innerHTML += `<div class="viewer-q">
+          <strong>Q${idx+1}: ${q.text}</strong>
+          <ul style="list-style:none; margin-top:6px; font-size:12px; color:var(--text2);">
+            ${q.options.map((o,i)=>`<li class="${i+1===q.correct?'t-ok':''}">${i+1}. ${o}</li>`).join('')}
+          </ul>
+        </div>`;
+      });
+    }
+    document.getElementById('quiz-viewer-container').classList.remove('hidden');
+  });
+}
+function openQuizEditor(qName) {
+  currentEditingQuizName = qName;
+  document.getElementById('current-editing-quiz-title').innerText = qName;
+  document.getElementById('questions-editor-container').classList.remove('hidden');
+  loadEditorQuestions(qName);
+}
+function loadEditorQuestions(qName) {
+  fetch(`${FB}/quizzes/${qName}.json`).then(r=>r.json()).then(qData => {
+    if(!qData) return;
+    document.getElementById('fast-change-target-select').value = qData.target || 'all';
+    const container = document.getElementById('individual-questions-list');
+    container.innerHTML = '';
+    if(qData.questions) {
+      Object.entries(qData.questions).forEach(([mkey, q]) => {
+        container.innerHTML += `<div class="q-edit-row">
+          <p><strong>${q.text}</strong></p>
+          <button class="action-btn d" style="margin-top:6px;" onclick="deleteQuestionFromQuiz('${mkey}')"><i class="fa-solid fa-trash"></i> Delete Question</button>
+        </div>`;
+      });
+    }
+  });
+}
+function deleteQuestionFromQuiz(mkey) {
+  if(confirm("Delete this question?")) {
+    fetch(`${FB}/quizzes/${currentEditingQuizName}/questions/${mkey}.json`, { method: 'DELETE' }).then(() => loadEditorQuestions(currentEditingQuizName));
+  }
+}
+function updateQuizTargetFromEditor() {
+  const t = document.getElementById('fast-change-target-select').value;
+  fetch(`${FB}/quizzes/${currentEditingQuizName}/target.json`, { method: 'PUT', body: JSON.stringify(t) }).then(() => {
+    alert("Target updated!");
+    loadQuizzesAdminSection();
+  });
+}
+function addSingleQuestionFast() {
+  const text = document.getElementById('fast-q-text').value.trim();
+  const o1 = document.getElementById('fast-q-opt1').value.trim();
+  const o2 = document.getElementById('fast-q-opt2').value.trim();
+  const o3 = document.getElementById('fast-q-opt3').value.trim();
+  const o4 = document.getElementById('fast-q-opt4').value.trim();
+  const correct = parseInt(document.getElementById('fast-q-correct').value);
+  if(!text || !o1 || !o2) return alert("Fill missing fields.");
+  fetch(`${FB}/quizzes/${currentEditingQuizName}/questions.json`, {
+    method: 'POST',
+    body: JSON.stringify({ text, options:[o1,o2,o3,o4], correct })
+  }).then(() => {
+    document.getElementById('fast-q-text').value='';
+    document.getElementById('fast-q-opt1').value='';
+    document.getElementById('fast-q-opt2').value='';
+    document.getElementById('fast-q-opt3').value='';
+    document.getElementById('fast-q-opt4').value='';
+    loadEditorQuestions(currentEditingQuizName);
+  });
+}
+
+// ── AGENT ACTIONS & QUIZ RUNTIME ──
+function loadQuizzesForAgent() {
+  switchView('quiz-dashboard');
+  fetch(`${FB}/quizzes.json`).then(r=>r.json()).then(quizzes => {
+    const list = document.getElementById('available-quizzes-list');if(!list)return;
+    list.innerHTML = '';
+    if(!quizzes) { list.innerHTML = '<p style="color:var(--text3)">No quizzes available.</p>'; return; }
+    Object.entries(quizzes).forEach(([qName, qData]) => {
+      if(!qData || qData.target === 'draft') return;
+      list.innerHTML += `<div class="quiz-item">
+        <div><strong>${qName}</strong></div>
+        <button class="btn btn-primary" style="width:auto; padding:6px 14px;" onclick="startQuizForAgent('${qName}')">Take Quiz</button>
+      </div>`;
+    });
+  });
+}
+function startQuizForAgent(qName) {
+  activeQuizName = qName;
+  fetch(`${FB}/quizzes/${qName}.json`).then(r=>r.json()).then(qData => {
+    if(!qData || !qData.questions) return;
+    document.getElementById('active-quiz-title').innerText = qName;
+    const container = document.getElementById('quiz-questions-container');
+    container.innerHTML = '';
+    activeQuizQuestions = Object.values(qData.questions);
+    activeQuizQuestions.forEach((q, idx) => {
+      container.innerHTML += `<div class="card" style="margin-bottom:12px;">
+        <p style="margin-bottom:10px;"><strong>Q${idx+1}: ${q.text}</strong></p>
+        ${q.options.map((o, oi) => o ? `<label class="option-label"><input type="radio" name="q_${idx}" value="${oi+1}"> ${o}</label>` : '').join('')}
+      </div>`;
+    });
+    document.getElementById('active-quiz-area').classList.remove('hidden');
+  });
+}
+function submitQuizAnswers() {
+  let score = 0;let details = [];
+  activeQuizQuestions.forEach((q, idx) => {
+    const rads = document.getElementsByName(`q_${idx}`);let chosen = 0;
+    for(let r of rads) { if(r.checked) chosen = parseInt(r.value); }
+    if(chosen === q.correct) score++;
+    details.push(`Q${idx+1}:${chosen===q.correct?'Correct':'Wrong'}`);
+  });
+  const scoreData = {
+    username: currentUser.username, fullName: currentUser.fullName,
+    hrId: currentUser.hrId || '', accountName: currentUser.accountName || '',
+    quizName: activeQuizName, score: score, totalQuestions: activeQuizQuestions.length,
+    details: details.join(', '), timestamp: new Date().toLocaleString()
+  };
+  fetch(`${FB}/scores.json`, { method: 'POST', body: JSON.stringify(scoreData) }).then(() => {
+    alert(`Quiz Submitted! Your score: ${score} / ${activeQuizQuestions.length}`);
+    document.getElementById('active-quiz-area').classList.add('hidden');
+    loadQuizzesForAgent();
+  });
+}
+function loadAgentScoresArchive() {
+  switchView('info-display-box');document.getElementById('info-box-title').innerText = "🏆 Results Archive";
+  const c = document.getElementById('info-content-area');c.innerHTML = 'Loading...';
+  fetch(`${FB}/scores.json`).then(r=>r.json()).then(scores => {
+    c.innerHTML = '';
+    if(!scores) { c.innerHTML = '<p style="color:var(--text3)">No scores archived.</p>'; return; }
+    let found = false;
+    let tableHtml = `<table class="data-table"><thead><tr><th>Quiz Name</th><th>Score</th><th>Date</th></tr></thead><tbody>`;
+    Object.values(scores).forEach(s => {
+      if(s && s.username === currentUser.username) {
+        found = true;
+        tableHtml += `<tr><td><strong>${s.quizName}</strong></td><td><span class="score-badge">${s.score} / ${s.totalQuestions || s.total || 0}</span></td><td>${s.timestamp || s.date || ''}</td></tr>`;
+      }
+    });
+    tableHtml += `</tbody></table>`;
+    if(found) c.innerHTML = tableHtml;
+    else c.innerHTML = '<p style="color:var(--text3)">No quiz records found for you.</p>';
+  });
+}
+function viewAgentSchedule() {
+  switchView('info-display-box');document.getElementById('info-box-title').innerText = "📅 Weekly Schedule";
+  const c = document.getElementById('info-content-area');const nameKey = currentUser.fullName.toLowerCase().trim();
+  const sched = liveSchedules[nameKey];
+  if(!sched) { c.innerHTML = `<p style="color:var(--text3)">No schedule updated yet for ${currentUser.fullName}.</p>`; return; }
+  const todayIdx = new Date().getDay();
+  let html = `<table class="data-table"><thead><tr><th>Day</th><th>Shift</th></tr></thead><tbody>`;
+  daysMap.forEach((d, i) => {
+    const isToday = i === todayIdx;
+    html += `<tr class="${isToday ? 'cur-day' : ''}"><td><strong>${d.toUpperCase()}</strong></td><td class="${sched[d].toLowerCase().includes('off')?'off-day':'work-day'}">${sched[d]}</td></tr>`;
+  });
+  html += `</tbody></table>`;c.innerHTML = html;
+}
+function viewAgentBreaks() {
+  switchView('info-display-box');document.getElementById('info-box-title').innerText = "☕ Assigned Break Time";
+  const c = document.getElementById('info-content-area');const nameKey = currentUser.fullName.toLowerCase().trim();
+  const brk = liveBreaks[nameKey];
+  if(!brk) { c.innerHTML = `<p style="color:var(--text3)">No live break set for ${currentUser.fullName}.</p>`; return; }
+  c.innerHTML = `<div class="card" style="text-align:center;"><p style="font-size:12px; color:var(--text3); text-transform:uppercase;">Your Live Break Window</p><h2 style="color:var(--gold); margin-top:8px; font-family:'Cormorant Garamond', serif; font-size:32px;">${brk}</h2></div>`;
+}
+
+// ── RESULTS & ADVANCED FILTERING ──
+function loadScoresAdmin() {
+  fetch(`${FB}/scores.json`).then(r=>r.json()).then(data=>{
+    globalScoresData = data || {};
+    const quizFilter = document.getElementById('admin-quiz-filter');if(!quizFilter)return;
+    const currentSelected = quizFilter.value;
+    quizFilter.innerHTML = '<option value="all">All Quizzes</option>';
+    const quizzes = new Set();
+    Object.values(globalScoresData).forEach(s => { if(s && s.quizName) quizzes.add(s.quizName); });
+    quizzes.forEach(q => { quizFilter.innerHTML += `<option value="${q}">${q}</option>`; });
+    if (currentSelected) quizFilter.value = currentSelected;
+    filterScoresTable();
+  });
+}
+function filterScoresTable() {
+  const quizVal = document.getElementById('admin-quiz-filter').value;
+  const agentVal = document.getElementById('admin-agent-filter').value.toLowerCase().trim();
+  const accountVal = document.getElementById('admin-account-filter').value.toLowerCase().trim();
+  const tbody = document.getElementById('admin-scores-list');if(!tbody)return;
+  tbody.innerHTML = '';
+  
+  if (!globalScoresData || Object.keys(globalScoresData).length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text3);">No results found.</td></tr>';
+    return;
+  }
+  
+  Object.entries(globalScoresData).forEach(([key, score]) => {
+    if (!score) return;
+    const matchQuiz = (quizVal === 'all' || score.quizName === quizVal);
+    const matchAgent = (!agentVal || (score.fullName && score.fullName.toLowerCase().includes(agentVal)) || (score.username && score.username.toLowerCase().includes(agentVal)));
+    const matchAccount = (!accountVal || (score.accountName && score.accountName.toLowerCase().includes(accountVal)));
+    
+    if (matchQuiz && matchAgent && matchAccount) {
+      tbody.innerHTML += `<tr>
+        <td><strong>${score.fullName || score.username}</strong></td>
+        <td>${score.hrId || '—'}</td>
+        <td>${score.accountName || '—'}</td>
+        <td>${score.quizName || '—'}</td>
+        <td><span class="score-badge">${score.score} / ${score.totalQuestions || score.total || 0}</span></td>
+        <td><small class="details-container" style="display:inline-block; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${score.details || ''}">${score.details || '—'}</small></td>
+        <td>${score.date || score.timestamp || '—'}</td>
+        <td><button class="action-btn d" onclick="deleteScoreRecord('${key}')"><i class="fa-solid fa-trash"></i></button></td>
+      </tr>`;
+    }
+  });
+  
+  if (tbody.innerHTML === '') {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text3);">No matching results.</td></tr>';
+  }
+}
+function deleteScoreRecord(key) {
+  if (confirm("Are you sure you want to delete this score record?")) {
+    fetch(`${FB}/scores/${key}.json`, { method: 'DELETE' }).then(() => {
+      alert("Record deleted successfully.");
+      loadScoresAdmin();
+    });
+  }
+}
+function triggerExcelExport() {
+  if (!globalScoresData || Object.keys(globalScoresData).length === 0) return alert("No data to export.");
+  const quizVal = document.getElementById('admin-quiz-filter').value;
+  const agentVal = document.getElementById('admin-agent-filter').value.toLowerCase().trim();
+  const accountVal = document.getElementById('admin-account-filter').value.toLowerCase().trim();
+  
+  const rows = [];
+  Object.values(globalScoresData).forEach(score => {
+    if (!score) return;
+    const matchQuiz = (quizVal === 'all' || score.quizName === quizVal);
+    const matchAgent = (!agentVal || (score.fullName && score.fullName.toLowerCase().includes(agentVal)) || (score.username && score.username.toLowerCase().includes(agentVal)));
+    const matchAccount = (!accountVal || (score.accountName && score.accountName.toLowerCase().includes(accountVal)));
+    
+    if (matchQuiz && matchAgent && matchAccount) {
+      rows.push({
+        "Employee Name": score.fullName || score.username,
+        "HR ID": score.hrId || '—',
+        "Account": score.accountName || '—',
+        "Quiz Name": score.quizName || '—',
+        "Score": `${score.score} / ${score.totalQuestions || score.total || 0}`,
+        "Details": score.details || '—',
+        "Date Completed": score.date || score.timestamp || '—'
+      });
+    }
+  });
+  
+  if (rows.length === 0) return alert("No rows matching filter criteria to export.");
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Quiz Results");
+  XLSX.writeFile(wb, "Quattro_Filtered_Quiz_Results.xlsx");
 }
 </script>
 </body>
