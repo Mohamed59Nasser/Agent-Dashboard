@@ -424,18 +424,20 @@ footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);letter-s
 
 <!-- QUIZ DASHBOARD -->
 <div id="quiz-dashboard" class="hidden">
-  <h2 id="quiz-section-title" class="section-title">Quizzes</h2>
-  <div class="gold-divider"></div>
-  <div id="available-quizzes-list"></div>
-  <div id="active-quiz-area" class="hidden" style="border-top:1px solid var(--border);margin-top:22px;padding-top:22px;">
-    <h3 id="active-quiz-title" style="font-family:'Cormorant Garamond',serif;font-size:21px;color:var(--success);margin-bottom:18px;"></h3>
+  <div id="quiz-list-section">
+    <h2 id="quiz-section-title" class="section-title">Quizzes</h2>
+    <div class="gold-divider"></div>
+    <div id="available-quizzes-list"></div>
+  </div>
+  <div id="active-quiz-area" class="hidden">
+    <h3 id="active-quiz-title" style="font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--success);margin-bottom:18px;"></h3>
     <div id="quiz-questions-container"></div>
     <div style="display:flex;gap:10px;margin-top:14px;">
       <button id="submit-quiz-btn" class="btn btn-primary" onclick="submitQuizAnswers()" style="max-width:180px;"><i class="fa-solid fa-flag-checkered"></i> Submit</button>
       <button id="close-quiz-btn" class="btn btn-secondary hidden" onclick="loadQuizzesForAgent()" style="max-width:180px;"><i class="fa-solid fa-xmark"></i> Close</button>
     </div>
   </div>
-  <button class="btn btn-secondary" onclick="goHome()" style="max-width:150px;margin-top:18px;"><i class="fa-solid fa-arrow-left"></i> Home</button>
+  <button id="quiz-home-btn" class="btn btn-secondary" onclick="goHome()" style="max-width:150px;margin-top:18px;"><i class="fa-solid fa-arrow-left"></i> Home</button>
 </div>
 
 <!-- ADMIN DASHBOARD -->
@@ -543,14 +545,15 @@ footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);letter-s
       <div class="card-title"><i class="fa-solid fa-plus-circle"></i> Create New Quiz</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
         <div class="form-group" style="margin:0;"><label>Quiz Name</label><input type="text" id="q-quizname" placeholder="e.g. Quality Test – May"></div>
-        <div class="form-group" style="margin:0;"><label>Target</label><select id="q-target-select"><option value="draft">Hidden Draft</option><option value="all">All Employees</option></select></div>
+        <div class="form-group" style="margin:0;"><label>Target (Ctrl/Cmd-click for multiple)</label><select id="q-target-select" multiple size="4"></select></div>
       </div>
+      <div id="q-pending-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;"></div>
       <div style="background:var(--bg4);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;">
         <div class="form-group"><label>Question Text</label><input type="text" id="q-text"></div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;"><input type="text" id="q-opt1" placeholder="Option 1"><input type="text" id="q-opt2" placeholder="Option 2"><input type="text" id="q-opt3" placeholder="Option 3"><input type="text" id="q-opt4" placeholder="Option 4"></div>
         <div class="form-group" style="margin:0;"><label>Correct (1–4)</label><input type="number" id="q-correct" min="1" max="4" style="max-width:90px;"></div>
       </div>
-      <button class="btn btn-success" onclick="addQuizQuestionAdmin()" style="max-width:220px;"><i class="fa-solid fa-rocket"></i> Save & Create</button>
+      <button class="btn btn-success" onclick="addQuizQuestionAdmin()" style="max-width:220px;"><i class="fa-solid fa-plus"></i> Add Question</button>
     </div>
     <div class="table-wrap"><table class="data-table"><thead><tr><th>Quiz Name</th><th>Target</th><th>Actions</th></tr></thead><tbody id="admin-quizzes-control-list"></tbody></table></div>
     <div id="quiz-viewer-container" class="viewer-box hidden">
@@ -560,7 +563,7 @@ footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);letter-s
     </div>
     <div id="questions-editor-container" class="hidden" style="background:rgba(76,175,125,.04);border:1px solid rgba(76,175,125,.2);border-radius:12px;padding:18px;margin-top:18px;">
       <h3 style="color:var(--success);font-family:'Cormorant Garamond',serif;font-size:19px;margin-bottom:14px;"><i class="fa-solid fa-pen-to-square"></i> Editing: <span id="current-editing-quiz-title"></span></h3>
-      <div style="background:var(--bg4);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:14px;"><label>Change Target</label><div style="display:flex;gap:10px;margin-top:6px;"><select id="fast-change-target-select" style="flex:1;"><option value="draft">Hidden Draft</option><option value="all">All Employees</option></select><button class="btn btn-success" onclick="updateQuizTargetFromEditor()" style="width:auto;padding:9px 16px;">Update</button></div></div>
+      <div style="background:var(--bg4);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:14px;"><label>Change Target (Ctrl/Cmd-click for multiple)</label><div style="display:flex;gap:10px;margin-top:6px;align-items:flex-start;"><select id="fast-change-target-select" multiple size="4" style="flex:1;"></select><button class="btn btn-success" onclick="updateQuizTargetFromEditor()" style="width:auto;padding:9px 16px;">Update</button></div></div>
       <div id="individual-questions-list"></div>
       <div class="q-fast-add">
         <h4 style="color:var(--info);font-size:13px;margin-bottom:12px;"><i class="fa-solid fa-bolt"></i> Add Question Fast</h4>
@@ -589,7 +592,7 @@ footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);letter-s
       </div>
       <button class="btn btn-success" onclick="triggerExcelExport()" style="width:auto; padding:10px 20px; margin:0;"><i class="fa-solid fa-file-excel"></i> Export</button>
     </div>
-    <div class="table-wrap"><table class="data-table" id="admin-scores-table"><thead><tr><th>Employee</th><th>HR ID</th><th>Account</th><th>Quiz</th><th>Score</th><th>Details</th><th>Date</th><th></th></tr></thead><tbody id="admin-scores-list"></tbody></table></div>
+    <div class="table-wrap"><table class="data-table" id="admin-scores-table"><thead><tr><th>Employee</th><th>HR ID</th><th>Account</th><th>Quiz</th><th>Score</th><th>Details</th><th>Date</th><th>Actions</th></tr></thead><tbody id="admin-scores-list"></tbody></table></div>
   </div>
 
   <!-- AI -->
