@@ -1,1820 +1,1427 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quattro Operations Platform</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- SheetJS (xlsx) for Excel Import/Export -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- Firebase App & Realtime Database SDKs (v8) -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quattro Operations - منصة إدارة العمليات والكويزات</title>
+<!-- SheetJS Library for Excel Import/Export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<!-- FontAwesome Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <style>
-        /* Modern Scrollbars */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
+<style>
+:root {
+  --gold: #C8A96E;
+  --gold-light: #E8D4A8;
+  --gold-dark: #9A7A45;
+  --bg: #0A0A0A;
+  --bg2: #111111;
+  --bg3: #1A1A1A;
+  --bg4: #222222;
+  --bg5: #2A2A2A;
+  --border: rgba(200, 169, 110, .18);
+  --border2: rgba(200, 169, 110, .4);
+  --text: #F5F0E8;
+  --text2: #A89880;
+  --text3: #6B6055;
+  --success: #4CAF7D;
+  --danger: #E05C5C;
+  --warning: #D4A843;
+  --info: #5B9BD5;
+  --rb: #E05C5C;
+}
 
-        /* Theme Config Variables */
-        :root {
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --accent-color: #fbbf24;
-            --accent-hover: #f59e0b;
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --border-color: #334155;
-            --badge-admin: #ef4444;
-            --badge-leader: #3b82f6;
-            --badge-quality: #10b981;
-            --badge-agent: #8b5cf6;
-        }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Cairo', 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  transition: background .3s, color .3s;
+  direction: rtl;
+  text-align: right;
+}
 
-        /* Themes Classes */
-        .theme-dark-gold {
-            --bg-primary: #0b0f19; --bg-secondary: #151d30; --accent-color: #d4af37; --accent-hover: #b8901c;
-            --text-primary: #f8fafc; --text-secondary: #94a3b8; --border-color: #24314f;
-        }
-        .theme-deep-blue {
-            --bg-primary: #020617; --bg-secondary: #0f172a; --accent-color: #3b82f6; --accent-hover: #1d4ed8;
-            --text-primary: #f1f5f9; --text-secondary: #64748b; --border-color: #1e293b;
-        }
-        .theme-emerald {
-            --bg-primary: #022c22; --bg-secondary: #064e3b; --accent-color: #10b981; --accent-hover: #059669;
-            --text-primary: #ecfdf5; --text-secondary: #a7f3d0; --border-color: #065f46;
-        }
-        .theme-ruby {
-            --bg-primary: #1c050a; --bg-secondary: #360b14; --accent-color: #e11d48; --accent-hover: #be123c;
-            --text-primary: #fff1f2; --text-secondary: #fda4af; --border-color: #4c0d18;
-        }
-        .theme-light {
-            --bg-primary: #f8fafc; --bg-secondary: #ffffff; --accent-color: #4f46e5; --accent-hover: #4338ca;
-            --text-primary: #0f172a; --text-secondary: #475569; --border-color: #e2e8f0;
-        }
+.hidden { display: none !important; }
+.section-title { font-size: 24px; font-weight: 700; color: var(--gold); margin-bottom: 4px; }
+.section-sub { font-size: 13px; color: var(--text3); margin-bottom: 20px; }
+.gold-divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border2), transparent); margin: 20px 0; }
 
-        body {
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            transition: all 0.3s ease;
-        }
-        .card {
-            background-color: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-        }
-        .accent-btn {
-            background-color: var(--accent-color);
-            color: #000 !important;
-            font-weight: 600;
-        }
-        .accent-btn:hover { background-color: var(--accent-hover); }
-        .text-accent { color: var(--accent-color); }
-        .border-accent { border-color: var(--accent-color); }
+/* THEME BAR */
+.theme-bar { position: fixed; bottom: 20px; left: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.theme-toggle-btn { background: var(--bg3); border: 1px solid var(--border2); color: var(--gold); width: 42px; height: 42px; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: all .2s; }
+.theme-toggle-btn:hover { background: var(--gold); color: var(--bg); }
+.theme-panel { background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 12px; display: none; flex-direction: column; gap: 8px; min-width: 160px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+.theme-panel.open { display: flex; }
+.theme-opt { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 7px; cursor: pointer; font-size: 13px; color: var(--text2); transition: all .2s; }
+.theme-opt:hover, .theme-opt.active { background: rgba(200,169,110,.12); color: var(--gold); }
+.theme-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
 
-        /* Custom Checkbox styles for multi-select dropdown */
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: var(--bg-secondary);
-            min-width: 250px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 50;
-            max-height: 200px;
-            overflow-y: auto;
-            border: 1px solid var(--border-color);
-        }
-        .dropdown-content label {
-            display: block;
-            padding: 8px;
-            cursor: pointer;
-        }
-        .dropdown-content label:hover {
-            background-color: var(--border-color);
-        }
-    </style>
+/* NAVBAR */
+.navbar { display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; height: 60px; background: rgba(10,10,10,.96); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); align-items: center; justify-content: space-between; padding: 0 24px; }
+.nav-left, .nav-right { display: flex; align-items: center; gap: 12px; }
+.nav-logo { font-size: 22px; font-weight: 800; color: var(--gold); letter-spacing: 2px; }
+.nav-btn { background: transparent; border: 1px solid var(--border); color: var(--text2); padding: 7px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all .2s; }
+.nav-btn:hover { border-color: var(--gold); color: var(--gold); }
+.nav-btn.danger { border-color: rgba(224,92,92,.3); color: var(--danger); }
+.nav-btn.danger:hover { background: rgba(224,92,92,.1); }
+.nav-badge-wrap { position: relative; }
+.nav-badge { position: absolute; top: -7px; left: -7px; background: var(--rb); color: #fff; border-radius: 50%; min-width: 18px; height: 18px; font-size: 10px; font-weight: 700; display: none; align-items: center; justify-content: center; border: 2px solid var(--bg); }
+.nav-badge.show { display: flex; }
+.role-badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+.badge-admin { background: rgba(200,169,110,.15); color: var(--gold); border: 1px solid var(--border2); }
+.badge-leader { background: rgba(91,155,213,.15); color: #5B9BD5; border: 1px solid rgba(91,155,213,.4); }
+.badge-quality { background: rgba(180,100,200,.15); color: #C878E0; border: 1px solid rgba(180,100,200,.4); }
+.badge-agent { background: rgba(76,175,125,.15); color: var(--success); border: 1px solid rgba(76,175,125,.4); }
+
+/* CONTAINER */
+.container { max-width: 1200px; margin: 76px auto 40px; padding: 0 20px; }
+
+/* AUTH */
+#auth-box { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; background: radial-gradient(ellipse at 50% 0%, rgba(200,169,110,.07) 0%, transparent 70%); }
+.auth-logo { margin-bottom: 24px; text-align: center; }
+.auth-logo .logo-text { font-size: 42px; font-weight: 800; color: var(--gold); letter-spacing: 4px; line-height: 1; }
+.auth-logo p { font-size: 12px; color: var(--text3); letter-spacing: 2px; text-transform: uppercase; margin-top: 8px; }
+.auth-card { width: 100%; max-width: 420px; background: var(--bg3); border: 1px solid var(--border); border-radius: 16px; padding: 32px; box-shadow: 0 15px 35px rgba(0,0,0,0.4); }
+.auth-card h2 { font-size: 24px; color: var(--text); margin-bottom: 4px; font-weight: 700; }
+.auth-card .sub { font-size: 13px; color: var(--text3); margin-bottom: 24px; }
+.auth-toggle { text-align: center; margin-top: 18px; font-size: 13px; color: var(--text3); }
+.auth-toggle a { color: var(--gold); cursor: pointer; font-weight: 600; text-decoration: underline; }
+
+/* FORMS & INPUTS */
+.form-group { margin-bottom: 16px; }
+label { display: block; font-size: 12px; font-weight: 700; color: var(--text2); margin-bottom: 6px; }
+input, select, textarea { width: 100%; padding: 11px 14px; background: var(--bg4); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: inherit; font-size: 13px; transition: border-color .2s; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--gold); }
+input[readonly] { background: var(--bg2); color: var(--text3); cursor: not-allowed; }
+select option { background: var(--bg3); color: var(--text); }
+select[multiple] { height: 100px; padding: 6px; }
+
+/* BUTTONS */
+.btn { width: 100%; padding: 11px 18px; border: none; border-radius: 8px; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: all .2s; }
+.btn-primary { background: var(--gold); color: var(--bg); }
+.btn-primary:hover { background: var(--gold-light); }
+.btn-secondary { background: var(--bg4); color: var(--text2); border: 1px solid var(--border); }
+.btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+.btn-success { background: rgba(76,175,125,.15); color: var(--success); border: 1px solid rgba(76,175,125,.3); }
+.btn-success:hover { background: rgba(76,175,125,.25); }
+.btn-danger { background: rgba(224,92,92,.15); color: var(--danger); border: 1px solid rgba(224,92,92,.3); }
+.btn-danger:hover { background: rgba(224,92,92,.25); }
+.action-btn { background: transparent; border: 1px solid var(--border); color: var(--text2); padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s; display: inline-flex; align-items: center; gap: 4px; margin: 2px; }
+.action-btn:hover { border-color: var(--gold); color: var(--gold); }
+.action-btn.s:hover { border-color: var(--success); color: var(--success); }
+.action-btn.d:hover { border-color: var(--danger); color: var(--danger); }
+.action-btn.p:hover { border-color: #C878E0; color: #C878E0; }
+
+/* AGENT HUB */
+.welcome-banner { background: linear-gradient(135deg, var(--bg3), var(--bg4)); border: 1px solid var(--border); border-right: 4px solid var(--gold); border-radius: 12px; padding: 20px; margin-bottom: 24px; display: flex; align-items: center; gap: 16px; }
+.menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+.menu-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 24px 18px; cursor: pointer; transition: all .25s; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative; }
+.menu-card:hover { border-color: var(--gold); background: var(--bg4); transform: translateY(-3px); }
+.menu-card i { font-size: 28px; color: var(--gold); }
+.menu-card span { font-size: 14px; font-weight: 700; color: var(--text); }
+.menu-card small { font-size: 11px; color: var(--text3); }
+
+/* TABS */
+.admin-tabs { display: flex; gap: 4px; margin-bottom: 22px; border-bottom: 1px solid var(--border); overflow-x: auto; padding-bottom: 4px; }
+.tab-btn { background: transparent; border: none; border-bottom: 2px solid transparent; padding: 10px 16px; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--text3); cursor: pointer; white-space: nowrap; transition: all .2s; position: relative; }
+.tab-btn:hover { color: var(--text2); }
+.tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+.tab-badge { position: absolute; top: 4px; left: 2px; background: var(--rb); color: #fff; border-radius: 50%; min-width: 16px; height: 16px; font-size: 9px; font-weight: 700; display: none; align-items: center; justify-content: center; }
+.tab-badge.show { display: flex; }
+
+/* TABLES */
+.table-wrap { overflow-x: auto; background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table th { background: var(--bg4); color: var(--text2); font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 12px 14px; text-align: right; border-bottom: 1px solid var(--border); }
+.data-table td { padding: 12px 14px; border-bottom: 1px solid rgba(200, 169, 110, .07); color: var(--text); vertical-align: middle; }
+.data-table tr:hover td { background: rgba(200, 169, 110, .03); }
+.score-badge { display: inline-flex; align-items: center; justify-content: center; background: rgba(200,169,110,.1); border: 1px solid var(--border2); color: var(--gold); padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; }
+
+/* ====== WHATSAPP CHAT MODULE ====== */
+.chat-container { display: flex; background: var(--bg3); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; height: 600px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+.chat-sidebar { width: 320px; flex-shrink: 0; border-left: 1px solid var(--border); display: flex; flex-direction: column; background: var(--bg2); }
+.chat-sidebar-hdr { padding: 14px; border-bottom: 1px solid var(--border); background: var(--bg4); display: flex; flex-direction: column; gap: 10px; }
+.chat-sidebar-hdr h4 { font-size: 13px; font-weight: 700; color: var(--gold); }
+.chat-tabs { display: flex; background: var(--bg3); border-radius: 8px; padding: 3px; border: 1px solid var(--border); }
+.chat-tab { flex: 1; text-align: center; padding: 6px; font-size: 11px; font-weight: 700; cursor: pointer; border-radius: 6px; color: var(--text3); transition: all .2s; }
+.chat-tab.active { background: var(--gold); color: var(--bg); }
+.chat-search-box { padding: 8px 12px; background: var(--bg3); border-bottom: 1px solid var(--border); }
+.chat-search-box input { padding: 7px 12px; font-size: 12px; border-radius: 20px; }
+.chat-list { flex: 1; overflow-y: auto; }
+.chat-item { padding: 12px 14px; border-bottom: 1px solid rgba(200,169,110,.06); cursor: pointer; transition: background .15s; display: flex; align-items: center; gap: 12px; position: relative; }
+.chat-item:hover, .chat-item.active { background: rgba(200,169,110,.08); }
+.chat-av { width: 40px; height: 40px; border-radius: 50%; background: rgba(200,169,110,.15); border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--gold); flex-shrink: 0; font-weight: 700; overflow: hidden; }
+.chat-av img { width: 100%; height: 100%; object-fit: cover; }
+.chat-item-info { flex: 1; min-width: 0; }
+.chat-item-info strong { font-size: 13px; color: var(--text); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chat-item-info span { font-size: 11px; color: var(--text3); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+.chat-role-tag { font-size: 9px; padding: 1px 6px; border-radius: 10px; margin-right: 4px; display: inline-block; font-weight: 700; }
+
+.chat-main { flex: 1; display: flex; flex-direction: column; min-width: 0; background: var(--bg3); }
+.chat-main-hdr { padding: 12px 18px; border-bottom: 1px solid var(--border); background: var(--bg4); display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+.chat-main-user-info { display: flex; align-items: center; gap: 12px; }
+.chat-msgs { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; background: radial-gradient(circle at center, rgba(200,169,110,.02) 0%, transparent 80%); }
+.bubble { max-width: 75%; padding: 10px 14px; border-radius: 12px; font-size: 13px; line-height: 1.5; word-break: break-word; position: relative; }
+.b-sent { background: rgba(200,169,110,.18); border: 1px solid var(--border2); margin-right: auto; border-bottom-right-radius: 2px; color: var(--text); }
+.b-recv { background: var(--bg4); border: 1px solid var(--border); margin-left: auto; border-bottom-left-radius: 2px; color: var(--text2); }
+.b-sender { font-size: 10px; font-weight: 700; color: var(--gold); margin-bottom: 3px; }
+.b-meta { font-size: 10px; color: var(--text3); margin-top: 4px; text-align: left; display: flex; align-items: center; gap: 4px; justify-content: flex-end; }
+
+.chat-input-area { padding: 12px 16px; border-top: 1px solid var(--border); background: var(--bg4); display: flex; gap: 10px; align-items: center; position: relative; }
+.chat-input-area input[type="text"] { flex: 1; padding: 10px 16px; border-radius: 25px; border: 1px solid var(--border); background: var(--bg3); color: var(--text); font-size: 13px; }
+.chat-send-btn { background: var(--gold); color: var(--bg); border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 15px; transition: all .2s; }
+.chat-send-btn:hover { background: var(--gold-light); transform: scale(1.05); }
+
+/* Attachment Preview Box */
+.file-preview-bar { position: absolute; bottom: 65px; right: 16px; left: 16px; background: var(--bg5); border: 1px solid var(--gold); border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; box-shadow: 0 -5px 15px rgba(0,0,0,0.4); z-index: 10; }
+.file-preview-info { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--text); overflow: hidden; }
+.file-preview-info img { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; }
+
+/* QUIZ REVIEW & QUESTION EDITING */
+.q-review-card { background: var(--bg4); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+.q-review-card.correct { border-right: 4px solid var(--success); }
+.q-review-card.wrong { border-right: 4px solid var(--danger); }
+.q-opt-item { padding: 8px 12px; border-radius: 8px; margin-top: 6px; font-size: 13px; border: 1px solid var(--border); }
+.q-opt-item.selected-correct { background: rgba(76,175,125,.2); border-color: var(--success); color: var(--success); font-weight: 700; }
+.q-opt-item.selected-wrong { background: rgba(224,92,92,.2); border-color: var(--danger); color: var(--danger); font-weight: 700; }
+.q-opt-item.model-correct { background: rgba(76,175,125,.1); border-color: var(--success); color: var(--success); }
+
+.q-edit-box { background: var(--bg4); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 14px; }
+.q-edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+
+/* MODALS */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.8); backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 16px; }
+.modal-content { background: var(--bg3); border: 1px solid var(--border); border-radius: 16px; padding: 28px; width: 100%; max-width: 540px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
+.modal-title { font-size: 20px; font-weight: 700; color: var(--gold); margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+
+/* USER DRAWER */
+.user-drawer { position: fixed; top: 0; left: 0; bottom: 0; width: 320px; background: var(--bg3); border-right: 1px solid var(--border); z-index: 2500; padding: 24px; transform: translateX(-100%); transition: transform .3s ease; box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
+.user-drawer.open { transform: translateX(0); }
+.user-drawer-avatar { width: 80px; height: 80px; border-radius: 50%; background: rgba(200,169,110,.2); border: 2px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 28px; color: var(--gold); margin: 0 auto 16px; overflow: hidden; }
+.user-drawer-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+footer { text-align: center; padding: 20px; font-size: 11px; color: var(--text3); letter-spacing: 2px; text-transform: uppercase; border-top: 1px solid var(--border); margin-top: 40px; }
+</style>
 </head>
-<body class="theme-dark-gold min-h-screen flex flex-col">
+<body>
 
-    <!-- TOP HEADER -->
-    <header class="card border-b py-4 px-6 flex justify-between items-center z-10">
-        <div class="flex items-center gap-3">
-            <span class="text-2xl font-bold tracking-widest text-accent flex items-center gap-2">
-                <i class="fa-solid fa-crown"></i> QUATTRO
-            </span>
-            <span class="text-xs uppercase bg-slate-800 text-slate-300 px-2 py-1 rounded" id="platform-title">Operations</span>
+<!-- THEME BAR -->
+<div class="theme-bar">
+  <div class="theme-panel" id="theme-panel">
+    <div class="theme-opt active" onclick="setTheme('dark')" data-theme="dark"><div class="theme-dot" style="background:#0A0A0A;border:1px solid #C8A96E"></div>Dark Gold</div>
+    <div class="theme-opt" onclick="setTheme('charcoal')" data-theme="charcoal"><div class="theme-dot" style="background:#1C1C2E;border:1px solid #7B8CDE"></div>Deep Blue</div>
+    <div class="theme-opt" onclick="setTheme('emerald')" data-theme="emerald"><div class="theme-dot" style="background:#0D1A15;border:1px solid #3ECF8E"></div>Emerald</div>
+    <div class="theme-opt" onclick="setTheme('ruby')" data-theme="ruby"><div class="theme-dot" style="background:#1A0D0D;border:1px solid #E05C5C"></div>Ruby</div>
+    <div class="theme-opt" onclick="setTheme('light')" data-theme="light"><div class="theme-dot" style="background:#F5F0E8;border:1px solid #9A7A45"></div>Light</div>
+  </div>
+  <button class="theme-toggle-btn" onclick="document.getElementById('theme-panel').classList.toggle('open')"><i class="fa-solid fa-palette"></i></button>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="top-navbar">
+  <div class="nav-right">
+    <span class="nav-logo">QUATTRO</span>
+    <button class="nav-btn" onclick="goHome()"><i class="fa-solid fa-house"></i> الرئيسية</button>
+    <div class="nav-badge-wrap" id="nav-profile-wrap" style="display:none;">
+      <button class="nav-btn" onclick="switchView('agent-profile')"><i class="fa-solid fa-user"></i> الملف الشخصي</button>
+      <span class="nav-badge" id="nav-total-badge">0</span>
+    </div>
+  </div>
+  <div class="nav-left">
+    <span id="user-role-badge" class="role-badge"></span>
+    <button class="nav-btn danger" onclick="logout()"><i class="fa-solid fa-door-open"></i> خروج</button>
+  </div>
+</nav>
+
+<!-- AUTH PAGE -->
+<div id="auth-box">
+  <div class="auth-logo">
+    <div class="logo-text">QUATTRO</div>
+    <p>Operations & Quizzes Platform</p>
+  </div>
+  <div class="auth-card">
+    <h2 id="auth-title">تسجيل الدخول</h2>
+    <p class="sub" id="auth-sub">أدخل بيانات الحساب للمتابعة</p>
+    <form onsubmit="handleAuth(event)">
+      <div id="signup-fields" style="display:none;">
+        <div class="form-group"><label>الاسم بالكامل</label><input type="text" id="auth-fullname" placeholder="الاسم الثلاثي أو الرباعي"></div>
+        <div class="form-group"><label>الحساب / المشروع (Account)</label><input type="text" id="auth-account" placeholder="مثال: Quattro, Jetour..."></div>
+        <div class="form-group"><label>الكود الوظيفي (HR ID)</label><input type="text" id="auth-hrid" placeholder="مثال: 10023"></div>
+      </div>
+      <div class="form-group"><label>اسم المستخدم (Username)</label><input type="text" id="auth-username" required placeholder="username"></div>
+      <div class="form-group"><label>كلمة المرور</label><input type="password" id="auth-password" required placeholder="••••••••"></div>
+      <button type="submit" id="auth-btn" class="btn btn-primary" style="margin-top:8px;"><i class="fa-solid fa-right-to-bracket"></i> دخول</button>
+    </form>
+    <div class="auth-toggle"><a id="toggle-auth-btn" onclick="toggleAuthMode()">ليس لديك حساب؟ تسجيل جديد</a></div>
+  </div>
+</div>
+
+<!-- MAIN CONTAINER -->
+<div class="container" id="main-container" style="display:none;">
+
+  <!-- AGENT HUB -->
+  <div id="agent-hub" class="hidden">
+    <div class="welcome-banner">
+      <div style="width:48px;height:48px;border-radius:50%;background:rgba(200,169,110,.15);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--gold);flex-shrink:0;">
+        <i class="fa-solid fa-user-check"></i>
+      </div>
+      <div>
+        <div id="wt-name" style="font-size:20px;font-weight:700;">أهلاً بك</div>
+        <div id="wt-sub" style="font-size:12px;color:var(--text3);">بوابة موظفي Quattro Operations</div>
+      </div>
+    </div>
+    <div class="menu-grid">
+      <div class="menu-card" onclick="loadQuizzesForAgent()"><i class="fa-solid fa-graduation-cap"></i><span>الكويزات والاختبارات</span><small>أداء الاختبارات المفعلة</small></div>
+      <div class="menu-card" onclick="loadAgentScoresArchive()"><i class="fa-solid fa-clock-rotate-left"></i><span>سجل النتائج</span><small>مراجعة نتائجك السابقة</small></div>
+      <div class="menu-card" onclick="switchView('agent-profile')"><i class="fa-solid fa-comments"></i><span>المحادثات والتنبيهات</span><small>التواصل مع الإدارة والزملاء</small></div>
+      <div class="menu-card" onclick="viewKPIScorecard()"><i class="fa-solid fa-chart-pie"></i><span>مؤشرات الأداء KPI</span><small>تقييم الأداء الجاري</small></div>
+    </div>
+  </div>
+
+  <!-- DEDICATED QUIZ VIEW (صفحة أداء الكويز المستقلة) -->
+  <div id="dedicated-quiz-view" class="hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <h2 id="active-quiz-title" class="section-title">عنوان الكويز</h2>
+      <button class="action-btn d" onclick="loadQuizzesForAgent()"><i class="fa-solid fa-xmark"></i> إلغاء / خروج</button>
+    </div>
+    <div class="gold-divider"></div>
+    <div id="quiz-questions-container"></div>
+    <div style="margin-top:20px;" id="quiz-submit-bar">
+      <button id="submit-quiz-btn" class="btn btn-primary" onclick="submitQuizAnswers()" style="max-width:220px;"><i class="fa-solid fa-paper-plane"></i> إرسال الإجابات</button>
+    </div>
+    
+    <!-- شاشة المراجعة الفورية (Google Forms Style Review) -->
+    <div id="quiz-review-container" class="hidden">
+      <div class="card" style="margin-bottom:20px;text-align:center;background:var(--bg4);">
+        <h3 style="color:var(--gold);margin-bottom:8px;">تم تسليم الكويز بنجاح ✅</h3>
+        <div id="review-score-banner" style="font-size:28px;font-weight:800;color:var(--success);">0%</div>
+      </div>
+      <div id="review-questions-list"></div>
+      <button class="btn btn-secondary" onclick="loadQuizzesForAgent()" style="max-width:180px;margin-top:16px;"><i class="fa-solid fa-arrow-right"></i> العودة للكويزات</button>
+    </div>
+  </div>
+
+  <!-- QUIZ DASHBOARD (قائمة الكويزات المتاحة للموظف) -->
+  <div id="quiz-dashboard" class="hidden">
+    <h2 class="section-title"><i class="fa-solid fa-list-check"></i> الكويزات المتاحة</h2>
+    <p class="section-sub">اختر الكويز للبدء في الأداء</p>
+    <div id="available-quizzes-list"></div>
+    <button class="btn btn-secondary" onclick="goHome()" style="max-width:160px;margin-top:20px;"><i class="fa-solid fa-house"></i> الرئيسية</button>
+  </div>
+
+  <!-- AGENT PROFILE & CHAT PANEL -->
+  <div id="agent-profile" class="hidden">
+    <h2 class="section-title">الملف الشخصي والمحادثات</h2>
+    <div class="gold-divider"></div>
+    
+    <!-- قسم الشات والمحادثات الكامل -->
+    <div class="chat-container">
+      <div class="chat-sidebar">
+        <div class="chat-sidebar-hdr">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <h4><i class="fa-solid fa-comments"></i> المحادثات</h4>
+            <button class="action-btn s" onclick="openNewConvoModal()"><i class="fa-solid fa-plus"></i> شات جديد</button>
+          </div>
+          <div class="chat-tabs">
+            <div class="chat-tab active" id="tab-active-btn" onclick="switchChatTab('active')">النشطة</div>
+            <div class="chat-tab" id="tab-archived-btn" onclick="switchChatTab('archived')">المؤرشفة</div>
+          </div>
+        </div>
+        <div class="chat-search-box">
+          <input type="text" id="chat-search-input" placeholder="بحث بالاسم أو الكود..." onkeyup="filterConversations()">
+        </div>
+        <div class="chat-list" id="user-conversations-list"></div>
+      </div>
+      
+      <div class="chat-main">
+        <div class="chat-main-hdr" onclick="openActiveUserInfoDrawer()">
+          <div class="chat-main-user-info">
+            <div class="chat-av" id="chat-hdr-av">?</div>
+            <div>
+              <div id="chat-hdr-name" style="font-weight:700;font-size:14px;">اختر محادثة</div>
+              <div id="chat-hdr-role" style="font-size:11px;color:var(--text3);">—</div>
+            </div>
+          </div>
+          <button class="action-btn" title="بيانات الموظف"><i class="fa-solid fa-circle-info"></i></button>
         </div>
         
-        <div class="flex items-center gap-4">
-            <!-- Theme Trigger -->
-            <button onclick="toggleThemeModal()" class="text-xl text-accent hover:scale-110 transition"><i class="fa-solid fa-palette"></i></button>
-            <div id="user-display-info" class="hidden flex items-center gap-3">
-                <span id="header-user-badge" class="px-2 py-0.5 rounded text-xs font-bold uppercase text-white"></span>
-                <span id="header-user-name" class="font-semibold text-sm"></span>
-                <button onclick="handleLogout()" class="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-1.5 rounded flex items-center gap-1 font-bold"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
-            </div>
+        <div class="chat-msgs" id="chat-messages-area">
+          <div style="text-align:center;color:var(--text3);margin-top:40px;"><i class="fa-solid fa-comments" style="font-size:32px;margin-bottom:10px;"></i><br>قم باختيار محادثة للبدء</div>
         </div>
-    </header>
 
-    <!-- MAIN CONTAINER -->
-    <main class="flex-grow flex flex-col md:flex-row relative">
-        <!-- AUTH SECTION -->
-        <section id="auth-section" class="w-full max-w-md mx-auto mt-12 p-6 card rounded-lg shadow-xl flex flex-col gap-6">
-            <h2 class="text-2xl font-bold text-center text-accent">Sign In to Platform</h2>
-            <div class="flex flex-col gap-4">
-                <div>
-                    <label class="block text-xs uppercase mb-1">Username</label>
-                    <input type="text" id="login-username" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:outline-none focus:border-yellow-500">
-                </div>
-                <div>
-                    <label class="block text-xs uppercase mb-1">Password</label>
-                    <input type="password" id="login-password" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:outline-none focus:border-yellow-500">
-                </div>
-                <button onclick="handleLogin()" class="accent-btn w-full py-2.5 rounded font-bold uppercase tracking-wider transition">Login</button>
-                <div class="text-center text-xs text-slate-400">Don't have an account? <button onclick="toggleAuthForms()" class="text-accent underline font-semibold">Register here</button></div>
-            </div>
-        </section>
-
-        <section id="register-section" class="w-full max-w-md mx-auto mt-12 p-6 card rounded-lg shadow-xl flex flex-col gap-6 hidden">
-            <h2 class="text-2xl font-bold text-center text-accent">Create Account</h2>
-            <div class="flex flex-col gap-3">
-                <div>
-                    <label class="block text-xs uppercase mb-0.5">Full Name</label>
-                    <input type="text" id="reg-fullname" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs uppercase mb-0.5">Username</label>
-                    <input type="text" id="reg-username" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs uppercase mb-0.5">Password</label>
-                    <input type="password" id="reg-password" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs uppercase mb-0.5">Email</label>
-                    <input type="email" id="reg-email" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs uppercase mb-0.5">Phone</label>
-                    <input type="text" id="reg-phone" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs uppercase mb-0.5">HR ID</label>
-                    <input type="text" id="reg-hrid" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:outline-none">
-                </div>
-                <button onclick="handleRegister()" class="accent-btn w-full py-2.5 rounded font-bold uppercase tracking-wider transition">Register</button>
-                <div class="text-center text-xs text-slate-400">Already registered? <button onclick="toggleAuthForms()" class="text-accent underline font-semibold">Login here</button></div>
-            </div>
-        </section>
-
-        <!-- PORTAL INTERFACE (HIDDEN BY DEFAULT) -->
-        <section id="portal-section" class="hidden flex-grow flex flex-col md:flex-row w-full">
-            <!-- Sidebar Navigation -->
-            <nav id="sidebar" class="w-full md:w-64 card border-r p-4 flex flex-col gap-2 shrink-0">
-                <div class="text-xs uppercase text-slate-500 font-bold px-2 py-1">Menu Tabs</div>
-                <button onclick="switchTab('dashboard')" class="tab-btn flex items-center gap-3 p-2.5 rounded text-left hover:bg-slate-800 transition font-semibold"><i class="fa-solid fa-chart-line"></i> Dashboard</button>
-                <button onclick="switchTab('users')" id="tab-users-btn" class="tab-btn flex items-center gap-3 p-2.5 rounded text-left hover:bg-slate-800 transition font-semibold hidden"><i class="fa-solid fa-users"></i> Users Control</button>
-                <button onclick="switchTab('comms')" class="tab-btn flex items-center gap-3 p-2.5 rounded text-left hover:bg-slate-800 transition font-semibold"><i class="fa-solid fa-comments"></i> Communications</button>
-                <button onclick="switchTab('announcements')" class="tab-btn flex items-center gap-3 p-2.5 rounded text-left hover:bg-slate-800 transition font-semibold"><i class="fa-solid fa-bullhorn"></i> Announcements</button>
-                <button onclick="switchTab('schedules')" class="tab-btn flex items-center gap-3 p-2.5 rounded text-left hover:bg-slate-800 transition font-semibold"><i class="fa-solid fa-calendar-days"></i> Schedules & Breaks</button>
-                <button onclick="switchTab('quizzes')" class="tab-btn flex items-center gap-3 p-2.5 rounded text-left hover:bg-slate-800 transition font-semibold"><i class="fa-solid fa-graduation-cap"></i> Quizzes</button>
-            </nav>
-
-            <!-- Active View Container -->
-            <div class="flex-grow p-6 overflow-y-auto" id="content-display">
-                <!-- Tabs Content will render here -->
-            </div>
-        </section>
-    </main>
-
-    <!-- ISOLATED FULL-SCREEN QUIZ INTERFACE -->
-    <section id="isolated-quiz-container" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-950 text-slate-100 flex flex-col">
-        <header class="card border-b py-4 px-6 flex justify-between items-center">
-            <h2 id="isolated-quiz-title" class="text-2xl font-bold text-accent">Active Quiz</h2>
-            <button onclick="exitQuizMode()" class="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded text-sm"><i class="fa-solid fa-circle-xmark"></i> Close & Exit</button>
-        </header>
-        <div class="flex-grow max-w-4xl mx-auto w-full p-6 flex flex-col gap-6" id="isolated-quiz-body">
-            <!-- Dynamically populated quiz questions/options or quiz results review -->
+        <!-- معاينة الملف المرفق قبل الإرسال -->
+        <div id="file-preview-bar" class="file-preview-bar hidden">
+          <div class="file-preview-info">
+            <span id="file-preview-icon"><i class="fa-solid fa-file"></i></span>
+            <span id="file-preview-name">file.jpg</span>
+          </div>
+          <button class="action-btn d" onclick="clearAttachedFile()"><i class="fa-solid fa-trash"></i></button>
         </div>
-    </section>
 
-    <!-- WHATSAPP-STYLE IMAGE PREVIEW MODAL -->
-    <div id="image-preview-modal" class="fixed inset-0 z-50 bg-black bg-opacity-95 flex flex-col justify-center items-center hidden p-4">
-        <div class="max-w-xl w-full bg-slate-900 border border-slate-700 rounded-lg p-4 flex flex-col gap-4 shadow-2xl">
-            <div class="flex justify-between items-center border-b border-slate-700 pb-2">
-                <h3 class="text-lg font-bold text-accent">Image Preview</h3>
-                <button onclick="closeImagePreview()" class="text-slate-400 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <img id="preview-image-element" src="" class="max-h-96 object-contain rounded border border-slate-800" alt="Preview">
-            <div class="flex justify-end gap-3 mt-2">
-                <button onclick="closeImagePreview()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded text-sm font-semibold">Cancel</button>
-                <button onclick="submitCompressedImage()" class="px-5 py-2 accent-btn rounded text-sm font-semibold flex items-center gap-2"><i class="fa-solid fa-paper-plane"></i> Send Image</button>
-            </div>
+        <div class="chat-input-area">
+          <input type="file" id="chat-file-input" style="display:none;" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" onchange="handleFileSelect(event)">
+          <button class="action-btn" onclick="document.getElementById('chat-file-input').click()" title="إرفاق ملف"><i class="fa-solid fa-paperclip"></i></button>
+          <input type="text" id="chat-message-input" placeholder="اكتب رسالتك هنا..." onkeydown="if(event.key==='Enter') sendChatMessage()">
+          <button class="chat-send-btn" onclick="sendChatMessage()"><i class="fa-solid fa-paper-plane"></i></button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN DASHBOARD -->
+  <div id="admin-dashboard" class="hidden">
+    <h2 class="section-title">لوحة التحكم والإدارة</h2>
+    <p class="section-sub">إدارة المستخدمين، الكويزات، النتائج، والمحادثات</p>
+
+    <div class="admin-tabs">
+      <button class="tab-btn active" onclick="switchAdminTab('tab-quizzes', this); loadAdminQuizzes();">📝 الكويزات والأسئلة</button>
+      <button class="tab-btn" onclick="switchAdminTab('tab-results', this); loadAdminScores();">📊 نتائج الكويزات</button>
+      <button class="tab-btn" onclick="switchAdminTab('tab-users', this); loadUsersAdmin();">👥 إدارة المستخدمين</button>
+      <button class="tab-btn" onclick="switchAdminTab('tab-admin-comms', this); syncAdminComms();">💬 المحادثات المركزية</button>
     </div>
 
-    <!-- USER PROFILE DETAILS POPUP CARD -->
-    <div id="user-profile-modal" class="fixed inset-0 z-50 bg-black bg-opacity-75 flex justify-center items-center hidden p-4">
-        <div class="max-w-sm w-full bg-slate-900 border border-accent rounded-lg p-6 shadow-2xl relative">
-            <button onclick="closeProfileCard()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
-            <div class="flex flex-col items-center text-center gap-4">
-                <div class="w-20 h-20 rounded-full bg-accent flex items-center justify-center text-slate-950 font-bold text-3xl shadow" id="profile-card-avatar">U</div>
-                <div class="w-full border-b border-slate-800 pb-3">
-                    <h3 id="profile-card-fullname" class="text-xl font-bold text-white">Full Name</h3>
-                    <span id="profile-card-role" class="px-3 py-0.5 rounded text-xs font-bold uppercase inline-block mt-1">Role</span>
-                </div>
-                <div class="w-full flex flex-col gap-2.5 text-left text-sm">
-                    <div class="flex justify-between"><span class="text-slate-400">Username:</span> <span id="profile-card-username" class="font-semibold text-slate-200"></span></div>
-                    <div class="flex justify-between"><span class="text-slate-400">HR ID:</span> <span id="profile-card-hrid" class="font-semibold text-slate-200"></span></div>
-                    <div class="flex justify-between"><span class="text-slate-400">Campaign/Account:</span> <span id="profile-card-account" class="font-semibold text-slate-200"></span></div>
-                    <div class="flex justify-between"><span class="text-slate-400">Email:</span> <span id="profile-card-email" class="font-semibold text-slate-200 break-all"></span></div>
-                    <div class="flex justify-between"><span class="text-slate-400">Phone:</span> <span id="profile-card-phone" class="font-semibold text-slate-200"></span></div>
-                </div>
-            </div>
+    <!-- TAB 1: QUIZZES MANAGEMENT -->
+    <div id="tab-quizzes" class="admin-tab-content">
+      <!-- Create Quiz Form -->
+      <div class="card" style="margin-bottom:20px;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:20px;">
+        <h3 style="color:var(--gold);font-size:16px;margin-bottom:14px;"><i class="fa-solid fa-plus-circle"></i> إنشاء كويز جديد</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+          <div class="form-group"><label>اسم الكويز</label><input type="text" id="q-quizname" placeholder="مثال: اختبار الجودة - مايو"></div>
+          <div class="form-group">
+            <label>المستهدفين (Target Multi-Select)</label>
+            <select id="q-target-select" multiple style="height:80px;">
+              <option value="all" selected>الجميع (All Employees)</option>
+            </select>
+            <small style="color:var(--text3);font-size:10px;">اضغط Ctrl/Cmd لتحديد أكثر من حساب أو موظف</small>
+          </div>
         </div>
+
+        <div style="background:var(--bg4);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;">
+          <h4 style="font-size:13px;color:var(--gold);margin-bottom:10px;">السؤال الحادي / الجديد</h4>
+          <div class="form-group"><label>نص السؤال</label><input type="text" id="q-text" placeholder="اكتب السؤال هنا..."></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+            <input type="text" id="q-opt1" placeholder="الخيار الأول">
+            <input type="text" id="q-opt2" placeholder="الخيار الثاني">
+            <input type="text" id="q-opt3" placeholder="الخيار الثالث">
+            <input type="text" id="q-opt4" placeholder="الخيار الرابع">
+          </div>
+          <div class="form-group"><label>رقم الإجابة الصحيحة (1 - 4)</label><input type="number" id="q-correct" min="1" max="4" style="max-width:120px;"></div>
+        </div>
+
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-success" onclick="handleAddQuestionStep()" style="max-width:220px;"><i class="fa-solid fa-plus"></i> إضافة السؤال للكويز</button>
+          <span id="pending-q-count" style="align-self:center;font-size:12px;color:var(--text2);">الأسئلة المضافة: 0</span>
+        </div>
+      </div>
+
+      <!-- Quizzes List Table -->
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>اسم الكويز</th>
+              <th>المستهدفين</th>
+              <th>عدد الأسئلة</th>
+              <th>الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="admin-quizzes-control-list"></tbody>
+        </table>
+      </div>
+
+      <!-- Inline Questions Editor Container -->
+      <div id="questions-editor-container" class="hidden" style="margin-top:20px;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <h3 style="color:var(--gold);"><i class="fa-solid fa-pen-to-square"></i> تعديل كويز: <span id="current-editing-quiz-title"></span></h3>
+          <button class="action-btn d" onclick="document.getElementById('questions-editor-container').classList.add('hidden')"><i class="fa-solid fa-xmark"></i> إغلاق التعديل</button>
+        </div>
+        <div id="individual-questions-list"></div>
+      </div>
     </div>
 
-    <!-- THEME MODAL -->
-    <div id="theme-modal" class="fixed inset-0 z-50 bg-black bg-opacity-50 flex justify-center items-center hidden">
-        <div class="bg-slate-900 border border-slate-700 p-6 rounded-lg max-w-sm w-full flex flex-col gap-4">
-            <h3 class="text-lg font-bold text-accent">Select Dashboard Color Theme</h3>
-            <div class="grid grid-cols-2 gap-3">
-                <button onclick="setTheme('theme-dark-gold')" class="p-3 bg-amber-950/40 border border-yellow-600 rounded text-amber-500 font-bold hover:bg-amber-900/50">Dark Gold</button>
-                <button onclick="setTheme('theme-deep-blue')" class="p-3 bg-blue-950/40 border border-blue-600 rounded text-blue-400 font-bold hover:bg-blue-900/50">Deep Blue</button>
-                <button onclick="setTheme('theme-emerald')" class="p-3 bg-emerald-950/40 border border-emerald-600 rounded text-emerald-400 font-bold hover:bg-emerald-900/50">Emerald</button>
-                <button onclick="setTheme('theme-ruby')" class="p-3 bg-rose-950/40 border border-rose-600 rounded text-rose-400 font-bold hover:bg-rose-900/50">Ruby</button>
-                <button onclick="setTheme('theme-light')" class="p-3 bg-slate-200 border border-slate-400 rounded text-indigo-700 font-bold hover:bg-slate-300">Classic Light</button>
-            </div>
-            <button onclick="toggleThemeModal()" class="mt-2 text-center text-sm text-slate-400 hover:text-white">Cancel</button>
-        </div>
+    <!-- TAB 2: RESULTS & SCORES -->
+    <div id="tab-results" class="admin-tab-content hidden">
+      <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">
+        <select id="admin-quiz-filter" onchange="filterScoresTable()" style="max-width:220px;"></select>
+        <input type="text" id="admin-agent-filter" placeholder="بحث باسم الموظف..." onkeyup="filterScoresTable()" style="max-width:200px;">
+        <button class="btn btn-success" onclick="exportFilteredQuizToExcel()" style="width:auto;margin-right:auto;"><i class="fa-solid fa-file-excel"></i> تصدير الكويز المقتطع لإكسيل 📥</button>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>الموظف</th>
+              <th>HR ID</th>
+              <th>الحساب</th>
+              <th>الكويز</th>
+              <th>النسبة المئوية %</th>
+              <th>الدرجة</th>
+              <th>التاريخ</th>
+              <th>التفاصيل</th>
+            </tr>
+          </thead>
+          <tbody id="admin-scores-list"></tbody>
+        </table>
+      </div>
     </div>
 
-    <!-- MAIN FOOTER -->
-    <footer class="card border-t py-4 px-6 text-center text-xs text-slate-500 mt-auto">
-        DEVELOPED BY MOHAMED NASSER · QUATTRO OPERATIONS · <span class="text-accent font-semibold">2026</span>
-    </footer>
+    <!-- TAB 3: USERS & BULK IMPORT -->
+    <div id="tab-users" class="admin-tab-content hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <button class="btn btn-primary" onclick="openAddUserModal()" style="width:auto;"><i class="fa-solid fa-user-plus"></i> إضافة موظف جديد</button>
+        <div>
+          <input type="file" id="excel-user-import-input" style="display:none;" accept=".xlsx,.xls,.csv" onchange="handleExcelUserImport(event)">
+          <button class="btn btn-success" onclick="document.getElementById('excel-user-import-input').click()" style="width:auto;"><i class="fa-solid fa-file-import"></i> استيراد من إكسيل (Bulk Import) 📥</button>
+        </div>
+      </div>
 
-    <!-- MAIN SCRIPT CONTROLLER -->
-    <script>
-        // CONFIGURATION NOTE: Replace with your actual Firebase Realtime Database parameters
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY", // المفتاح الحقيقي بتاعك
-  authDomain: "agent-dashboard-theta-three.firebaseapp.com",
-  databaseURL: "https://agent-system-01-default-rtdb.firebaseio.com", // 👈 اللينك الصحيح بتاعك
-  projectId: "agent-dashboard-theta-three",
-  storageBucket: "agent-dashboard-theta-three.appspot.com",
-  messagingSenderId: "...",
-  appId: "..."
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>الاسم بالكامل</th>
+              <th>Username</th>
+              <th>HR ID</th>
+              <th>الحساب</th>
+              <th>الرتبة</th>
+              <th>الهاتف / الإيميل</th>
+              <th>الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="admin-users-list"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 4: CENTRAL COMMUNICATIONS -->
+    <div id="tab-admin-comms" class="admin-tab-content hidden">
+      <p style="font-size:13px;color:var(--text3);margin-bottom:10px;">إدارة الشات والتواصل المباشر مع جميع الأطراف.</p>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<!-- MODAL: PROMPT MORE QUESTIONS (هل يوجد أسئلة أخرى؟) -->
+<div id="more-q-modal" class="modal-overlay hidden">
+  <div class="modal-content" style="text-align:center;">
+    <h3 class="modal-title" style="justify-content:center;"><i class="fa-solid fa-circle-question"></i> حفظ السؤال</h3>
+    <p style="font-size:15px;color:var(--text);margin-bottom:20px;">تمت إضافة السؤال بنجاح. هل يوجد أسئلة أخرى لهذا الكويز؟</p>
+    <div style="display:flex;gap:12px;justify-content:center;">
+      <button class="btn btn-primary" onclick="continueAddingQuestions()"><i class="fa-solid fa-plus"></i> نعم، إضافة سؤال آخر</button>
+      <button class="btn btn-success" onclick="finalizeAndSaveQuizBatch()"><i class="fa-solid fa-check-double"></i> لا، حفظ الكويز كاملاً</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: SCORE DETAILS BREAKDOWN (تفاصيل نتيجة الموظف) -->
+<div id="score-details-modal" class="modal-overlay hidden">
+  <div class="modal-content" style="max-width:680px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <h3 class="modal-title" style="margin:0;"><i class="fa-solid fa-magnifying-glass-chart"></i> تفاصيل النتيجة</h3>
+      <button class="action-btn d" onclick="closeScoreDetailsModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="score-details-body"></div>
+  </div>
+</div>
+
+<!-- MODAL: NEW CONVO / USER SEARCH -->
+<div id="new-convo-modal" class="modal-overlay hidden">
+  <div class="modal-content">
+    <h3 class="modal-title"><i class="fa-solid fa-comment-dots"></i> بدء محادثة جديدة</h3>
+    <div class="form-group">
+      <label>ابحث عن الموظف (بالاسم، HR ID، أو Username)</label>
+      <input type="text" id="convo-search-user" placeholder="اكتب للبحث..." onkeyup="searchUsersForConvo()">
+    </div>
+    <div id="convo-user-results" style="max-height:220px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:6px;margin-bottom:14px;"></div>
+    <button class="btn btn-secondary" onclick="document.getElementById('new-convo-modal').classList.add('hidden')">إلغاء</button>
+  </div>
+</div>
+
+<!-- DRAWER: USER INFO -->
+<div id="user-info-drawer" class="user-drawer">
+  <div class="user-drawer-avatar" id="drawer-av">?</div>
+  <h3 id="drawer-fullname" style="text-align:center;font-size:16px;color:var(--text);margin-bottom:2px;">—</h3>
+  <p id="drawer-username" style="text-align:center;font-size:12px;color:var(--gold);margin-bottom:16px;">@username</p>
+  <div class="gold-divider"></div>
+  <div style="display:flex;flex-direction:column;gap:10px;font-size:13px;">
+    <div><strong style="color:var(--text2)">الكود الوظيفي:</strong> <span id="drawer-hrid">—</span></div>
+    <div><strong style="color:var(--text2)">المسمى الوظيفي:</strong> <span id="drawer-role">—</span></div>
+    <div><strong style="color:var(--text2)">الحساب / المشروع:</strong> <span id="drawer-account">—</span></div>
+    <div><strong style="color:var(--text2)">الهاتف:</strong> <span id="drawer-phone">—</span></div>
+    <div><strong style="color:var(--text2)">البريد:</strong> <span id="drawer-email">—</span></div>
+  </div>
+  <button class="btn btn-secondary" onclick="closeUserInfoDrawer()" style="margin-top:30px;"><i class="fa-solid fa-xmark"></i> إغلاق</button>
+</div>
+
+<!-- MODAL: IMAGE PREVIEW FULLSCREEN -->
+<div id="img-modal" class="modal-overlay hidden" onclick="this.classList.add('hidden')">
+  <img id="img-modal-src" src="" style="max-width:90vw;max-height:90vh;border-radius:8px;box-shadow:0 0 30px rgba(0,0,0,0.8);">
+</div>
+
+<footer>Developed with Excellence for Quattro Operations · 2026</footer>
+
+<script>
+const FB = "https://agent-system-01-default-rtdb.firebaseio.com";
+let currentUser = null;
+let currentChatUser = null;
+let activeChatTab = 'active'; // 'active' | 'archived'
+let attachedFileBase64 = null;
+let attachedFileName = "";
+
+// Temporaries for creation flow
+let tempQuizQuestions = [];
+
+// ── THEME MANAGER ──
+const themes = {
+  dark: {'--bg':'#0A0A0A','--bg2':'#111111','--bg3':'#1A1A1A','--bg4':'#222222','--border':'rgba(200,169,110,.18)','--border2':'rgba(200,169,110,.4)','--text':'#F5F0E8','--text2':'#A89880','--text3':'#6B6055','--gold':'#C8A96E','--gold-light':'#E8D4A8'},
+  charcoal: {'--bg':'#1C1C2E','--bg2':'#16162A','--bg3':'#252540','--bg4':'#2E2E50','--border':'rgba(123,140,222,.18)','--border2':'rgba(123,140,222,.4)','--text':'#E8ECF8','--text2':'#8B9EC8','--text3':'#5B6888','--gold':'#7B8CDE','--gold-light':'#A8B4F0'},
+  emerald: {'--bg':'#0D1A15','--bg2':'#0A1510','--bg3':'#112218','--bg4':'#162C1F','--border':'rgba(62,207,142,.15)','--border2':'rgba(62,207,142,.4)','--text':'#E8F5EE','--text2':'#7AB898','--text3':'#4A7A60','--gold':'#3ECF8E','--gold-light':'#7EEAB5'},
+  ruby: {'--bg':'#1A0D0D','--bg2':'#150808','--bg3':'#221212','--bg4':'#2C1818','--border':'rgba(224,92,92,.18)','--border2':'rgba(224,92,92,.4)','--text':'#F8EEEE','--text2':'#C89090','--text3':'#886060','--gold':'#E05C5C','--gold-light':'#F09090'},
+  light: {'--bg':'#F5F0E8','--bg2':'#EDE8DC','--bg3':'#FFFFFF','--bg4':'#F0EBE0','--border':'rgba(154,122,69,.18)','--border2':'rgba(154,122,69,.4)','--text':'#1A1208','--text2':'#5A4A32','--text3':'#8A7A62','--gold':'#9A7A45','--gold-light':'#C8A96E'}
 };
-        // Initialize Firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
+function setTheme(n) {
+  const t = themes[n]; if(!t) return;
+  Object.entries(t).forEach(([k,v]) => document.documentElement.style.setProperty(k,v));
+  document.querySelectorAll('.theme-opt').forEach(o => o.classList.toggle('active', o.dataset.theme === n));
+  localStorage.setItem('theme', n);
+}
+
+// ── INITIALIZATION & AUTH ──
+window.addEventListener('DOMContentLoaded', () => {
+  const st = localStorage.getItem('theme'); if(st) setTheme(st);
+  const su = localStorage.getItem('currentUser');
+  if(su) {
+    currentUser = JSON.parse(su);
+    setupDashboardPermissions();
+  }
+});
+
+function toggleAuthMode() {
+  const sf = document.getElementById('signup-fields');
+  const isSignUp = sf.style.display === 'none';
+  sf.style.display = isSignUp ? 'block' : 'none';
+  document.getElementById('auth-title').innerText = isSignUp ? 'تسجيل حساب جديد' : 'تسجيل الدخول';
+  document.getElementById('auth-btn').innerHTML = isSignUp ? '<i class="fa-solid fa-user-plus"></i> إنشـاء الحساب' : '<i class="fa-solid fa-right-to-bracket"></i> دخول';
+  document.getElementById('toggle-auth-btn').innerText = isSignUp ? 'لديك حساب بالفعل؟ دخول' : 'ليس لديك حساب؟ تسجيل جديد';
+}
+
+function handleAuth(e) {
+  e.preventDefault();
+  const user = document.getElementById('auth-username').value.trim().toLowerCase();
+  const pass = document.getElementById('auth-password').value.trim();
+
+  if (user === "mohamed nasser" && pass === "592005") {
+    currentUser = { username: "mohamed nasser", fullName: "Mohamed Nasser", role: "admin", accountName: "Quattro", hrId: "ADMIN-01", phone: "01000000000", email: "admin@quattro.com" };
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    setupDashboardPermissions();
+    return;
+  }
+
+  const isSignUp = document.getElementById('signup-fields').style.display !== 'none';
+  if (isSignUp) {
+    const fullName = document.getElementById('auth-fullname').value.trim();
+    const accountName = document.getElementById('auth-account').value.trim();
+    const hrId = document.getElementById('auth-hrid').value.trim();
+    if(!fullName || !accountName) return alert('يرجى استكمال جميع البيانات الأساسية');
+
+    const newUser = { username: user, password: pass, fullName, accountName, hrId: hrId || 'N/A', role: 'agent', phone: '', email: '' };
+    fetch(`${FB}/users/${user}.json`, { method: 'PUT', body: JSON.stringify(newUser) }).then(() => {
+      alert('تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.');
+      toggleAuthMode();
+    });
+  } else {
+    fetch(`${FB}/users/${user}.json`).then(r => r.json()).then(ud => {
+      if(ud && ud.password === pass) {
+        currentUser = ud;
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        setupDashboardPermissions();
+      } else {
+        alert('اسم المستخدم أو كلمة المرور غير صحيحة');
+      }
+    });
+  }
+}
+
+function setupDashboardPermissions() {
+  document.getElementById('auth-box').style.display = 'none';
+  document.getElementById('main-container').style.display = 'block';
+  document.getElementById('top-navbar').style.display = 'flex';
+
+  const rb = document.getElementById('user-role-badge');
+  rb.innerText = currentUser.role.toUpperCase();
+  rb.className = `role-badge badge-${currentUser.role}`;
+
+  document.getElementById('wt-name').innerText = `أهلاً بك، ${currentUser.fullName}`;
+  
+  if(['admin', 'leader', 'quality'].includes(currentUser.role)) {
+    switchView('admin-dashboard');
+    loadAdminQuizzes();
+    populateTargetDropdown();
+  } else {
+    switchView('agent-hub');
+  }
+  syncConversationsList();
+  setInterval(syncConversationsList, 5000);
+}
+
+// 4️⃣ إصلاح تسجيل الخروج (Logout Redirect Fix)
+function logout() {
+  localStorage.removeItem('currentUser');
+  currentUser = null;
+  currentChatUser = null;
+  
+  // Hide all sections cleanly
+  ['agent-hub', 'dedicated-quiz-view', 'quiz-dashboard', 'agent-profile', 'admin-dashboard'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.classList.add('hidden');
+  });
+
+  document.getElementById('main-container').style.display = 'none';
+  document.getElementById('top-navbar').style.display = 'none';
+  document.getElementById('auth-box').style.display = 'flex';
+  
+  // Reset form inputs
+  document.getElementById('auth-username').value = '';
+  document.getElementById('auth-password').value = '';
+}
+
+function switchView(viewId) {
+  ['agent-hub', 'dedicated-quiz-view', 'quiz-dashboard', 'agent-profile', 'admin-dashboard'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.classList.add('hidden');
+  });
+  document.getElementById(viewId).classList.remove('hidden');
+}
+
+function goHome() {
+  if(!currentUser) return logout();
+  if(['admin', 'leader', 'quality'].includes(currentUser.role)) switchView('admin-dashboard');
+  else switchView('agent-hub');
+}
+
+// --------------------------------------------------
+// 1️⃣ نظام الكويزات (Quizzes Module)
+// --------------------------------------------------
+
+function populateTargetDropdown() {
+  fetch(`${FB}/users.json`).then(r => r.json()).then(users => {
+    const sel = document.getElementById('q-target-select');
+    sel.innerHTML = '<option value="all" selected>الجميع (All Employees)</option>';
+    if(!users) return;
+    const accounts = new Set();
+    Object.values(users).forEach(u => {
+      if(u.accountName) accounts.add(u.accountName);
+    });
+    accounts.forEach(acc => {
+      sel.innerHTML += `<option value="acc:${acc}">حساب: ${acc}</option>`;
+    });
+    Object.values(users).forEach(u => {
+      sel.innerHTML += `<option value="user:${u.username}">${u.fullName} (@${u.username})</option>`;
+    });
+  });
+}
+
+// Creation Flow - إضافة أكثر من سؤال مع إظهار Prompt تفاعلي
+function handleAddQuestionStep() {
+  const quizName = document.getElementById('q-quizname').value.trim();
+  const qText = document.getElementById('q-text').value.trim();
+  const opt1 = document.getElementById('q-opt1').value.trim();
+  const opt2 = document.getElementById('q-opt2').value.trim();
+  const opt3 = document.getElementById('q-opt3').value.trim();
+  const opt4 = document.getElementById('q-opt4').value.trim();
+  const correct = parseInt(document.getElementById('q-correct').value);
+
+  if(!quizName || !qText || !opt1 || !opt2 || !correct) {
+    return alert('يرجى ملء بيانات اسم الكويز والسؤال والخيارات والإجابة الصحيحة');
+  }
+
+  tempQuizQuestions.push({
+    questionText: qText,
+    options: [opt1, opt2, opt3, opt4],
+    correctAnswer: correct
+  });
+
+  // Reset current question inputs
+  document.getElementById('q-text').value = '';
+  document.getElementById('q-opt1').value = '';
+  document.getElementById('q-opt2').value = '';
+  document.getElementById('q-opt3').value = '';
+  document.getElementById('q-opt4').value = '';
+  document.getElementById('q-correct').value = '';
+
+  document.getElementById('pending-q-count').innerText = `الأسئلة المضافة: ${tempQuizQuestions.length}`;
+
+  // Open Confirm Modal
+  document.getElementById('more-q-modal').classList.remove('hidden');
+}
+
+function continueAddingQuestions() {
+  document.getElementById('more-q-modal').classList.add('hidden');
+}
+
+function finalizeAndSaveQuizBatch() {
+  document.getElementById('more-q-modal').classList.add('hidden');
+  const quizName = document.getElementById('q-quizname').value.trim();
+  const targetSelect = document.getElementById('q-target-select');
+  const selectedTargets = Array.from(targetSelect.selectedOptions).map(o => o.value);
+
+  const quizPayload = {
+    quizName,
+    targets: selectedTargets,
+    questions: tempQuizQuestions,
+    createdAt: new Date().toLocaleString()
+  };
+
+  fetch(`${FB}/quizzes/${encodeURIComponent(quizName)}.json`, {
+    method: 'PUT',
+    body: JSON.stringify(quizPayload)
+  }).then(() => {
+    alert('تم حفظ الكويز بجميع الأسئلة بنجاح! 🎉');
+    tempQuizQuestions = [];
+    document.getElementById('q-quizname').value = '';
+    document.getElementById('pending-q-count').innerText = 'الأسئلة المضافة: 0';
+    loadAdminQuizzes();
+  });
+}
+
+function loadAdminQuizzes() {
+  fetch(`${FB}/quizzes.json`).then(r => r.json()).then(quizzes => {
+    const tbody = document.getElementById('admin-quizzes-control-list');
+    tbody.innerHTML = '';
+    if(!quizzes) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">لا توجد كويزات مضافة.</td></tr>';
+      return;
+    }
+    Object.entries(quizzes).forEach(([key, q]) => {
+      const targetText = q.targets ? q.targets.join(', ') : 'الجميع';
+      const qCount = q.questions ? q.questions.length : 0;
+      tbody.innerHTML += `<tr>
+        <td><strong>${q.quizName || key}</strong></td>
+        <td>${targetText}</td>
+        <td><span class="score-badge">${qCount} أسئلة</span></td>
+        <td>
+          <button class="action-btn p" onclick="editQuizInline('${key}')"><i class="fa-solid fa-pen"></i> تعديل</button>
+          <button class="action-btn d" onclick="confirmDeleteQuiz('${key}')"><i class="fa-solid fa-trash"></i> حذف</button>
+        </td>
+      </tr>`;
+    });
+  });
+}
+
+// تحسين واجهة التعديل (Editing View Bug Fix)
+function editQuizInline(quizKey) {
+  fetch(`${FB}/quizzes/${quizKey}.json`).then(r => r.json()).then(q => {
+    if(!q) return;
+    document.getElementById('questions-editor-container').classList.remove('hidden');
+    document.getElementById('current-editing-quiz-title').innerText = q.quizName;
+    const list = document.getElementById('individual-questions-list');
+    list.innerHTML = '';
+
+    (q.questions || []).forEach((question, idx) => {
+      list.innerHTML += `<div class="q-edit-box">
+        <label>السؤال ${idx + 1}</label>
+        <input type="text" id="eq-text-${idx}" value="${question.questionText || ''}" style="margin-bottom:8px;">
+        <div class="q-edit-grid">
+          <input type="text" id="eq-opt1-${idx}" value="${(question.options && question.options[0]) || ''}">
+          <input type="text" id="eq-opt2-${idx}" value="${(question.options && question.options[1]) || ''}">
+          <input type="text" id="eq-opt3-${idx}" value="${(question.options && question.options[2]) || ''}">
+          <input type="text" id="eq-opt4-${idx}" value="${(question.options && question.options[3]) || ''}">
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+          <div>
+            <label style="display:inline;">رقم الإجابة الصحيحة: </label>
+            <input type="number" id="eq-correct-${idx}" value="${question.correctAnswer || 1}" min="1" max="4" style="width:70px;display:inline;">
+          </div>
+          <button class="action-btn s" onclick="saveSingleQuestionEdit('${quizKey}', ${idx})"><i class="fa-solid fa-floppy-disk"></i> حفظ السؤال</button>
+        </div>
+      </div>`;
+    });
+  });
+}
+
+function saveSingleQuestionEdit(quizKey, idx) {
+  const qText = document.getElementById(`eq-text-${idx}`).value;
+  const o1 = document.getElementById(`eq-opt1-${idx}`).value;
+  const o2 = document.getElementById(`eq-opt2-${idx}`).value;
+  const o3 = document.getElementById(`eq-opt3-${idx}`).value;
+  const o4 = document.getElementById(`eq-opt4-${idx}`).value;
+  const corr = parseInt(document.getElementById(`eq-correct-${idx}`).value);
+
+  const updatedQ = {
+    questionText: qText,
+    options: [o1, o2, o3, o4],
+    correctAnswer: corr
+  };
+
+  fetch(`${FB}/quizzes/${quizKey}/questions/${idx}.json`, {
+    method: 'PUT',
+    body: JSON.stringify(updatedQ)
+  }).then(() => {
+    alert('تم تحديث السؤال بنجاح!');
+  });
+}
+
+// إصلاح حذف الكويز بالكامل (Delete Quiz Fix)
+function confirmDeleteQuiz(quizKey) {
+  if (confirm(`هل أنت تأكد من حذف هذا الكويز (${quizKey}) بالكامل؟`)) {
+    fetch(`${FB}/quizzes/${quizKey}.json`, { method: 'DELETE' }).then(() => {
+      alert('تم حذف الكويز بجميع أسئلته فوراً.');
+      loadAdminQuizzes();
+    });
+  }
+}
+
+// واجهة مستقلة لأداء الكويز (Dedicated Quiz View) & Target Filtering
+function loadQuizzesForAgent() {
+  switchView('quiz-dashboard');
+  fetch(`${FB}/quizzes.json`).then(r => r.json()).then(quizzes => {
+    const container = document.getElementById('available-quizzes-list');
+    container.innerHTML = '';
+    if(!quizzes) {
+      container.innerHTML = '<p style="color:var(--text3);">لا توجد كويزات متاحة حالياً.</p>';
+      return;
+    }
+
+    Object.entries(quizzes).forEach(([key, q]) => {
+      const targets = q.targets || ['all'];
+      const isTargeted = targets.includes('all') || 
+                         targets.includes(`acc:${currentUser.accountName}`) || 
+                         targets.includes(`user:${currentUser.username}`);
+
+      if(isTargeted) {
+        container.innerHTML += `<div class="card" style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <h3 style="color:var(--gold);font-size:16px;">${q.quizName || key}</h3>
+            <small style="color:var(--text3);">عدد الأسئلة: ${q.questions ? q.questions.length : 0}</small>
+          </div>
+          <button class="btn btn-primary" onclick="startDedicatedQuiz('${key}')" style="width:auto;"><i class="fa-solid fa-play"></i> Take Quiz</button>
+        </div>`;
+      }
+    });
+  });
+}
+
+let activeRunningQuiz = null;
+
+function startDedicatedQuiz(quizKey) {
+  fetch(`${FB}/quizzes/${quizKey}.json`).then(r => r.json()).then(q => {
+    if(!q || !q.questions) return alert('هذا الكويز لا يحتوي على أسئلة');
+    activeRunningQuiz = q;
+    switchView('dedicated-quiz-view');
+    document.getElementById('active-quiz-title').innerText = q.quizName;
+    document.getElementById('quiz-submit-bar').classList.remove('hidden');
+    document.getElementById('quiz-review-container').classList.add('hidden');
+
+    const qContainer = document.getElementById('quiz-questions-container');
+    qContainer.innerHTML = '';
+
+    q.questions.forEach((question, idx) => {
+      qContainer.innerHTML += `<div class="card" style="margin-bottom:16px;">
+        <p style="font-weight:700;margin-bottom:10px;">${idx + 1}. ${question.questionText}</p>
+        <div>
+          ${question.options.map((opt, oIdx) => `
+            <label style="display:block;padding:10px;background:var(--bg4);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;cursor:pointer;">
+              <input type="radio" name="q_ans_${idx}" value="${oIdx + 1}"> ${opt}
+            </label>
+          `).join('')}
+        </div>
+      </div>`;
+    });
+  });
+}
+
+// عرض الدرجة بنسبة مئوية % ومراجعة نموذجية
+function submitQuizAnswers() {
+  if(!activeRunningQuiz) return;
+  const questions = activeRunningQuiz.questions;
+  let correctCount = 0;
+  const answersBreakdown = [];
+
+  questions.forEach((q, idx) => {
+    const selected = document.querySelector(`input[name="q_ans_${idx}"]:checked`);
+    const selectedVal = selected ? parseInt(selected.value) : null;
+    const isCorrect = selectedVal === q.correctAnswer;
+
+    if(isCorrect) correctCount++;
+
+    answersBreakdown.push({
+      questionText: q.questionText,
+      selectedAnswerText: selectedVal ? q.options[selectedVal - 1] : "لم يتم الإجابة",
+      correctAnswerText: q.options[q.correctAnswer - 1],
+      isCorrect,
+      selectedVal,
+      correctVal: q.correctAnswer,
+      options: q.options
+    });
+  });
+
+  const totalQuestions = questions.length;
+  const percentage = Math.round((correctCount / totalQuestions) * 100);
+  const scoreStr = `${percentage}% (${correctCount}/${totalQuestions})`;
+
+  // Save result to Firebase
+  const resultPayload = {
+    agentName: currentUser.fullName,
+    username: currentUser.username,
+    hrId: currentUser.hrId || 'N/A',
+    account: currentUser.accountName || 'N/A',
+    quizName: activeRunningQuiz.quizName,
+    percentage,
+    correctCount,
+    totalQuestions,
+    scoreStr,
+    answersBreakdown,
+    submittedAt: new Date().toLocaleString()
+  };
+
+  fetch(`${FB}/quiz_results.json`, { method: 'POST', body: JSON.stringify(resultPayload) }).then(() => {
+    // Show Instant Review (Google Forms Style Review)
+    document.getElementById('quiz-submit-bar').classList.add('hidden');
+    document.getElementById('quiz-questions-container').innerHTML = '';
+    document.getElementById('quiz-review-container').classList.remove('hidden');
+    document.getElementById('review-score-banner').innerText = `النتيجة النهائيـة: ${scoreStr}`;
+
+    const reviewList = document.getElementById('review-questions-list');
+    reviewList.innerHTML = '';
+
+    answersBreakdown.forEach((b, i) => {
+      reviewList.innerHTML += `<div class="q-review-card ${b.isCorrect ? 'correct' : 'wrong'}">
+        <p style="font-weight:700;">س${i + 1}: ${b.questionText}</p>
+        <div style="margin-top:8px;">
+          ${b.options.map((opt, oIdx) => {
+            const optNum = oIdx + 1;
+            let optClass = 'q-opt-item';
+            if(optNum === b.selectedVal && b.isCorrect) optClass += ' selected-correct';
+            else if(optNum === b.selectedVal && !b.isCorrect) optClass += ' selected-wrong';
+            else if(optNum === b.correctVal && !b.isCorrect) optClass += ' model-correct';
+            return `<div class="${optClass}">${opt} ${optNum === b.correctVal ? '✅ (الإجابة النموذجية)' : ''}</div>`;
+          }).join('')}
+        </div>
+      </div>`;
+    });
+  });
+}
+
+// Admin Results Breakdown & undefined Fix
+function loadAdminScores() {
+  fetch(`${FB}/quiz_results.json`).then(r => r.json()).then(results => {
+    window.globalQuizResults = results || {};
+    populateQuizFilterDropdown(results);
+    renderScoresTable(results);
+  });
+}
+
+function populateQuizFilterDropdown(results) {
+  const sel = document.getElementById('admin-quiz-filter');
+  sel.innerHTML = '<option value="all">جميع الكويزات</option>';
+  if(!results) return;
+  const quizNames = new Set();
+  Object.values(results).forEach(r => { if(r.quizName) quizNames.add(r.quizName); });
+  quizNames.forEach(name => {
+    sel.innerHTML += `<option value="${name}">${name}</option>`;
+  });
+}
+
+function renderScoresTable(results) {
+  const tbody = document.getElementById('admin-scores-list');
+  tbody.innerHTML = '';
+  if(!results) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">لا توجد نتائج مسجلة.</td></tr>';
+    return;
+  }
+
+  Object.entries(results).forEach(([key, r]) => {
+    tbody.innerHTML += `<tr>
+      <td><strong>${r.agentName || r.username || '—'}</strong></td>
+      <td>${r.hrId || '—'}</td>
+      <td>${r.account || '—'}</td>
+      <td>${r.quizName || '—'}</td>
+      <td><span class="score-badge">${r.percentage || 0}%</span></td>
+      <td>${r.scoreStr || `${r.correctCount}/${r.totalQuestions}`}</td>
+      <td>${r.submittedAt || '—'}</td>
+      <td><button class="action-btn" onclick="openScoreDetailsModal('${key}')"><i class="fa-solid fa-eye"></i> التفاصيل</button></td>
+    </tr>`;
+  });
+}
+
+function filterScoresTable() {
+  const qFilter = document.getElementById('admin-quiz-filter').value;
+  const aFilter = document.getElementById('admin-agent-filter').value.toLowerCase();
+  const filtered = {};
+
+  Object.entries(window.globalQuizResults || {}).forEach(([k, r]) => {
+    const matchQuiz = (qFilter === 'all' || r.quizName === qFilter);
+    const matchAgent = (r.agentName || '').toLowerCase().includes(aFilter) || (r.username || '').toLowerCase().includes(aFilter);
+    if(matchQuiz && matchAgent) filtered[k] = r;
+  });
+  renderScoresTable(filtered);
+}
+
+function openScoreDetailsModal(resultKey) {
+  const r = window.globalQuizResults[resultKey];
+  if(!r) return;
+  document.getElementById('score-details-modal').classList.remove('hidden');
+  const b = document.getElementById('score-details-body');
+  b.innerHTML = `<p><strong>الموظف:</strong> ${r.agentName} | <strong>HR ID:</strong> ${r.hrId} | <strong>النتيجة:</strong> ${r.scoreStr}</p><div class="gold-divider"></div>`;
+
+  (r.answersBreakdown || []).forEach((item, idx) => {
+    b.innerHTML += `<div style="background:var(--bg4);padding:10px;border-radius:8px;margin-bottom:8px;font-size:13px;">
+      <p style="font-weight:700;">س${idx + 1}: ${item.questionText}</p>
+      <p style="color:${item.isCorrect ? 'var(--success)' : 'var(--danger)'}">إجابة الموظف: ${item.selectedAnswerText}</p>
+      <p style="color:var(--gold);">الإجابة الصحيحة: ${item.correctAnswerText}</p>
+    </div>`;
+  });
+}
+
+function closeScoreDetailsModal() {
+  document.getElementById('score-details-modal').classList.add('hidden');
+}
+
+// تصدير نتائج كويز معين لملف إكسيل (Export Individual Quiz to Excel / CSV)
+function exportFilteredQuizToExcel() {
+  const selectedQuiz = document.getElementById('admin-quiz-filter').value;
+  if(selectedQuiz === 'all') return alert('يرجى اختيار كويز معين من القائمة لتصدير نتائجه بصيغة Google Forms');
+
+  const filteredResults = Object.values(window.globalQuizResults || {}).filter(r => r.quizName === selectedQuiz);
+  if(!filteredResults.length) return alert('لا توجد نتائج لهذا الكويز');
+
+  // Extract all unique questions as headers
+  const questionHeaders = [];
+  filteredResults.forEach(r => {
+    (r.answersBreakdown || []).forEach(b => {
+      if(!questionHeaders.includes(b.questionText)) questionHeaders.push(b.questionText);
+    });
+  });
+
+  const exportData = filteredResults.map(r => {
+    const row = {
+      "اسم الموظف": r.agentName,
+      "HR ID": r.hrId,
+      "الحساب": r.account,
+      "تاريخ التقديم": r.submittedAt,
+      "النسبة المئوية %": `${r.percentage}%`,
+      "الدرجة": r.scoreStr
+    };
+
+    questionHeaders.forEach(qText => {
+      const qAns = (r.answersBreakdown || []).find(b => b.questionText === qText);
+      if(qAns) {
+        row[qText] = qAns.isCorrect ? 
+          `${qAns.selectedAnswerText} (صحيحة ✅)` : 
+          `${qAns.selectedAnswerText} (خاطئة ❌ - الصحيحة: ${qAns.correctAnswerText})`;
+      } else {
+        row[qText] = "—";
+      }
+    });
+
+    return row;
+  });
+
+  const ws = XLSX.utils.json_to_sheet(exportData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "نتائج الكويز");
+  XLSX.writeFile(wb, `Quiz_Results_${selectedQuiz}.xlsx`);
+}
+
+// --------------------------------------------------
+// 2️⃣ نظام الشات والمحادثات (Communications Module)
+// --------------------------------------------------
+
+function switchChatTab(tab) {
+  activeChatTab = tab;
+  document.getElementById('tab-active-btn').classList.toggle('active', tab === 'active');
+  document.getElementById('tab-archived-btn').classList.toggle('active', tab === 'archived');
+  syncConversationsList();
+}
+
+function syncConversationsList() {
+  if(!currentUser) return;
+  fetch(`${FB}/conversations.json`).then(r => r.json()).then(convos => {
+    window.globalConvos = convos || {};
+    renderConversationsSidebar();
+  });
+}
+
+function renderConversationsSidebar() {
+  const list = document.getElementById('user-conversations-list');
+  list.innerHTML = '';
+  const myUser = currentUser.username;
+
+  Object.entries(window.globalConvos || {}).forEach(([cid, convo]) => {
+    if(!cid.includes(myUser)) return; // persistent chat keyed by users
+    const otherUser = cid.replace(myUser, '').replace('_', '');
+    const isArchived = convo.archivedBy && convo.archivedBy[myUser];
+
+    if((activeChatTab === 'active' && !isArchived) || (activeChatTab === 'archived' && isArchived)) {
+      const lastMsg = convo.lastMessage || 'لا توجد رسائل';
+      list.innerHTML += `<div class="chat-item ${currentChatUser === otherUser ? 'active' : ''}" onclick="openChatWithUser('${otherUser}')">
+        <div class="chat-av">${otherUser.substring(0, 2).toUpperCase()}</div>
+        <div class="chat-item-info">
+          <strong>@${otherUser}</strong>
+          <span>${lastMsg}</span>
+        </div>
+        <button class="action-btn" onclick="event.stopPropagation(); toggleArchiveConvo('${cid}')" title="أرشفة/إلغاء"><i class="fa-solid fa-box-archive"></i></button>
+      </div>`;
+    }
+  });
+}
+
+function toggleArchiveConvo(cid) {
+  const myUser = currentUser.username;
+  const currentStatus = window.globalConvos[cid]?.archivedBy?.[myUser] || false;
+  fetch(`${FB}/conversations/${cid}/archivedBy/${myUser}.json`, {
+    method: 'PUT',
+    body: JSON.stringify(!currentStatus)
+  }).then(syncConversationsList);
+}
+
+function openChatWithUser(targetUser) {
+  currentChatUser = targetUser;
+  renderConversationsSidebar();
+
+  fetch(`${FB}/users/${targetUser}.json`).then(r => r.json()).then(u => {
+    window.activeChatUserData = u || { fullName: targetUser, username: targetUser, role: 'Agent' };
+    document.getElementById('chat-hdr-name').innerText = window.activeChatUserData.fullName;
+    document.getElementById('chat-hdr-role').innerText = `@${targetUser} • ${window.activeChatUserData.role || 'Member'}`;
+    document.getElementById('chat-hdr-av').innerText = targetUser.substring(0, 2).toUpperCase();
+  });
+
+  loadChatMessages();
+}
+
+function getChatId(u1, u2) {
+  return [u1, u2].sort().join('_');
+}
+
+function loadChatMessages() {
+  if(!currentChatUser) return;
+  const cid = getChatId(currentUser.username, currentChatUser);
+
+  fetch(`${FB}/messages/${cid}.json`).then(r => r.json()).then(msgs => {
+    const area = document.getElementById('chat-messages-area');
+    area.innerHTML = '';
+    if(!msgs) {
+      area.innerHTML = '<div style="text-align:center;color:var(--text3);margin-top:20px;">ابدأ المحادثة الآن...</div>';
+      return;
+    }
+
+    Object.values(msgs).forEach(m => {
+      const isSent = m.sender === currentUser.username;
+      let attHtml = '';
+      if(m.attachment) {
+        if(m.attachment.type.startsWith('image/')) {
+          attHtml = `<br><img src="${m.attachment.data}" style="max-width:200px;border-radius:8px;margin-top:5px;cursor:pointer;" onclick="viewFullImage('${m.attachment.data}')">`;
+        } else {
+          attHtml = `<br><a href="${m.attachment.data}" download="${m.attachment.name}" style="color:var(--gold);"><i class="fa-solid fa-paperclip"></i> ${m.attachment.name}</a>`;
         }
-        const db = firebase.database();
-
-        // Local Storage / State Configuration Variables
-        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
-        let activeTab = 'dashboard';
-        let currentTheme = localStorage.getItem('themeClass') || 'theme-dark-gold';
-
-        // Comms state variables
-        let selectedChatId = null;
-        let commsUsers = {};
-        let activeFilter = 'active'; // active | archived
-        let currentCompressedImageBase64 = null;
-
-        // Quiz temp storage for multiple question additions
-        let pendingQuizQuestions = [];
-
-        // ON LOAD INITIALIZER
-        window.addEventListener('DOMContentLoaded', () => {
-            document.body.className = currentTheme;
-            if (currentUser) {
-                renderPortalInterface();
-            } else {
-                renderAuthForms();
-            }
-        });
-
-        // AUTH VISUAL CONTROLLERS
-        function renderAuthForms() {
-            document.getElementById('auth-section').classList.remove('hidden');
-            document.getElementById('register-section').classList.add('hidden');
-            document.getElementById('portal-section').classList.add('hidden');
-            document.getElementById('user-display-info').classList.add('hidden');
-        }
-
-        function toggleAuthForms() {
-            const lForm = document.getElementById('auth-section');
-            const rForm = document.getElementById('register-section');
-            if (lForm.classList.contains('hidden')) {
-                lForm.classList.remove('hidden');
-                rForm.classList.add('hidden');
-            } else {
-                lForm.classList.add('hidden');
-                rForm.classList.remove('hidden');
-            }
-        }
-
-        function toggleThemeModal() {
-            const modal = document.getElementById('theme-modal');
-            modal.classList.toggle('hidden');
-        }
-
-        function setTheme(themeName) {
-            currentTheme = themeName;
-            document.body.className = themeName;
-            localStorage.setItem('themeClass', themeName);
-            toggleThemeModal();
-        }
-
-        // BACKEND AUTH CALLS
-        function handleLogin() {
-            const user = document.getElementById('login-username').value.trim().toLowerCase();
-            const pass = document.getElementById('login-password').value;
-
-            if (!user || !pass) {
-                alert('Please enter username and password!');
-                return;
-            }
-
-            db.ref('users/' + user).once('value', snapshot => {
-                const data = snapshot.val();
-                if (data && data.password === pass) {
-                    if (data.status !== 'approved') {
-                        alert('Your account is currently pending approval by an Admin.');
-                        return;
-                    }
-                    currentUser = data;
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    renderPortalInterface();
-                } else {
-                    alert('Invalid Username or Password.');
-                }
-            });
-        }
-
-        function handleRegister() {
-            const name = document.getElementById('reg-fullname').value.trim();
-            const user = document.getElementById('reg-username').value.trim().toLowerCase();
-            const pass = document.getElementById('reg-password').value;
-            const email = document.getElementById('reg-email').value.trim();
-            const phone = document.getElementById('reg-phone').value.trim();
-            const hrid = document.getElementById('reg-hrid').value.trim();
-
-            if (!name || !user || !pass || !email || !phone || !hrid) {
-                alert('Please fill out all fields completely!');
-                return;
-            }
-
-            db.ref('users/' + user).once('value', snapshot => {
-                if (snapshot.exists()) {
-                    alert('Username is already registered!');
-                    return;
-                }
-                const regData = {
-                    fullName: name,
-                    username: user,
-                    password: pass,
-                    email: email,
-                    phone: phone,
-                    hrId: hrid,
-                    role: 'Agent',
-                    account: 'Default',
-                    status: 'pending' // Admin must approve
-                };
-                db.ref('users/' + user).set(regData)
-                    .then(() => {
-                        alert('Registration request submitted successfully! Please wait for Admin approval.');
-                        toggleAuthForms();
-                    });
-            });
-        }
-
-        function handleLogout() {
-            localStorage.removeItem('currentUser');
-            currentUser = null;
-            selectedChatId = null;
-            
-            // Clean up state fields
-            document.getElementById('login-username').value = '';
-            document.getElementById('login-password').value = '';
-            
-            // Seamless CSS transform/display trigger without reloading URL
-            document.getElementById('portal-section').classList.add('hidden');
-            document.getElementById('auth-section').classList.remove('hidden');
-            document.getElementById('user-display-info').classList.add('hidden');
-        }
-
-        // VIEW RENDERING SWITCHER
-        function renderPortalInterface() {
-            document.getElementById('auth-section').classList.add('hidden');
-            document.getElementById('register-section').classList.add('hidden');
-            document.getElementById('portal-section').classList.remove('hidden');
-            
-            const headInfo = document.getElementById('user-display-info');
-            headInfo.classList.remove('hidden');
-            document.getElementById('header-user-name').innerText = currentUser.fullName;
-            
-            const badge = document.getElementById('header-user-badge');
-            badge.innerText = currentUser.role;
-            if (currentUser.role === 'Admin') badge.className = "px-2 py-0.5 rounded text-xs font-bold uppercase text-white bg-red-600";
-            else if (currentUser.role === 'Leader') badge.className = "px-2 py-0.5 rounded text-xs font-bold uppercase text-white bg-blue-600";
-            else if (currentUser.role === 'Quality') badge.className = "px-2 py-0.5 rounded text-xs font-bold uppercase text-white bg-emerald-600";
-            else badge.className = "px-2 py-0.5 rounded text-xs font-bold uppercase text-white bg-purple-600";
-
-            // Control panel tab views for Admin/Leader/Quality
-            const usersBtn = document.getElementById('tab-users-btn');
-            if (['Admin', 'Leader', 'Quality'].includes(currentUser.role)) {
-                usersBtn.classList.remove('hidden');
-            } else {
-                usersBtn.classList.add('hidden');
-            }
-
-            switchTab('dashboard');
-        }
-
-        function switchTab(tabId) {
-            activeTab = tabId;
-            const container = document.getElementById('content-display');
-            container.innerHTML = `<div class="text-center py-12"><i class="fa-solid fa-circle-notch fa-spin text-4xl text-accent"></i></div>`;
-            
-            // Style active tab button in sidebar
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('bg-slate-800', 'text-accent');
-            });
-            event?.currentTarget?.classList?.add('bg-slate-800', 'text-accent');
-
-            switch (tabId) {
-                case 'dashboard':
-                    renderDashboardView(container);
-                    break;
-                case 'users':
-                    renderUsersControlView(container);
-                    break;
-                case 'comms':
-                    renderCommunicationsView(container);
-                    break;
-                case 'announcements':
-                    renderAnnouncementsView(container);
-                    break;
-                case 'schedules':
-                    renderSchedulesView(container);
-                    break;
-                case 'quizzes':
-                    renderQuizzesView(container);
-                    break;
-            }
-        }
-
-        // ==========================================
-        // 1. DASHBOARD VIEW CONTROLLER
-        // ==========================================
-        function renderDashboardView(container) {
-            container.innerHTML = `
-                <div class="flex flex-col gap-6">
-                    <h2 class="text-2xl font-bold">Performance Dashboard</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="card p-6 rounded-lg flex flex-col gap-2">
-                            <span class="text-xs uppercase text-slate-400">Campaign / Account</span>
-                            <span class="text-2xl font-bold text-accent">${currentUser.account || 'Not Assigned'}</span>
-                        </div>
-                        <div class="card p-6 rounded-lg flex flex-col gap-2">
-                            <span class="text-xs uppercase text-slate-400">HR Identifier ID</span>
-                            <span class="text-2xl font-bold text-accent">${currentUser.hrId || 'N/A'}</span>
-                        </div>
-                        <div class="card p-6 rounded-lg flex flex-col gap-2">
-                            <span class="text-xs uppercase text-slate-400">Access Role Level</span>
-                            <span class="text-2xl font-bold text-accent">${currentUser.role}</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // ==========================================
-        // 2. USERS CONTROL (ADMIN ONLY HUB)
-        // ==========================================
-        function renderUsersControlView(container) {
-            container.innerHTML = `
-                <div class="flex flex-col gap-6">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                        <h2 class="text-2xl font-bold">User Access Panel</h2>
-                        <div class="flex items-center gap-3">
-                            <input type="file" id="excel-user-import-input" accept=".xlsx, .xls" class="hidden" onchange="processUserExcelImport(this)">
-                            <button onclick="document.getElementById('excel-user-import-input').click()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded text-sm flex items-center gap-2">
-                                <i class="fa-solid fa-file-excel"></i> Import Users from Excel
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="card rounded-lg overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-slate-800 text-slate-300 text-xs uppercase border-b border-slate-700">
-                                    <th class="p-3">Full Name</th>
-                                    <th class="p-3">Username</th>
-                                    <th class="p-3">HR ID</th>
-                                    <th class="p-3">Account</th>
-                                    <th class="p-3">Role</th>
-                                    <th class="p-3">Status</th>
-                                    <th class="p-3">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="users-table-body" class="divide-y divide-slate-800 text-sm">
-                                <!-- Dynamically Rendered -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            `;
-            loadUsersTable();
-        }
-
-        function loadUsersTable() {
-            const tbody = document.getElementById('users-table-body');
-            db.ref('users').on('value', snapshot => {
-                tbody.innerHTML = '';
-                snapshot.forEach(child => {
-                    const user = child.val();
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td class="p-3 font-semibold">${user.fullName}</td>
-                        <td class="p-3 text-slate-400">@${user.username}</td>
-                        <td class="p-3 font-mono">${user.hrId}</td>
-                        <td class="p-3">${user.account || 'None'}</td>
-                        <td class="p-3">
-                            <select onchange="updateUserRole('${user.username}', this.value)" class="bg-slate-900 text-xs border border-slate-700 p-1 rounded text-white focus:outline-none">
-                                <option value="Agent" ${user.role==='Agent'?'selected':''}>Agent</option>
-                                <option value="Leader" ${user.role==='Leader'?'selected':''}>Leader</option>
-                                <option value="Quality" ${user.role==='Quality'?'selected':''}>Quality</option>
-                                <option value="Admin" ${user.role==='Admin'?'selected':''}>Admin</option>
-                            </select>
-                        </td>
-                        <td class="p-3">
-                            <span class="px-2 py-0.5 rounded text-xs font-bold uppercase ${user.status==='approved'?'bg-emerald-600/30 text-emerald-400':'bg-amber-600/30 text-amber-400'}">${user.status}</span>
-                        </td>
-                        <td class="p-3 flex items-center gap-2">
-                            ${user.status === 'pending' ? `<button onclick="approveUserStatus('${user.username}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-2.5 py-1 rounded">Approve</button>` : ''}
-                            <button onclick="deleteUserAccount('${user.username}')" class="text-red-500 hover:text-red-600 font-semibold text-lg" title="Remove User"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            });
-        }
-
-        function updateUserRole(username, newRole) {
-            db.ref('users/' + username + '/role').set(newRole);
-        }
-
-        function approveUserStatus(username) {
-            db.ref('users/' + username + '/status').set('approved')
-                .then(() => alert(`User @${username} was approved successfully.`));
-        }
-
-        function deleteUserAccount(username) {
-            if (confirm(`Are you absolutely sure you want to delete @${username} permanently?`)) {
-                db.ref('users/' + username).remove()
-                    .then(() => alert(`User @${username} removed successfully.`));
-            }
-        }
-
-        // BULK IMPORT USERS VIA EXCEL PARSER
-        function processUserExcelImport(input) {
-            const file = input.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, {type: 'array'});
-                const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                const rows = XLSX.utils.sheet_to_json(sheet);
-
-                let successCount = 0;
-                rows.forEach(row => {
-                    // Extracting based on: Full Name | Username | Password | Account | HR ID | Role | Email | Phone
-                    const username = (row['Username'] || '').toString().trim().toLowerCase();
-                    const fullName = row['Full Name'] || '';
-                    const password = (row['Password'] || '123456').toString();
-                    const account = row['Account'] || 'Default';
-                    const hrid = (row['HR ID'] || '').toString();
-                    const role = (row['Role'] || 'Agent').toString().trim();
-                    const email = row['Email'] || '';
-                    const phone = (row['Phone'] || '').toString();
-
-                    if (username && fullName) {
-                        db.ref('users/' + username).set({
-                            fullName: fullName,
-                            username: username,
-                            password: password,
-                            account: account,
-                            hrId: hrid,
-                            role: role,
-                            email: email,
-                            phone: phone,
-                            status: 'approved' // Excel imports approved directly
-                        });
-                        successCount++;
-                    }
-                });
-                alert(`Successfully imported ${successCount} user accounts into platform database! 🎉`);
-                input.value = '';
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
-        // ==========================================
-        // 3. WHATSAPP-STYLE COMMUNICATIONS
-        // ==========================================
-        function renderCommunicationsView(container) {
-            container.innerHTML = `
-                <div class="flex flex-col md:flex-row h-[78vh] border border-slate-700 rounded-lg overflow-hidden">
-                    <!-- LEFT COLUMN: SIDEBAR CHAT LIST -->
-                    <div class="w-full md:w-80 bg-slate-900 border-r border-slate-700 flex flex-col">
-                        <div class="p-3 border-b border-slate-700 flex flex-col gap-2">
-                            <div class="flex justify-between items-center">
-                                <span class="font-bold text-accent">Conversations</span>
-                                <button onclick="openNewChatSearchModal()" class="text-white hover:text-accent font-bold text-sm bg-slate-800 p-1.5 rounded-full px-3" title="New Message"><i class="fa-solid fa-plus"></i> Chat</button>
-                            </div>
-                            <div class="flex bg-slate-850 p-1 rounded border border-slate-700">
-                                <button onclick="setCommsFilter('active')" id="btn-comms-active" class="flex-1 text-center py-1 text-xs font-semibold rounded bg-slate-700 text-white">Active</button>
-                                <button onclick="setCommsFilter('archived')" id="btn-comms-archived" class="flex-1 text-center py-1 text-xs font-semibold rounded text-slate-400">Archived</button>
-                            </div>
-                        </div>
-                        <div class="flex-grow overflow-y-auto" id="active-chats-list">
-                            <!-- Populated in JS -->
-                        </div>
-                    </div>
-
-                    <!-- RIGHT COLUMN: CHAT WINDOW -->
-                    <div class="flex-grow flex flex-col bg-slate-950 relative" id="chat-messages-container">
-                        <div class="flex-grow flex items-center justify-center text-slate-500 flex-col gap-3">
-                            <i class="fa-regular fa-comments text-6xl text-slate-700"></i>
-                            <span>Select a conversation to start messaging</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- MODAL FOR SEARCHING & STARTING CHAT -->
-                <div id="new-chat-modal" class="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 hidden p-4">
-                    <div class="bg-slate-900 border border-slate-700 rounded-lg max-w-md w-full p-6 flex flex-col gap-4">
-                        <div class="flex justify-between items-center">
-                            <h3 class="font-bold text-accent">New Conversation</h3>
-                            <button onclick="closeNewChatSearchModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-                        </div>
-                        <input type="text" id="chat-search-input" oninput="executeCommsSearch()" placeholder="Search by Full Name, Account or HR ID..." class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-white text-sm focus:outline-none">
-                        <div class="max-h-60 overflow-y-auto flex flex-col gap-2 mt-2" id="chat-search-results">
-                            <!-- Search list -->
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            // Load Users object map once to use across chats mapping
-            db.ref('users').once('value', snapshot => {
-                commsUsers = snapshot.val() || {};
-                listenToChatChannels();
-            });
-        }
-
-        function setCommsFilter(filterValue) {
-            activeFilter = filterValue;
-            document.getElementById('btn-comms-active').className = filterValue === 'active' ? "flex-1 text-center py-1 text-xs font-semibold rounded bg-slate-700 text-white" : "flex-1 text-center py-1 text-xs font-semibold rounded text-slate-400";
-            document.getElementById('btn-comms-archived').className = filterValue === 'archived' ? "flex-1 text-center py-1 text-xs font-semibold rounded bg-slate-700 text-white" : "flex-1 text-center py-1 text-xs font-semibold rounded text-slate-400";
-            listenToChatChannels();
-        }
-
-        function openNewChatSearchModal() {
-            document.getElementById('new-chat-modal').classList.remove('hidden');
-            document.getElementById('chat-search-input').value = '';
-            document.getElementById('chat-search-results').innerHTML = `<p class="text-slate-500 text-xs text-center py-4">Type to start searching...</p>`;
-        }
-
-        function closeNewChatSearchModal() {
-            document.getElementById('new-chat-modal').classList.add('hidden');
-        }
-
-        function executeCommsSearch() {
-            const query = document.getElementById('chat-search-input').value.trim().toLowerCase();
-            const resultsBox = document.getElementById('chat-search-results');
-            resultsBox.innerHTML = '';
-
-            if (query.length === 0) {
-                resultsBox.innerHTML = `<p class="text-slate-500 text-xs text-center py-4">Type to start searching...</p>`;
-                return;
-            }
-
-            let matches = [];
-            Object.values(commsUsers).forEach(u => {
-                // Exclude current user from search
-                if (u.username === currentUser.username) return;
-
-                const nameMatch = (u.fullName || '').toLowerCase().includes(query);
-                const userMatch = (u.username || '').toLowerCase().includes(query);
-                const hridMatch = (u.hrId || '').toLowerCase().includes(query);
-                const accountMatch = (u.account || '').toLowerCase().includes(query);
-
-                if (nameMatch || userMatch || hridMatch || accountMatch) {
-                    matches.push(u);
-                }
-            });
-
-            if (matches.length === 0) {
-                resultsBox.innerHTML = `<p class="text-slate-500 text-xs text-center py-4">No matching accounts found</p>`;
-                return;
-            }
-
-            matches.forEach(u => {
-                let badgeClass = "bg-purple-600";
-                if (u.role === 'Admin') badgeClass = "bg-red-600";
-                else if (u.role === 'Leader') badgeClass = "bg-blue-600";
-                else if (u.role === 'Quality') badgeClass = "bg-emerald-600";
-
-                const row = document.createElement('div');
-                row.className = "flex justify-between items-center bg-slate-950 p-2.5 rounded border border-slate-800 cursor-pointer hover:bg-slate-850";
-                row.onclick = () => {
-                    initiatePrivateChatWith(u.username);
-                    closeNewChatSearchModal();
-                };
-                row.innerHTML = `
-                    <div class="flex flex-col">
-                        <span class="font-bold text-sm text-slate-100">${u.fullName}</span>
-                        <span class="text-xs text-slate-400">@${u.username} • Account: ${u.account || 'None'}</span>
-                    </div>
-                    <span class="px-2 py-0.5 rounded text-[10px] font-bold text-white uppercase ${badgeClass}">${u.role}</span>
-                `;
-                resultsBox.appendChild(row);
-            });
-        }
-
-        function getChatId(userA, userB) {
-            return [userA, userB].sort().join('_');
-        }
-
-        function initiatePrivateChatWith(targetUsername) {
-            const chatId = getChatId(currentUser.username, targetUsername);
-            db.ref(`users/${currentUser.username}/chat_status/${chatId}`).set('active');
-            db.ref(`users/${targetUsername}/chat_status/${chatId}`).set('active');
-            openChatStream(chatId);
-        }
-
-        function listenToChatChannels() {
-            const listEl = document.getElementById('active-chats-list');
-            
-            // Listen to user's chat_status list
-            db.ref(`users/${currentUser.username}/chat_status`).on('value', snapshot => {
-                listEl.innerHTML = '';
-                const activeList = snapshot.val() || {};
-                
-                let channels = Object.keys(activeList).filter(cid => activeList[cid] === activeFilter);
-                
-                if (channels.length === 0) {
-                    listEl.innerHTML = `<p class="text-xs text-slate-500 text-center py-8">No ${activeFilter} conversations found.</p>`;
-                    return;
-                }
-
-                channels.forEach(chatId => {
-                    // Extract peer user's account name
-                    const peers = chatId.split('_');
-                    const peerName = peers[0] === currentUser.username ? peers[1] : peers[0];
-                    const peerObj = commsUsers[peerName] || { fullName: peerName, role: 'Agent', account: 'N/A' };
-
-                    let badgeColor = "bg-purple-600";
-                    if (peerObj.role === 'Admin') badgeColor = "bg-red-600";
-                    else if (peerObj.role === 'Leader') badgeColor = "bg-blue-600";
-                    else if (peerObj.role === 'Quality') badgeColor = "bg-emerald-600";
-
-                    const item = document.createElement('div');
-                    item.className = `p-3 border-b border-slate-800 flex justify-between items-center cursor-pointer hover:bg-slate-800 transition ${selectedChatId === chatId ? 'bg-slate-800' : ''}`;
-                    item.onclick = () => openChatStream(chatId);
-                    item.innerHTML = `
-                        <div class="flex flex-col gap-0.5">
-                            <span class="font-bold text-sm text-slate-200">${peerObj.fullName}</span>
-                            <span class="text-xs text-slate-400">@${peerObj.username || peerName} • ${peerObj.account || ''}</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="px-1.5 py-0.5 rounded text-[9px] font-bold text-white uppercase ${badgeColor}">${peerObj.role}</span>
-                            <button onclick="toggleArchiveStatus('${chatId}', '${activeFilter}'); event.stopPropagation();" class="text-slate-500 hover:text-white" title="${activeFilter === 'active' ? 'Archive' : 'Activate'}">
-                                <i class="${activeFilter === 'active' ? 'fa-solid fa-box-archive' : 'fa-solid fa-box-open'}"></i>
-                            </button>
-                        </div>
-                    `;
-                    listEl.appendChild(item);
-                });
-            });
-        }
-
-        function toggleArchiveStatus(chatId, currentFilter) {
-            const nextStatus = currentFilter === 'active' ? 'archived' : 'active';
-            db.ref(`users/${currentUser.username}/chat_status/${chatId}`).set(nextStatus);
-        }
-
-        function openChatStream(chatId) {
-            selectedChatId = chatId;
-            const chatContainer = document.getElementById('chat-messages-container');
-            
-            const peers = chatId.split('_');
-            const peerUsername = peers[0] === currentUser.username ? peers[1] : peers[0];
-            const peerObj = commsUsers[peerUsername] || { fullName: peerUsername, role: 'Agent', hrId: 'N/A', account: 'Default', phone: 'N/A', email: 'N/A' };
-
-            chatContainer.innerHTML = `
-                <!-- Chat Window Header -->
-                <div class="card border-b p-4 flex justify-between items-center bg-slate-900 shrink-0">
-                    <div class="flex items-center gap-3 cursor-pointer" onclick="openProfileCard('${peerUsername}')">
-                        <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-accent text-lg border border-slate-700">${peerObj.fullName.charAt(0)}</div>
-                        <div class="flex flex-col">
-                            <span class="font-bold text-sm text-slate-100">${peerObj.fullName} <i class="fa-solid fa-circle-info text-slate-500 text-xs ml-1"></i></span>
-                            <span class="text-xs text-slate-400">Role: ${peerObj.role} • Account: ${peerObj.account}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Chat Window Body (Scrollable Messages Area) -->
-                <div class="flex-grow overflow-y-auto p-4 flex flex-col gap-3 bg-slate-950" id="messages-stream-box">
-                    <!-- Messages will load here -->
-                </div>
-
-                <!-- Chat Input Tray -->
-                <div class="p-3 bg-slate-900 border-t border-slate-700 flex items-center gap-3 shrink-0">
-                    <button onclick="document.getElementById('chat-image-attachment').click()" class="text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-paperclip"></i></button>
-                    <input type="file" id="chat-image-attachment" accept="image/*" class="hidden" onchange="processImageAttachment(this)">
-                    
-                    <input type="text" id="chat-text-input" placeholder="Type your message here..." onkeydown="handleChatInputKey(event)" class="flex-grow bg-slate-950 border border-slate-700 rounded-full px-4 py-2 text-white text-sm focus:outline-none focus:border-accent">
-                    <button onclick="sendChatMessage()" class="accent-btn p-2 rounded-full h-10 w-10 flex items-center justify-center"><i class="fa-solid fa-paper-plane"></i></button>
-                </div>
-            `;
-
-            // Style active channel element
-            listenToChatChannels();
-
-            // Stream messages from Firebase Realtime Database node
-            db.ref(`chats/${chatId}/messages`).on('value', snapshot => {
-                const streamBox = document.getElementById('messages-stream-box');
-                if (!streamBox) return; // safety
-                streamBox.innerHTML = '';
-                
-                snapshot.forEach(child => {
-                    const msg = child.val();
-                    const isSelf = msg.sender === currentUser.username;
-                    
-                    const bubble = document.createElement('div');
-                    bubble.className = `flex flex-col ${isSelf ? 'items-end' : 'items-start'} max-w-[80%] ${isSelf ? 'ml-auto' : 'mr-auto'}`;
-                    
-                    let messageBodyHTML = '';
-                    if (msg.type === 'image') {
-                        messageBodyHTML = `
-                            <img src="${msg.body}" class="max-w-xs rounded-lg border border-slate-700 cursor-pointer hover:opacity-90 max-h-60 object-cover mb-1" onclick="viewImageFullSize('${msg.body}')">
-                            ${msg.caption ? `<p class="text-sm text-slate-100 px-1 py-0.5">${msg.caption}</p>` : ''}
-                        `;
-                    } else {
-                        messageBodyHTML = `<p class="text-sm text-slate-100">${msg.body}</p>`;
-                    }
-
-                    bubble.innerHTML = `
-                        <div class="${isSelf ? 'bg-slate-800 border-slate-700' : 'bg-slate-900 border-slate-800'} border p-3 rounded-xl flex flex-col gap-1 shadow">
-                            <span class="text-[10px] text-accent font-bold">${isSelf ? 'You' : peerObj.fullName}</span>
-                            ${messageBodyHTML}
-                            <span class="text-[9px] text-slate-500 text-right mt-1 block">${new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                        </div>
-                    `;
-                    streamBox.appendChild(bubble);
-                });
-
-                // Scroll stream area to lowest section
-                streamBox.scrollTop = streamBox.scrollHeight;
-            });
-        }
-
-        function handleChatInputKey(event) {
-            if (event.key === 'Enter') {
-                sendChatMessage();
-            }
-        }
-
-        function sendChatMessage() {
-            const textInput = document.getElementById('chat-text-input');
-            const messageText = textInput.value.trim();
-            if (!messageText || !selectedChatId) return;
-
-            const payload = {
-                sender: currentUser.username,
-                type: 'text',
-                body: messageText,
-                timestamp: Date.now()
-            };
-
-            db.ref(`chats/${selectedChatId}/messages`).push(payload)
-                .then(() => {
-                    textInput.value = '';
-                    // Keep both conversations active for real-time visibility
-                    const peers = selectedChatId.split('_');
-                    db.ref(`users/${peers[0]}/chat_status/${selectedChatId}`).set('active');
-                    db.ref(`users/${peers[1]}/chat_status/${selectedChatId}`).set('active');
-                });
-        }
-
-        // IMAGE SHAT PROCESSING WITH COMPRESSION
-        function processImageAttachment(input) {
-            const file = input.files[0];
-            if (!file) return;
-
-            // Trigger JS image downscaler/compressor to keep base64 payload highly responsive
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = function(event) {
-                const img = new Image();
-                img.src = event.target.result;
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const max_width = 800;
-                    const max_height = 600;
-                    let width = img.width;
-                    let height = img.height;
-
-                    if (width > height) {
-                        if (width > max_width) {
-                            height *= max_width / width;
-                            width = max_width;
-                        }
-                    } else {
-                        if (height > max_height) {
-                            width *= max_height / height;
-                            height = max_height;
-                        }
-                    }
-
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-
-                    // Output optimized JPEG under 70% compression parameter
-                    const base64jpeg = canvas.toDataURL('image/jpeg', 0.7);
-                    currentCompressedImageBase64 = base64jpeg;
-                    
-                    // Trigger WhatsApp-style Preview Modal
-                    openImagePreview(base64jpeg);
-                    input.value = ''; // Reset input element
-                };
-            };
-        }
-
-        function openImagePreview(src) {
-            const modal = document.getElementById('image-preview-modal');
-            const imgEl = document.getElementById('preview-image-element');
-            imgEl.src = src;
-            modal.classList.remove('hidden');
-        }
-
-        function closeImagePreview() {
-            document.getElementById('image-preview-modal').classList.add('hidden');
-            currentCompressedImageBase64 = null;
-        }
-
-        function submitCompressedImage() {
-            if (!currentCompressedImageBase64 || !selectedChatId) return;
-
-            const payload = {
-                sender: currentUser.username,
-                type: 'image',
-                body: currentCompressedImageBase64,
-                timestamp: Date.now()
-            };
-
-            db.ref(`chats/${selectedChatId}/messages`).push(payload)
-                .then(() => {
-                    closeImagePreview();
-                    const peers = selectedChatId.split('_');
-                    db.ref(`users/${peers[0]}/chat_status/${selectedChatId}`).set('active');
-                    db.ref(`users/${peers[1]}/chat_status/${selectedChatId}`).set('active');
-                });
-        }
-
-        function viewImageFullSize(src) {
-            // Re-uses WhatsApp preview modal for simple fullscreen view
-            openImagePreview(src);
-            // Hide Send button for plain viewing
-            document.querySelector('#image-preview-modal button[onclick="submitCompressedImage()"]').classList.add('hidden');
-        }
-
-        function closeImagePreview() {
-            document.getElementById('image-preview-modal').classList.add('hidden');
-            // Re-enable Send button visibility
-            document.querySelector('#image-preview-modal button[onclick="submitCompressedImage()"]').classList.remove('hidden');
-            currentCompressedImageBase64 = null;
-        }
-
-        // CHAT HEADER USER DETAILS CARD MODAL
-        function openProfileCard(username) {
-            const peerObj = commsUsers[username];
-            if (!peerObj) return;
-
-            document.getElementById('profile-card-avatar').innerText = peerObj.fullName.charAt(0);
-            document.getElementById('profile-card-fullname').innerText = peerObj.fullName;
-            document.getElementById('profile-card-username').innerText = `@${peerObj.username}`;
-            document.getElementById('profile-card-hrid').innerText = peerObj.hrId || 'N/A';
-            document.getElementById('profile-card-account').innerText = peerObj.account || 'Default';
-            document.getElementById('profile-card-email').innerText = peerObj.email || 'N/A';
-            document.getElementById('profile-card-phone').innerText = peerObj.phone || 'N/A';
-            
-            const badge = document.getElementById('profile-card-role');
-            badge.innerText = peerObj.role;
-            if (peerObj.role === 'Admin') badge.className = "px-3 py-0.5 rounded text-xs font-bold uppercase text-white bg-red-600 inline-block mt-1";
-            else if (peerObj.role === 'Leader') badge.className = "px-3 py-0.5 rounded text-xs font-bold uppercase text-white bg-blue-600 inline-block mt-1";
-            else if (peerObj.role === 'Quality') badge.className = "px-3 py-0.5 rounded text-xs font-bold uppercase text-white bg-emerald-600 inline-block mt-1";
-            else badge.className = "px-3 py-0.5 rounded text-xs font-bold uppercase text-white bg-purple-600 inline-block mt-1";
-
-            document.getElementById('user-profile-modal').classList.remove('hidden');
-        }
-
-        function closeProfileCard() {
-            document.getElementById('user-profile-modal').classList.add('hidden');
-        }
-
-
-        // ==========================================
-        // 4. ANNOUNCEMENTS HUB
-        // ==========================================
-        function renderAnnouncementsView(container) {
-            const isControlUser = ['Admin', 'Leader', 'Quality'].includes(currentUser.role);
-            container.innerHTML = `
-                <div class="flex flex-col gap-6">
-                    <h2 class="text-2xl font-bold">Announcements Broadcast</h2>
-                    ${isControlUser ? `
-                        <div class="card p-4 rounded-lg flex flex-col gap-3">
-                            <h3 class="font-bold text-accent">Post New Announcement</h3>
-                            <textarea id="ann-content-input" placeholder="Type announcement details here..." class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white h-24 focus:outline-none"></textarea>
-                            <button onclick="postAnnouncement()" class="accent-btn self-end px-6 py-2 rounded text-sm font-semibold">Broadcast</button>
-                        </div>
-                    ` : ''}
-                    <div class="flex flex-col gap-4" id="announcements-stream-box">
-                        <!-- Announced broadcasts -->
-                    </div>
-                </div>
-            `;
-            loadAnnouncements();
-        }
-
-        function loadAnnouncements() {
-            db.ref('announcements').on('value', snapshot => {
-                const stream = document.getElementById('announcements-stream-box');
-                if (!stream) return;
-                stream.innerHTML = '';
-                
-                let list = [];
-                snapshot.forEach(child => {
-                    list.push({ key: child.key, ...child.val() });
-                });
-                // Sort by latest timestamp
-                list.reverse();
-
-                if (list.length === 0) {
-                    stream.innerHTML = `<p class="text-sm text-slate-500 py-8 text-center">No announcements broadcasted yet.</p>`;
-                    return;
-                }
-
-                list.forEach(ann => {
-                    const block = document.createElement('div');
-                    block.className = "card p-4 rounded-lg flex flex-col gap-2 relative";
-                    block.innerHTML = `
-                        <div class="flex justify-between items-center border-b border-slate-800 pb-2 text-xs">
-                            <span class="text-accent font-bold"><i class="fa-solid fa-bullhorn"></i> Posted by: ${ann.postedBy}</span>
-                            <span class="text-slate-500">${new Date(ann.timestamp).toLocaleString()}</span>
-                        </div>
-                        <p class="text-sm text-slate-200 mt-1 whitespace-pre-line">${ann.content}</p>
-                        ${['Admin', 'Leader'].includes(currentUser.role) ? `
-                            <button onclick="deleteAnnouncement('${ann.key}')" class="absolute top-4 right-4 text-red-500 hover:text-red-700 text-sm"><i class="fa-solid fa-trash"></i></button>
-                        ` : ''}
-                    `;
-                    stream.appendChild(block);
-                });
-            });
-        }
-
-        function postAnnouncement() {
-            const content = document.getElementById('ann-content-input').value.trim();
-            if (!content) return;
-
-            const payload = {
-                content: content,
-                postedBy: currentUser.fullName,
-                timestamp: Date.now()
-            };
-
-            db.ref('announcements').push(payload)
-                .then(() => {
-                    document.getElementById('ann-content-input').value = '';
-                    alert('Announcement broadcasted successfully!');
-                });
-        }
-
-        function deleteAnnouncement(key) {
-            if (confirm('Delete this announcement?')) {
-                db.ref('announcements/' + key).remove();
-            }
-        }
-
-        // ==========================================
-        // 5. SCHEDULES & BREAKS
-        // ==========================================
-        function renderSchedulesView(container) {
-            container.innerHTML = `
-                <div class="flex flex-col gap-6">
-                    <h2 class="text-2xl font-bold">Schedules & Break Shifts</h2>
-                    <p class="text-sm text-slate-400">All shifts are synchronized instantly from our operational schedule planning database.</p>
-                    <div class="card p-6 rounded-lg text-center text-slate-500">
-                        <i class="fa-solid fa-calendar-days text-6xl text-slate-700 mb-3"></i>
-                        <p class="text-sm">Shift planners and real-time active scheduling tables are running continuously.</p>
-                    </div>
-                </div>
-            `;
-        }
-
-        // ==========================================
-        // 6. QUIZZES SECTION (CREATION, EDIT, HIDE, EXCEL EXPORT, ISOLATED UI)
-        // ==========================================
-        function renderQuizzesView(container) {
-            const isControlUser = ['Admin', 'Leader', 'Quality'].includes(currentUser.role);
-            
-            container.innerHTML = `
-                <div class="flex flex-col gap-6">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                        <h2 class="text-2xl font-bold">Platform Quizzes</h2>
-                    </div>
-
-                    ${isControlUser ? `
-                        <div class="card p-5 rounded-lg flex flex-col gap-4">
-                            <h3 class="font-bold text-accent" id="quiz-builder-header">Create New Quiz</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs uppercase mb-1">Quiz Title</label>
-                                    <input type="text" id="quiz-title-input" placeholder="e.g. Quality Test - May" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:outline-none">
-                                </div>
-                                <div class="relative">
-                                    <label class="block text-xs uppercase mb-1">Assign Target Accounts</label>
-                                    <div class="bg-slate-900 border border-slate-700 rounded p-2 text-white flex justify-between items-center cursor-pointer" onclick="toggleMultiSelectDropdown()">
-                                        <span id="selected-targets-label">Select accounts...</span>
-                                        <i class="fa-solid fa-chevron-down text-slate-400 text-xs"></i>
-                                    </div>
-                                    <div id="target-multiselect-dropdown" class="dropdown-content rounded shadow-lg border p-2">
-                                        <!-- Checkboxes list dynamic -->
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Question Construction Board -->
-                            <div class="border border-slate-800 p-4 rounded-lg bg-slate-950 flex flex-col gap-3">
-                                <h4 class="text-xs font-bold text-accent uppercase">Construct Question</h4>
-                                <div>
-                                    <label class="block text-[10px] uppercase mb-0.5 text-slate-400">Question Text</label>
-                                    <input type="text" id="quiz-question-input" placeholder="Enter question..." class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white text-sm focus:outline-none">
-                                </div>
-                                <div class="grid grid-cols-2 gap-3">
-                                    <input type="text" id="quiz-opt-1" placeholder="Option 1" class="bg-slate-900 border border-slate-700 rounded p-1.5 text-xs text-white">
-                                    <input type="text" id="quiz-opt-2" placeholder="Option 2" class="bg-slate-900 border border-slate-700 rounded p-1.5 text-xs text-white">
-                                    <input type="text" id="quiz-opt-3" placeholder="Option 3" class="bg-slate-900 border border-slate-700 rounded p-1.5 text-xs text-white">
-                                    <input type="text" id="quiz-opt-4" placeholder="Option 4" class="bg-slate-900 border border-slate-700 rounded p-1.5 text-xs text-white">
-                                </div>
-                                <div class="w-40">
-                                    <label class="block text-[10px] uppercase mb-0.5 text-slate-400">Correct Option (1-4)</label>
-                                    <input type="number" id="quiz-opt-correct" min="1" max="4" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-xs text-white text-center">
-                                </div>
-                                <button onclick="addPendingQuestion()" class="bg-slate-800 hover:bg-slate-700 text-white font-bold py-1.5 px-4 rounded text-xs self-start flex items-center gap-1">
-                                    <i class="fa-solid fa-plus"></i> Add Question
-                                </button>
-
-                                <div class="mt-2" id="pending-questions-counter">
-                                    <span class="text-xs text-slate-400">Questions added so far: <b class="text-white">0</b></span>
-                                </div>
-                            </div>
-
-                            <button onclick="saveConstructedQuiz()" class="accent-btn self-end px-6 py-2.5 rounded text-sm font-semibold flex items-center gap-2"><i class="fa-solid fa-cloud-arrow-up"></i> Save & Publish Quiz</button>
-                        </div>
-
-                        <!-- EDITING WORKSPACE CONTAINER (HIDDEN UNTIL CALLED) -->
-                        <div id="quiz-editing-workspace" class="card p-5 rounded-lg border-yellow-600 bg-slate-950 flex flex-col gap-4 hidden">
-                            <!-- Dynamic populated in loadQuizToEdit() -->
-                        </div>
-                    ` : ''}
-
-                    <!-- Active Published Quizzes List -->
-                    <div class="flex flex-col gap-4">
-                        <h3 class="font-bold text-slate-300 border-b border-slate-800 pb-2">Active Assigned Quizzes</h3>
-                        <div id="quizzes-grid-box" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <!-- Dynamic -->
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            if (isControlUser) {
-                populateTargetsDropdown();
-            }
-            loadPlatformQuizzes();
-        }
-
-        // TARGETS MULTISELECT CONTROLS
-        let selectedTargetAccounts = [];
-
-        function populateTargetsDropdown() {
-            const dropdown = document.getElementById('target-multiselect-dropdown');
-            db.ref('users').once('value', snapshot => {
-                dropdown.innerHTML = '';
-                
-                // Add All Employees trigger checkbox
-                const labelAll = document.createElement('label');
-                labelAll.className = "flex items-center gap-2 text-xs font-bold text-accent";
-                labelAll.innerHTML = `<input type="checkbox" value="all" onchange="handleTargetCheckboxChange(this)"> * ALL EMPLOYEES *`;
-                dropdown.appendChild(labelAll);
-
-                let accounts = new Set();
-                snapshot.forEach(child => {
-                    const u = child.val();
-                    if (u.account && u.account !== 'Default') {
-                        accounts.add(u.account);
-                    }
-                });
-
-                accounts.forEach(acc => {
-                    const label = document.createElement('label');
-                    label.className = "flex items-center gap-2 text-xs text-slate-200";
-                    label.innerHTML = `<input type="checkbox" value="${acc}" onchange="handleTargetCheckboxChange(this)"> ${acc}`;
-                    dropdown.appendChild(label);
-                });
-            });
-        }
-
-        function toggleMultiSelectDropdown() {
-            const drop = document.getElementById('target-multiselect-dropdown');
-            drop.style.display = drop.style.display === 'block' ? 'none' : 'block';
-        }
-
-        function handleTargetCheckboxChange(checkbox) {
-            const val = checkbox.value;
-            if (val === 'all') {
-                if (checkbox.checked) {
-                    selectedTargetAccounts = ['all'];
-                    // Uncheck other checkboxes
-                    document.querySelectorAll('#target-multiselect-dropdown input').forEach(cb => {
-                        if (cb.value !== 'all') cb.checked = false;
-                    });
-                } else {
-                    selectedTargetAccounts = [];
-                }
-            } else {
-                // If checking campaign, uncheck 'all'
-                const cbAll = document.querySelector('#target-multiselect-dropdown input[value="all"]');
-                if (cbAll) cbAll.checked = false;
-                selectedTargetAccounts = selectedTargetAccounts.filter(v => v !== 'all');
-
-                if (checkbox.checked) {
-                    selectedTargetAccounts.push(val);
-                } else {
-                    selectedTargetAccounts = selectedTargetAccounts.filter(v => v !== val);
-                }
-            }
-
-            // Update Label text representation
-            const label = document.getElementById('selected-targets-label');
-            if (selectedTargetAccounts.length === 0) {
-                label.innerText = 'Select accounts...';
-            } else if (selectedTargetAccounts.includes('all')) {
-                label.innerText = 'All Employees';
-            } else {
-                label.innerText = selectedTargetAccounts.join(', ');
-            }
-        }
-
-        // Close dropdown when clicking outside
-        window.addEventListener('click', e => {
-            const dropdown = document.getElementById('target-multiselect-dropdown');
-            const toggle = document.querySelector('[onclick="toggleMultiSelectDropdown()"]');
-            if (dropdown && !dropdown.contains(e.target) && toggle && !toggle.contains(e.target)) {
-                dropdown.style.display = 'none';
-            }
-        });
-
-        // QUESTION STACK ADDITIONS
-        function addPendingQuestion() {
-            const qInput = document.getElementById('quiz-question-input');
-            const o1 = document.getElementById('quiz-opt-1');
-            const o2 = document.getElementById('quiz-opt-2');
-            const o3 = document.getElementById('quiz-opt-3');
-            const o4 = document.getElementById('quiz-opt-4');
-            const correctVal = parseInt(document.getElementById('quiz-opt-correct').value);
-
-            if (!qInput.value.trim() || !o1.value.trim() || !o2.value.trim() || !o3.value.trim() || !o4.value.trim() || isNaN(correctVal) || correctVal < 1 || correctVal > 4) {
-                alert('Please build a complete question with valid options and correct answer value.');
-                return;
-            }
-
-            pendingQuizQuestions.push({
-                questionText: qInput.value.trim(),
-                options: [o1.value.trim(), o2.value.trim(), o3.value.trim(), o4.value.trim()],
-                correctOptionIndex: correctVal - 1
-            });
-
-            // Update counter display
-            document.querySelector('#pending-questions-counter b').innerText = pendingQuizQuestions.length;
-
-            // Clear input fields
-            qInput.value = '';
-            o1.value = ''; o2.value = ''; o3.value = ''; o4.value = '';
-            document.getElementById('quiz-opt-correct').value = '';
-        }
-
-        // SAVE & PUBLISH FINAL QUIZ
-        function saveConstructedQuiz() {
-            const title = document.getElementById('quiz-title-input').value.trim();
-            if (!title) {
-                alert('Please specify quiz title!');
-                return;
-            }
-            if (pendingQuizQuestions.length === 0) {
-                alert('Please add at least one question to the quiz structure.');
-                return;
-            }
-            if (selectedTargetAccounts.length === 0) {
-                alert('Please target at least one account/campaign or all employees.');
-                return;
-            }
-
-            const payload = {
-                title: title,
-                targets: selectedTargetAccounts,
-                questions: pendingQuizQuestions,
-                timestamp: Date.now()
-            };
-
-            db.ref('quizzes').push(payload)
-                .then(() => {
-                    alert('Quiz published successfully! 🎉');
-                    // Reset State
-                    document.getElementById('quiz-title-input').value = '';
-                    pendingQuizQuestions = [];
-                    selectedTargetAccounts = [];
-                    document.querySelector('#pending-questions-counter b').innerText = '0';
-                    document.getElementById('selected-targets-label').innerText = 'Select accounts...';
-                    document.querySelectorAll('#target-multiselect-dropdown input').forEach(cb => cb.checked = false);
-                });
-        }
-
-        // DISPLAY AND LIST ACTIVE PUBLISHED QUIZZES
-        function loadPlatformQuizzes() {
-            const grid = document.getElementById('quizzes-grid-box');
-            db.ref('quizzes').on('value', snapshot => {
-                if (!grid) return;
-                grid.innerHTML = '';
-                
-                let count = 0;
-                snapshot.forEach(child => {
-                    const qId = child.key;
-                    const quiz = child.val();
-                    const isControlUser = ['Admin', 'Leader', 'Quality'].includes(currentUser.role);
-                    
-                    // Filter logic for target audience
-                    let isTargeted = false;
-                    if (isControlUser) {
-                        isTargeted = true; // Admins see everything
-                    } else if (quiz.targets.includes('all') || quiz.targets.includes(currentUser.account)) {
-                        isTargeted = true;
-                    }
-
-                    if (!isTargeted) return;
-                    count++;
-
-                    const card = document.createElement('div');
-                    card.className = "card p-5 rounded-lg flex flex-col justify-between gap-4";
-                    card.innerHTML = `
-                        <div class="flex flex-col gap-1">
-                            <span class="text-xs text-accent uppercase tracking-wider font-bold">Quiz Panel</span>
-                            <h3 class="text-lg font-bold text-slate-100">${quiz.title}</h3>
-                            <span class="text-xs text-slate-400">Total Questions: ${quiz.questions ? quiz.questions.length : 0}</span>
-                            <span class="text-[10px] text-slate-500 uppercase mt-1">Targets: ${quiz.targets.join(', ')}</span>
-                        </div>
-                        <div class="flex items-center justify-between border-t border-slate-800 pt-3 mt-1">
-                            <!-- Action triggers -->
-                            ${isControlUser ? `
-                                <div class="flex gap-2.5">
-                                    <button onclick="loadQuizToEdit('${qId}')" class="text-yellow-500 hover:text-yellow-600" title="Edit Quiz"><i class="fa-solid fa-pen-to-square"></i></button>
-                                    <button onclick="confirmRemoveQuiz('${qId}')" class="text-red-500 hover:text-red-600" title="Delete Quiz"><i class="fa-solid fa-trash"></i></button>
-                                    <button onclick="exportQuizResultsToExcel('${qId}', '${quiz.title}')" class="text-emerald-500 hover:text-emerald-600" title="Download Excel Results"><i class="fa-solid fa-file-excel"></i></button>
-                                </div>
-                            ` : `
-                                <button onclick="startIsolatedQuizAttempt('${qId}')" class="accent-btn text-xs px-4 py-2 rounded uppercase font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-play"></i> Start Quiz</button>
-                            `}
-                        </div>
-                    `;
-                    grid.appendChild(card);
-                });
-
-                if (count === 0) {
-                    grid.innerHTML = `<p class="text-sm text-slate-500 py-4 col-span-2 text-center">No assigned quizzes available.</p>`;
-                }
-            });
-        }
-
-        // CONFIRM AND DELETE A QUIZ DIRECTLY
-        function confirmRemoveQuiz(quizId) {
-            if (confirm('Are you absolutely sure you want to delete this quiz permanently along with all its submitted scores?')) {
-                db.ref('quizzes/' + quizId).remove()
-                    .then(() => {
-                        db.ref('quiz_results/' + quizId).remove();
-                        alert('Quiz removed successfully.');
-                    });
-            }
-        }
-
-        // QUIZ EDITING ENGINE (WITHOUT UNDEFINED ERRORS)
-        function loadQuizToEdit(quizId) {
-            const container = document.getElementById('quiz-editing-workspace');
-            container.innerHTML = `<div class="text-center py-4"><i class="fa-solid fa-circle-notch fa-spin text-accent"></i> Loading data...</div>`;
-            container.classList.remove('hidden');
-            // Smoothly scroll down directly to editing viewport
-            container.scrollIntoView({ behavior: 'smooth' });
-
-            db.ref('quizzes/' + quizId).once('value', snapshot => {
-                const quiz = snapshot.val();
-                if (!quiz) {
-                    container.classList.add('hidden');
-                    return;
-                }
-
-                let questionsHTML = '';
-                quiz.questions.forEach((q, qIndex) => {
-                    questionsHTML += `
-                        <div class="border border-slate-800 p-3.5 rounded bg-slate-900 flex flex-col gap-2 question-editor-item" data-index="${qIndex}">
-                            <div class="flex justify-between items-center">
-                                <h4 class="text-xs font-bold text-accent uppercase">Question ${qIndex + 1}</h4>
-                                <button onclick="removeQuestionFromEditBoard('${quizId}', ${qIndex})" class="text-red-500 hover:text-red-600 text-xs font-bold"><i class="fa-solid fa-minus"></i> Remove</button>
-                            </div>
-                            <input type="text" value="${q.questionText}" class="w-full bg-slate-950 border border-slate-700 rounded p-1.5 text-sm text-slate-200 focus:outline-none q-text-val">
-                            <div class="grid grid-cols-2 gap-2 mt-1">
-                                <input type="text" value="${q.options[0]}" class="bg-slate-950 border border-slate-700 rounded p-1 text-xs text-slate-300 opt0-val">
-                                <input type="text" value="${q.options[1]}" class="bg-slate-950 border border-slate-700 rounded p-1 text-xs text-slate-300 opt1-val">
-                                <input type="text" value="${q.options[2]}" class="bg-slate-950 border border-slate-700 rounded p-1 text-xs text-slate-300 opt2-val">
-                                <input type="text" value="${q.options[3]}" class="bg-slate-950 border border-slate-700 rounded p-1 text-xs text-slate-300 opt3-val">
-                            </div>
-                            <div class="w-32 mt-1 flex items-center gap-2">
-                                <span class="text-[10px] uppercase text-slate-400">Correct:</span>
-                                <input type="number" min="1" max="4" value="${q.correctOptionIndex + 1}" class="w-12 bg-slate-950 border border-slate-700 rounded p-1 text-xs text-white text-center correct-val">
-                            </div>
-                        </div>
-                    `;
-                });
-
-                container.innerHTML = `
-                    <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-                        <h3 class="font-bold text-yellow-500 flex items-center gap-1.5"><i class="fa-solid fa-pen-to-square"></i> Edit Quiz Workspace</h3>
-                        <button onclick="closeQuizEditingWorkspace()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i> Close</button>
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase mb-1">Update Quiz Title</label>
-                        <input type="text" id="edit-quiz-title" value="${quiz.title}" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white focus:outline-none">
-                    </div>
-                    <div class="flex flex-col gap-3 mt-1">
-                        <div class="flex justify-between items-center"><span class="text-xs uppercase text-slate-400">Constructed Questions:</span></div>
-                        <div class="flex flex-col gap-3 max-h-96 overflow-y-auto pr-1">
-                            ${questionsHTML}
-                        </div>
-                    </div>
-                    <!-- Quick Add Question Interface -->
-                    <div class="border border-dashed border-slate-700 p-3 rounded-lg bg-slate-900 flex flex-col gap-2 mt-2">
-                        <span class="text-xs font-bold text-accent">Quick Insert Question</span>
-                        <input type="text" id="quick-add-q-text" placeholder="Question text..." class="w-full bg-slate-950 border border-slate-700 rounded p-1 text-xs">
-                        <div class="grid grid-cols-2 gap-2">
-                            <input type="text" id="quick-add-o0" placeholder="Option 1" class="bg-slate-950 border border-slate-700 rounded p-1 text-xs">
-                            <input type="text" id="quick-add-o1" placeholder="Option 2" class="bg-slate-950 border border-slate-700 rounded p-1 text-xs">
-                            <input type="text" id="quick-add-o2" placeholder="Option 3" class="bg-slate-950 border border-slate-700 rounded p-1 text-xs">
-                            <input type="text" id="quick-add-o3" placeholder="Option 4" class="bg-slate-950 border border-slate-700 rounded p-1 text-xs">
-                        </div>
-                        <div class="flex justify-between items-center mt-1">
-                            <div class="flex items-center gap-1">
-                                <span class="text-[10px] text-slate-400">Correct Option (1-4):</span>
-                                <input type="number" min="1" max="4" id="quick-add-correct" class="w-10 bg-slate-950 border border-slate-700 rounded p-0.5 text-center text-xs">
-                            </div>
-                            <button onclick="insertQuickQuestionToEditWorkspace('${quizId}')" class="bg-slate-700 hover:bg-slate-600 text-white text-xs px-3 py-1 rounded">Insert</button>
-                        </div>
-                    </div>
-                    <button onclick="submitQuizChanges('${quizId}')" class="bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 rounded text-sm uppercase mt-2">Apply All Changes</button>
-                `;
-            });
-        }
-
-        function closeQuizEditingWorkspace() {
-            document.getElementById('quiz-editing-workspace').classList.add('hidden');
-        }
-
-        function removeQuestionFromEditBoard(quizId, qIndex) {
-            if (confirm(`Do you wish to remove Question ${qIndex + 1}? Please apply changes to finalize.`)) {
-                event.target.closest('.question-editor-item').remove();
-            }
-        }
-
-        function insertQuickQuestionToEditWorkspace(quizId) {
-            const text = document.getElementById('quick-add-q-text').value.trim();
-            const o0 = document.getElementById('quick-add-o0').value.trim();
-            const o1 = document.getElementById('quick-add-o1').value.trim();
-            const o2 = document.getElementById('quick-add-o2').value.trim();
-            const o3 = document.getElementById('quick-add-o3').value.trim();
-            const correct = parseInt(document.getElementById('quick-add-correct').value);
-
-            if (!text || !o0 || !o1 || !o2 || !o3 || isNaN(correct) || correct < 1 || correct > 4) {
-                alert('Please build a valid quick question complete with 4 options.');
-                return;
-            }
-
-            // Retrieve current database quiz structure first
-            db.ref(`quizzes/${quizId}/questions`).once('value', snapshot => {
-                let list = snapshot.val() || [];
-                list.push({
-                    questionText: text,
-                    options: [o0, o1, o2, o3],
-                    correctOptionIndex: correct - 1
-                });
-                db.ref(`quizzes/${quizId}/questions`).set(list).then(() => {
-                    loadQuizToEdit(quizId); // Refresh editing container
-                });
-            });
-        }
-
-        function submitQuizChanges(quizId) {
-            const title = document.getElementById('edit-quiz-title').value.trim();
-            if (!title) {
-                alert('Title cannot be empty!');
-                return;
-            }
-
-            let questions = [];
-            document.querySelectorAll('.question-editor-item').forEach(el => {
-                const text = el.querySelector('.q-text-val').value.trim();
-                const o0 = el.querySelector('.opt0-val').value.trim();
-                const o1 = el.querySelector('.opt1-val').value.trim();
-                const o2 = el.querySelector('.opt2-val').value.trim();
-                const o3 = el.querySelector('.opt3-val').value.trim();
-                const correct = parseInt(el.querySelector('.correct-val').value) - 1;
-
-                if (text && o0 && o1 && o2 && o3 && !isNaN(correct)) {
-                    questions.push({
-                        questionText: text,
-                        options: [o0, o1, o2, o3],
-                        correctOptionIndex: correct
-                    });
-                }
-            });
-
-            if (questions.length === 0) {
-                alert('Your quiz must hold at least one question entry.');
-                return;
-            }
-
-            db.ref('quizzes/' + quizId + '/title').set(title);
-            db.ref('quizzes/' + quizId + '/questions').set(questions)
-                .then(() => {
-                    alert('All changes saved successfully! 🎉');
-                    closeQuizEditingWorkspace();
-                    loadPlatformQuizzes();
-                });
-        }
-
-
-        // ==========================================
-        // 7. ISOLATED QUIZ ATTEMPT INTERFACE (DISTRACTION FREE)
-        // ==========================================
-        let activeAttemptingQuizId = null;
-        let activeAttemptingQuestions = [];
-
-        function startIsolatedQuizAttempt(quizId) {
-            activeAttemptingQuizId = quizId;
-            const body = document.getElementById('isolated-quiz-body');
-            body.innerHTML = `<div class="text-center py-12"><i class="fa-solid fa-circle-notch fa-spin text-4xl text-accent"></i> Preparing questions...</div>`;
-            
-            // Show isolated full screen layer
-            document.getElementById('isolated-quiz-container').classList.remove('hidden');
-
-            db.ref('quizzes/' + quizId).once('value', snapshot => {
-                const quiz = snapshot.val();
-                if (!quiz) {
-                    exitQuizMode();
-                    return;
-                }
-
-                document.getElementById('isolated-quiz-title').innerText = quiz.title;
-                activeAttemptingQuestions = quiz.questions || [];
-
-                let streamHTML = `
-                    <div class="card p-4 rounded-lg bg-slate-900 border-l-4 border-accent text-slate-300 text-sm">
-                        <b>Instructions:</b> Read all questions carefully before submitting. Ensure your internet connection is stable.
-                    </div>
-                `;
-
-                activeAttemptingQuestions.forEach((q, index) => {
-                    streamHTML += `
-                        <div class="card p-6 rounded-lg flex flex-col gap-4 quiz-question-block" data-q-index="${index}">
-                            <h3 class="font-bold text-slate-100 flex gap-2"><span class="text-accent font-mono">${index + 1}.</span> ${q.questionText}</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                <label class="flex items-center gap-3 bg-slate-950 p-3 rounded-lg border border-slate-800 cursor-pointer hover:bg-slate-900 transition">
-                                    <input type="radio" name="q_opt_${index}" value="0" class="accent-yellow-500">
-                                    <span class="text-sm text-slate-300">${q.options[0]}</span>
-                                </label>
-                                <label class="flex items-center gap-3 bg-slate-950 p-3 rounded-lg border border-slate-800 cursor-pointer hover:bg-slate-900 transition">
-                                    <input type="radio" name="q_opt_${index}" value="1" class="accent-yellow-500">
-                                    <span class="text-sm text-slate-300">${q.options[1]}</span>
-                                </label>
-                                <label class="flex items-center gap-3 bg-slate-950 p-3 rounded-lg border border-slate-800 cursor-pointer hover:bg-slate-900 transition">
-                                    <input type="radio" name="q_opt_${index}" value="2" class="accent-yellow-500">
-                                    <span class="text-sm text-slate-300">${q.options[2]}</span>
-                                </label>
-                                <label class="flex items-center gap-3 bg-slate-950 p-3 rounded-lg border border-slate-800 cursor-pointer hover:bg-slate-900 transition">
-                                    <input type="radio" name="q_opt_${index}" value="3" class="accent-yellow-500">
-                                    <span class="text-sm text-slate-300">${q.options[3]}</span>
-                                </label>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                streamHTML += `
-                    <button onclick="submitQuizAttemptAnswers()" class="accent-btn py-3 rounded-lg font-bold uppercase tracking-wider text-sm flex items-center justify-center gap-2 mt-4"><i class="fa-solid fa-paper-plane"></i> Submit Answers</button>
-                `;
-
-                body.innerHTML = streamHTML;
-            });
-        }
-
-        function exitQuizMode() {
-            document.getElementById('isolated-quiz-container').classList.add('hidden');
-            activeAttemptingQuizId = null;
-            activeAttemptingQuestions = [];
-        }
-
-        function submitQuizAttemptAnswers() {
-            let answers = [];
-            let unassignedCount = 0;
-
-            activeAttemptingQuestions.forEach((q, index) => {
-                const radio = document.querySelector(`input[name="q_opt_${index}"]:checked`);
-                if (radio) {
-                    answers.push(parseInt(radio.value));
-                } else {
-                    answers.push(-1); // Skipped/unanswered
-                    unassignedCount++;
-                }
-            });
-
-            if (unassignedCount > 0) {
-                if (!confirm(`You missed ${unassignedCount} questions. Proceed anyway?`)) {
-                    return;
-                }
-            }
-
-            // Calculate final percentage immediately
-            let correctCounter = 0;
-            activeAttemptingQuestions.forEach((q, index) => {
-                if (answers[index] === q.correctOptionIndex) {
-                    correctCounter++;
-                }
-            });
-
-            const finalScore = Math.round((correctCounter / activeAttemptingQuestions.length) * 100);
-
-            // Record parameters to firebase database storage node
-            const payload = {
-                fullName: currentUser.fullName,
-                username: currentUser.username,
-                hrId: currentUser.hrId,
-                account: currentUser.account,
-                timestamp: Date.now(),
-                answers: answers,
-                score: finalScore
-            };
-
-            db.ref(`quiz_results/${activeAttemptingQuizId}/${currentUser.username}`).set(payload)
-                .then(() => {
-                    displayAttemptResultsOnboard(finalScore, answers);
-                });
-        }
-
-        function displayAttemptResultsOnboard(score, userAnswers) {
-            const body = document.getElementById('isolated-quiz-body');
-            
-            let html = `
-                <div class="card p-6 rounded-lg bg-slate-900 flex flex-col items-center justify-center gap-3 text-center border-b-4 ${score >= 50 ? 'border-emerald-500' : 'border-red-500'}">
-                    <span class="text-xs uppercase text-slate-400">Quiz Submitted Successfully</span>
-                    <h3 class="text-xl font-bold">Your Total Performance Score</h3>
-                    <div class="text-5xl font-black ${score >= 50 ? 'text-emerald-400' : 'text-red-400'} font-mono">${score}%</div>
-                    <p class="text-sm text-slate-300 mt-2">Review your submitted answer report below.</p>
-                </div>
-            `;
-
-            activeAttemptingQuestions.forEach((q, index) => {
-                const userAns = userAnswers[index];
-                const correctAns = q.correctOptionIndex;
-                const isCorrect = userAns === correctAns;
-
-                html += `
-                    <div class="card p-5 rounded-lg flex flex-col gap-2 bg-slate-900 border-l-4 ${isCorrect ? 'border-emerald-500' : 'border-red-500'}">
-                        <span class="text-[10px] font-bold uppercase ${isCorrect ? 'text-emerald-400' : 'text-red-400'}">${isCorrect ? 'Correct ✅' : 'Incorrect ❌'}</span>
-                        <h4 class="text-slate-100 font-semibold text-sm">${index + 1}. ${q.questionText}</h4>
-                        <div class="flex flex-col gap-1.5 text-xs mt-1">
-                            <div class="p-2 rounded ${isCorrect ? 'bg-emerald-950/40 text-emerald-300 border border-emerald-800' : 'bg-red-950/40 text-red-300 border border-red-800'}">
-                                <b>Your Answer:</b> ${userAns !== -1 ? q.options[userAns] : '[ Skipped ]'}
-                            </div>
-                            ${!isCorrect ? `
-                                <div class="p-2 rounded bg-slate-950 text-slate-300 border border-slate-800">
-                                    <b>Correct Answer:</b> ${q.options[correctAns]}
-                                </div>
-                            ` : ''}
-                        </div>
-                    </div>
-                `;
-            });
-
-            html += `
-                <button onclick="exitQuizMode()" class="bg-accent hover:bg-yellow-600 text-slate-950 font-black py-3 rounded-lg text-sm uppercase flex items-center justify-center gap-2 mt-2"><i class="fa-solid fa-arrow-left"></i> Return to Dashboard</button>
-            `;
-
-            body.innerHTML = html;
-        }
-
-        // ==========================================
-        // 8. EXCEL RESULTS EXPORT SYSTEM
-        // ==========================================
-        function exportQuizResultsToExcel(quizId, quizTitle) {
-            // Retrieve both Quiz metadata questions and results object data from firebase
-            db.ref('quizzes/' + quizId).once('value', qSnap => {
-                const quiz = qSnap.val();
-                if (!quiz) return;
-
-                db.ref('quiz_results/' + quizId).once('value', rSnap => {
-                    const results = rSnap.val() || {};
-
-                    const questions = quiz.questions || [];
-                    
-                    // Create basic spreadsheet headers
-                    let headers = ["Full Name", "HR ID", "Account", "Date Submitted"];
-                    questions.forEach((q, qIndex) => {
-                        headers.push(`Question ${qIndex + 1}: ${q.questionText}`);
-                    });
-                    headers.push("Score (%)");
-
-                    let rowData = [headers];
-
-                    // Map all responses
-                    Object.values(results).forEach(res => {
-                        let row = [
-                            res.fullName,
-                            res.hrId,
-                            res.account,
-                            new Date(res.timestamp).toLocaleString()
-                        ];
-
-                        questions.forEach((q, qIndex) => {
-                            const ansIndex = res.answers ? res.answers[qIndex] : -1;
-                            if (ansIndex === -1) {
-                                row.push(`❌ Skipped (Correct: ${q.options[q.correctOptionIndex]})`);
-                            } else if (ansIndex === q.correctOptionIndex) {
-                                row.push(`✅ ${q.options[ansIndex]}`);
-                            } else {
-                                row.push(`❌ ${q.options[ansIndex]} (Correct: ${q.options[q.correctOptionIndex]})`);
-                            }
-                        });
-
-                        row.push(`${res.score}%`);
-                        rowData.push(row);
-                    });
-
-                    // Build SheetJS Workbook
-                    const wb = XLSX.utils.book_new();
-                    const ws = XLSX.utils.aoa_to_sheet(rowData);
-
-                    // Apply layout widths
-                    const wscols = [
-                        {wch: 25}, // Full Name
-                        {wch: 15}, // HR ID
-                        {wch: 15}, // Account
-                        {wch: 22}, // Date
-                    ];
-                    questions.forEach(() => {
-                        wscols.push({wch: 40}); // Questions columns wide
-                    });
-                    wscols.push({wch: 12}); // Score
-                    ws['!cols'] = wscols;
-
-                    XLSX.utils.book_append_sheet(wb, ws, "Quiz Performance Report");
-                    
-                    // Export trigger file download
-                    XLSX.writeFile(wb, `${quizTitle.replace(/[/\\?%*:|"<>\s]/g, '_')}_Results_Report.xlsx`);
-                });
-            });
-        }
-    </script>
+      }
+
+      area.innerHTML += `<div class="bubble ${isSent ? 'b-sent' : 'b-recv'}">
+        <div class="b-sender">${m.senderName || m.sender}</div>
+        ${m.text || ''}
+        ${attHtml}
+        <div class="b-meta">${m.time || ''}</div>
+      </div>`;
+    });
+    area.scrollTop = area.scrollHeight;
+  });
+}
+
+function handleFileSelect(e) {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    attachedFileBase64 = evt.target.result;
+    attachedFileName = file.name;
+    document.getElementById('file-preview-bar').classList.remove('hidden');
+    document.getElementById('file-preview-name').innerText = file.name;
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearAttachedFile() {
+  attachedFileBase64 = null;
+  attachedFileName = "";
+  document.getElementById('chat-file-input').value = "";
+  document.getElementById('file-preview-bar').classList.add('hidden');
+}
+
+function sendChatMessage() {
+  if(!currentChatUser) return alert('اختر محادثة أولاً');
+  const txt = document.getElementById('chat-message-input').value.trim();
+  if(!txt && !attachedFileBase64) return;
+
+  const cid = getChatId(currentUser.username, currentChatUser);
+  const msgPayload = {
+    sender: currentUser.username,
+    senderName: currentUser.fullName,
+    text: txt,
+    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    timestamp: Date.now()
+  };
+
+  if(attachedFileBase64) {
+    msgPayload.attachment = {
+      name: attachedFileName,
+      data: attachedFileBase64,
+      type: attachedFileName.endsWith('.png') || attachedFileName.endsWith('.jpg') ? 'image/jpeg' : 'file'
+    };
+  }
+
+  fetch(`${FB}/messages/${cid}.json`, { method: 'POST', body: JSON.stringify(msgPayload) }).then(() => {
+    fetch(`${FB}/conversations/${cid}.json`, {
+      method: 'PATCH',
+      body: JSON.stringify({ lastMessage: txt || '[ملف مرفق]', lastTimestamp: Date.now() })
+    });
+    document.getElementById('chat-message-input').value = '';
+    clearAttachedFile();
+    loadChatMessages();
+    syncConversationsList();
+  });
+}
+
+// User Info Drawer & Search
+function openNewConvoModal() {
+  document.getElementById('new-convo-modal').classList.remove('hidden');
+  searchUsersForConvo();
+}
+
+function searchUsersForConvo() {
+  const query = document.getElementById('convo-search-user').value.toLowerCase();
+  fetch(`${FB}/users.json`).then(r => r.json()).then(users => {
+    const box = document.getElementById('convo-user-results');
+    box.innerHTML = '';
+    if(!users) return;
+
+    Object.values(users).forEach(u => {
+      if(u.username === currentUser.username) return;
+      const match = (u.fullName || '').toLowerCase().includes(query) ||
+                    (u.username || '').toLowerCase().includes(query) ||
+                    (u.hrId || '').toLowerCase().includes(query);
+      if(match) {
+        box.innerHTML += `<div style="padding:8px;border-bottom:1px solid var(--border);cursor:pointer;display:flex;justify-content:space-between;" onclick="startConvoWith('${u.username}')">
+          <div><strong>${u.fullName}</strong> <small>(@${u.username})</small></div>
+          <small style="color:var(--gold);">${u.role}</small>
+        </div>`;
+      }
+    });
+  });
+}
+
+function startConvoWith(targetUsername) {
+  document.getElementById('new-convo-modal').classList.add('hidden');
+  openChatWithUser(targetUsername);
+}
+
+function openActiveUserInfoDrawer() {
+  if(!window.activeChatUserData) return;
+  const u = window.activeChatUserData;
+  document.getElementById('drawer-fullname').innerText = u.fullName || u.username;
+  document.getElementById('drawer-username').innerText = `@${u.username}`;
+  document.getElementById('drawer-hrid').innerText = u.hrId || '—';
+  document.getElementById('drawer-role').innerText = u.role || '—';
+  document.getElementById('drawer-account').innerText = u.accountName || '—';
+  document.getElementById('drawer-phone').innerText = u.phone || '—';
+  document.getElementById('drawer-email').innerText = u.email || '—';
+  document.getElementById('drawer-av').innerText = u.username.substring(0, 2).toUpperCase();
+  document.getElementById('user-info-drawer').classList.add('open');
+}
+
+function closeUserInfoDrawer() {
+  document.getElementById('user-info-drawer').classList.remove('open');
+}
+
+function viewFullImage(src) {
+  document.getElementById('img-modal-src').src = src;
+  document.getElementById('img-modal').classList.remove('hidden');
+}
+
+// --------------------------------------------------
+// 3️⃣ إدارة المستخدمين والرفع من إكسيل (Users Bulk Import)
+// --------------------------------------------------
+
+function loadUsersAdmin() {
+  fetch(`${FB}/users.json`).then(r => r.json()).then(users => {
+    const tbody = document.getElementById('admin-users-list');
+    tbody.innerHTML = '';
+    if(!users) return;
+
+    Object.values(users).forEach(u => {
+      tbody.innerHTML += `<tr>
+        <td><strong>${u.fullName || '—'}</strong></td>
+        <td>@${u.username}</td>
+        <td>${u.hrId || '—'}</td>
+        <td>${u.accountName || '—'}</td>
+        <td><span class="role-badge badge-${u.role || 'agent'}">${u.role || 'agent'}</span></td>
+        <td>${u.phone || '—'} / ${u.email || '—'}</td>
+        <td>
+          <button class="action-btn d" onclick="deleteUser('${u.username}')"><i class="fa-solid fa-trash"></i></button>
+        </td>
+      </tr>`;
+    });
+  });
+}
+
+function handleExcelUserImport(e) {
+  const file = e.target.files[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    const data = new Uint8Array(evt.target.result);
+    const workbook = XLSX.read(data, { type: 'array' });
+    const firstSheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[firstSheetName];
+    const jsonRows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+    // Header expected: Full Name | Username | Password | Account | HR ID | Role | Email | Phone
+    let addedCount = 0;
+    jsonRows.forEach((row, i) => {
+      if(i === 0) return; // Skip headers
+      const [fullName, username, password, accountName, hrId, role, email, phone] = row;
+      if(username && password) {
+        const userObj = {
+          fullName: fullName || username,
+          username: username.toString().toLowerCase().trim(),
+          password: password.toString(),
+          accountName: accountName || 'Quattro',
+          hrId: hrId ? hrId.toString() : 'N/A',
+          role: role ? role.toString().toLowerCase() : 'agent',
+          email: email || '',
+          phone: phone || ''
+        };
+        fetch(`${FB}/users/${userObj.username}.json`, { method: 'PUT', body: JSON.stringify(userObj) });
+        addedCount++;
+      }
+    });
+
+    alert(`تم رفع واستيراد ${addedCount} موظف بنجاح! 🎉`);
+    loadUsersAdmin();
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function deleteUser(username) {
+  if(confirm(`هل أنت تأكد من حذف الموظف @${username}؟`)) {
+    fetch(`${FB}/users/${username}.json`, { method: 'DELETE' }).then(loadUsersAdmin);
+  }
+}
+
+function switchAdminTab(tabId, btn) {
+  document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.add('hidden'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById(tabId).classList.remove('hidden');
+  if(btn) btn.classList.add('active');
+}
+</script>
 </body>
 </html>
